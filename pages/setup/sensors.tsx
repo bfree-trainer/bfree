@@ -17,7 +17,7 @@ import Title from '../../components/Title';
 import Typography from '@mui/material/Typography';
 import { green } from '@mui/material/colors';
 import SxPropsTheme from '../../lib/SxPropsTheme';
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useState } from 'react';
 import MyHead from '../../components/MyHead';
 import { BluetoothServiceType, pairDevice, readBatteryLevel, startBatteryLevelNotifications } from '../../lib/ble';
 import { startCyclingPowerMeasurementNotifications } from '../../lib/ble/cpp';
@@ -108,7 +108,7 @@ function Sensor(props: { children: ReactNode; sensorType: SensorType }) {
 	const [smartTrainerControl, setSmartTrainerControl] = useGlobalState('smart_trainer_control');
 	const [showSmartTrainerCalibrationModal, setShowSmartTrainerCalibrationModal] = useState(false);
 
-	const unpairDevice = () => {
+	const unpairDevice = useCallback(() => {
 		if (btDevice) {
 			if (btDevice.device.gatt.connected) {
 				btDevice.disconnect();
@@ -122,7 +122,7 @@ function Sensor(props: { children: ReactNode; sensorType: SensorType }) {
 			}
 			setIsPairing(false);
 		}
-	};
+	}, [btDevice, props.sensorType, setBtDevice, setSensorValue, setSmartTrainerControl]);
 
 	useEffect(() => {
 		navigator.bluetooth
@@ -217,7 +217,7 @@ function Sensor(props: { children: ReactNode; sensorType: SensorType }) {
 				}
 			})();
 		}
-	}, [pairingRequest]);
+	}, [btDevice, pairingRequest, props.sensorType, setBtDevice, setGloblBatteryLevel, setSensorValue, setSmartTrainerControl, unpairDevice]);
 
 	const scanDevices = () => {
 		setPairingRequest(true);

@@ -216,7 +216,7 @@ export default function RideRecord() {
 	const [rideStartTime, setRideStartTime] = useState(0);
 	const [elapsedLapTime, setElapsedLapTime] = useGlobalState('elapsedLapTime');
 	const [rideEnded, setRideEnded] = useState<boolean>(false);
-	const { title, Dashboard } = useMemo(() => getDashboardConfig(rideType), [router.isReady, rideType]);
+	const { title, Dashboard } = useMemo(() => getDashboardConfig(rideType), [rideType]);
 
 	// Prevent screen locking while recording
 	useEffect(() => {

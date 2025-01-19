@@ -112,7 +112,7 @@ export default function MeasurementCard({ type, ribbonColor }: { type: Measureme
 	const speedUnit = speedUnitConv[useGlobalState('unitSpeed')[0]];
 	const [title, fn, digits] = useMemo(
 		() => getContentByType(classes, !isBreakpoint, speedUnit, type),
-		[classes, type, speedUnit]
+		[isBreakpoint, speedUnit, type]
 	);
 	const m = useMeasurementByType(type);
 	const limitMax = useGlobalState('rider')[0].heartRate.max; // TODO Avoid having this for every meas

@@ -6,7 +6,7 @@ import IconResistance from '@mui/icons-material/FitnessCenter';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import { useRouter } from 'next/router';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useGlobalState, getGlobalState, ControlParams } from '../../lib/global';
 import createWorkoutRunner, { RunnerResponse } from '../../lib/workout_runner';
 import { readWorkout } from '../../lib/workout_storage';
@@ -71,18 +71,19 @@ export default function WorkoutController({
 	);
 	const [message, setMessage] = useState('');
 
-	const sendBasic = async (value: number) => {
+	const sendBasic = useCallback(async (value: number) => {
 		await smartTrainerControl.sendBasicResistance(value);
-	};
-	const sendPower = async (value: number) => {
+	}, [smartTrainerControl]);
+
+	const sendPower = useCallback(async (value: number) => {
 		await smartTrainerControl.sendTargetPower(value);
-	};
-	const sendSlope = async (value: number) => {
+	}, [smartTrainerControl]);
+	const sendSlope = useCallback(async (value: number) => {
 		await smartTrainerControl.sendWindResistance(windResistanceCoeff, windSpeed, draftingFactor);
 		// TODO Configurable rolling resistance
 		await smartTrainerControl.sendSlope(value, rollingResistanceCoeff.asphalt);
 		setControlParams((prev: ControlParams) => ({ ...prev, slope: value }));
-	};
+	},[setControlParams, smartTrainerControl, windResistanceCoeff]);
 
 	// Load workout runner
 	useEffect(() => {
@@ -174,7 +175,7 @@ export default function WorkoutController({
 				wr.terminate();
 			}
 		};
-	}, [router.isReady, smartTrainerControl]);
+	}, [doSplit, endRide, router.isReady, router.query, sendBasic, sendPower, sendSlope, setControlParams, setMeta, smartTrainerControl]);
 
 	// Call the workout script on every tick.
 	// How? We sort of cheat a bit, we never registered to any event but we

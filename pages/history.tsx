@@ -173,7 +173,7 @@ export default function History() {
 	useEffect(() => {
 		handleChange();
 		setSelectionCount(logs.reduce((acc, cur) => acc + +selectionRef.current.has(cur), 0));
-	}, []);
+	}, [logs]);
 
 	return (
 		<StyledContainer maxWidth="md">

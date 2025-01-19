@@ -82,7 +82,7 @@ export default function RideResults() {
 			setGlobalState('rideDistance', 0);
 			setGlobalState('lapDistance', 0);
 		};
-	}, []);
+	}, [setLogger]);
 
 	// TODO Show an error if logger is missing
 	return (

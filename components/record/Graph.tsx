@@ -141,7 +141,7 @@ export default function Graph({
 						}
 						useMesh={true}
 						theme={{
-							textColor: '#a1a1a1',
+							// textColor: '#a1a1a1',
 						}}
 					/>
 				</Container>

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import { ResponsiveLine, Serie } from '@nivo/line';
 import { CourseData } from '../../lib/gpx_parser';
 import haversine from '../../lib/haversine';
@@ -24,10 +24,11 @@ export default function Ele({
 	showMarker(en: boolean): void;
 	moveMarker(pos: [number, number]): void;
 }) {
-	let dist = 0;
+	const dist = useRef(0);
 	const data: Serie[] = useMemo(
-		() =>
-			!course || !course.tracks || course.tracks.length === 0
+		() => {
+			dist.current = 0;
+			return !course || !course.tracks || course.tracks.length === 0
 				? [
 						{
 							id: 'none',
@@ -47,12 +48,13 @@ export default function Ele({
 							.map((tp, i, arr) => ({
 								x:
 									i == 0
-										? dist
-										: (dist += haversine([arr[i - 1].lat, arr[i - 1].lon], [tp.lat, tp.lon])),
+										? dist.current
+										: (dist.current += haversine([arr[i - 1].lat, arr[i - 1].lon], [tp.lat, tp.lon])),
 								y: tp.ele,
 								pos: [tp.lat, tp.lon],
 							})),
-				  })),
+				  }));
+		},
 		[course]
 	);
 
