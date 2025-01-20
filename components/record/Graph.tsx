@@ -1,151 +1,145 @@
-import Card from '@mui/material/Card';
-import { styled } from '@mui/material/styles';
-import CardContent from '@mui/material/CardContent';
-import Container from '@mui/material/Container';
-import { ResponsiveLine } from '@nivo/line';
+import { Card, CardContent, Container } from '@mui/material';
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend
+} from 'recharts';
 import { getElapsedTimeStr } from '../../lib/format';
-import MeasurementColorCard from './MeasurementColorCard';
-
-const PREFIX = 'Graph';
-const classes = {
-	graphContainer: `${PREFIX}-graphContainer`,
-};
-
-const StyledCard = styled(Card)(({ theme }) => ({
-	[`& .${classes.graphContainer}`]: {
-		display: 'flex',
-		height: '25vh',
-		width: '100%',
-		background: 'white',
-		transition: '0.3s',
-	},
-}));
+import { CurveType } from 'recharts/types/shape/Curve';
 
 export type SeriesDataPoint = {
-	x: number;
-	y: number;
+  x: number;
+  y: number;
 };
+
 export type Series = {
-	id: string;
-	data: SeriesDataPoint[];
+  id: string;
+  data: SeriesDataPoint[];
 }[];
 
+// Convert series data to Recharts format
+const convertData = (series: Series) => {
+  if (!series.length || !series[0].data.length) return [];
+
+  // Create data points for each x value
+  return series[0].data.map((point, index) => {
+    const dataPoint: any = { x: point.x };
+    // Add y values from each series
+    series.forEach(s => {
+      dataPoint[s.id] = s.data[index]?.y ?? null;
+    });
+    return dataPoint;
+  });
+};
+
 export default function Graph({
-	series,
-	colors,
-	curve,
-	enableArea,
-	enableLegends,
-	isInteractive,
+  series,
+  colors,
+  curve = 'natural',
+  enableArea = false,
+  enableLegends = false,
+  isInteractive = false
 }: {
-	series: Series;
-	colors: string[];
-	curve?:
-		| 'linear'
-		| 'step'
-		| 'natural'
-		| 'basis'
-		| 'cardinal'
-		| 'catmullRom'
-		| 'monotoneX'
-		| 'monotoneY'
-		| 'stepAfter'
-		| 'stepBefore';
-	enableArea?: boolean;
-	enableLegends?: boolean;
-	isInteractive?: boolean;
+  series: Series;
+  colors: string[];
+  curve?: 'linear' | 'step' | 'natural' | 'basis' | 'cardinal' | 'catmullRom' | 'monotoneX' | 'monotoneY' | 'stepAfter' | 'stepBefore';
+  enableArea?: boolean;
+  enableLegends?: boolean;
+  isInteractive?: boolean;
 }) {
-	return (
-		<StyledCard variant="outlined">
-			<CardContent>
-				<MeasurementColorCard
-					colors={{
-						heart_rate: colors[0],
-						power: colors[1],
-						speed: colors[2],
-					}}
-				/>
-				<Container className={classes.graphContainer}>
-					<ResponsiveLine
-						isInteractive={isInteractive || false}
-						data={series}
-						curve={curve ?? 'natural'}
-						enableArea={enableArea || false}
-						areaBlendMode="multiply"
-						margin={{
-							top: 10,
-							right: 30,
-							bottom: 50,
-							left: 30,
-						}}
-						xFormat={getElapsedTimeStr}
-						yFormat={(v) => Number(v).toFixed(2)}
-						xScale={{
-							type: 'linear',
-						}}
-						yScale={{
-							type: 'linear',
-							stacked: false,
-							min: 'auto',
-							max: 'auto',
-						}}
-						axisTop={null}
-						axisBottom={{
-							tickSize: 5,
-							tickPadding: 5,
-							tickRotation: -45,
-							format: getElapsedTimeStr,
-							tickValues: 20,
-						}}
-						axisLeft={{
-							tickSize: 5,
-							tickPadding: 5,
-							tickRotation: 0,
-						}}
-						axisRight={{
-							tickSize: 5,
-							tickPadding: 5,
-							tickRotation: 0,
-						}}
-						colors={colors}
-						layers={['grid', 'markers', 'axes', 'areas', 'lines', 'slices', 'mesh', 'legends']}
-						legends={
-							enableLegends
-								? [
-										{
-											anchor: 'bottom-right',
-											direction: 'row',
-											justify: false,
-											translateX: 0,
-											translateY: 0,
-											itemsSpacing: 0,
-											itemDirection: 'left-to-right',
-											itemWidth: 80,
-											itemHeight: 20,
-											itemOpacity: 0.75,
-											symbolSize: 12,
-											symbolShape: 'circle',
-											symbolBorderColor: 'rgba(0, 0, 0, .5)',
-											effects: [
-												{
-													on: 'hover',
-													style: {
-														itemBackground: 'rgba(0, 0, 0, .03)',
-														itemOpacity: 1,
-													},
-												},
-											],
-										},
-								  ]
-								: undefined
-						}
-						useMesh={true}
-						theme={{
-							// textColor: '#a1a1a1',
-						}}
-					/>
-				</Container>
-			</CardContent>
-		</StyledCard>
-	);
+  const data = convertData(series);
+
+  // Map Nivo curve types to Recharts
+  const getCurveType = (curveType: string) : CurveType => {
+    const curveMap: { [key: string]: string } = {
+      'linear': 'linear',
+      'natural': 'monotoneX',
+      'step': 'stepAfter',
+      'stepAfter': 'stepAfter',
+      'stepBefore': 'stepBefore',
+      'monotoneX': 'monotoneX',
+      'monotoneY': 'monotoneY',
+      'basis': 'basis',
+      'cardinal': 'cardinal',
+      'catmullRom': 'monotoneX'
+    };
+    return curveMap[curveType] as CurveType || 'monotoneX';
+  };
+
+  return (
+    <Card variant="outlined">
+      <CardContent>
+        <div className="flex items-center mb-4">
+          <div className="flex space-x-4">
+            {series.map((s, index) => (
+              <div
+                key={s.id}
+                className="flex items-center space-x-2"
+              >
+                <div
+                  className="w-4 h-4 rounded-full"
+                  style={{ backgroundColor: colors[index] }}
+                />
+                <span>{s.id}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="h-[25vh] w-full">
+          <ResponsiveContainer>
+            <LineChart
+              data={data}
+              margin={{ top: 10, right: 30, bottom: 50, left: 30 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis
+                dataKey="x"
+                tickFormatter={getElapsedTimeStr}
+                angle={-45}
+                textAnchor="end"
+                interval={Math.floor(data.length / 20)}
+              />
+              <YAxis
+                yAxisId="left"
+                orientation="left"
+                tickFormatter={(v) => Number(v).toFixed(2)}
+              />
+              <YAxis
+                yAxisId="right"
+                orientation="right"
+                tickFormatter={(v) => Number(v).toFixed(2)}
+              />
+              {isInteractive && <Tooltip
+                formatter={(value: number) => Number(value).toFixed(2)}
+                labelFormatter={getElapsedTimeStr}
+              />}
+              {enableLegends && <Legend
+                align="right"
+                verticalAlign="bottom"
+                iconType="circle"
+                wrapperStyle={{ paddingTop: '20px' }}
+              />}
+              {series.map((s, index) => (
+                <Line
+                  key={s.id}
+                  type={getCurveType(curve)}
+                  dataKey={s.id}
+                  stroke={colors[index]}
+                  fill={enableArea ? colors[index] : undefined}
+                  dot={false}
+                  yAxisId={index === 0 ? "left" : "right"}
+                  isAnimationActive={false}
+                />
+              ))}
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </CardContent>
+    </Card>
+  );
 }
