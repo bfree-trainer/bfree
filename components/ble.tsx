@@ -41,7 +41,7 @@ export default function Ble({
 	connectCb: (server: BluetoothRemoteGATTServer) => Promise<void>;
 	disconnectCb: (btd: Paired) => void;
 	extraAction?: ReturnType<typeof ActionButton>;
-	children?: ReactNode
+	children?: ReactNode;
 }) {
 	const pairedWithMessage = (btd: Paired): InfoMessage => ({
 		message: btd ? `Paired with\n${btd.device.name}` : 'Not configured',
