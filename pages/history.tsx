@@ -20,12 +20,12 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { red } from '@mui/material/colors';
 import { styled } from '@mui/material/styles';
 import { useState, useEffect, useRef } from 'react';
-import BottomNavi from '../components/BottomNavi';
-import MyHead from '../components/MyHead';
-import Title from '../components/Title';
-import EditRideModal from '../components/EditRideModal';
-import downloadBlob from '../lib/download_blob';
-import { deleteActivityLog, getActivityLogs } from '../lib/activity_log';
+import BottomNavi from 'components/BottomNavi';
+import MyHead from 'components/MyHead';
+import Title from 'components/Title';
+import EditRideModal from 'components/EditRideModal';
+import downloadBlob from 'lib/download_blob';
+import { deleteActivityLog, getActivityLogs } from 'lib/activity_log';
 
 const PREFIX = 'history';
 const classes = {

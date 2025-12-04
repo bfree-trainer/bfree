@@ -4,8 +4,8 @@ import Slider from '@mui/material/Slider';
 import Typography from '@mui/material/Typography';
 import { Theme } from '@mui/material/styles';
 import { useState, useEffect } from 'react';
-import { useGlobalState } from '../lib/global';
-import { speedUnitConv } from '../lib/units';
+import { useGlobalState } from 'lib/global';
+import { speedUnitConv } from 'lib/units';
 import SensorValue from './SensorValue';
 
 const PREFIX = 'TrainerControl';

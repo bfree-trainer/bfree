@@ -3,7 +3,7 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Container from '@mui/material/Container';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
-import { getElapsedTimeStr } from '../../lib/format';
+import { getElapsedTimeStr } from 'lib/format';
 import { CurveType } from 'recharts/types/shape/Curve';
 
 const PREFIX = 'Graph';

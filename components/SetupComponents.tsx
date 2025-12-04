@@ -15,8 +15,8 @@ import Typography from '@mui/material/Typography';
 import { Theme } from '@mui/material/styles';
 import { styled } from '@mui/material/styles';
 import { ReactNode, useState } from 'react';
-import { useGlobalState } from '../lib/global';
-import { isValidUnsigned } from '../lib/validation';
+import { useGlobalState } from 'lib/global';
+import { isValidUnsigned } from 'lib/validation';
 
 const PREFIX = 'SetupComponents';
 export const classes = {

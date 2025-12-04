@@ -3,11 +3,11 @@ import { styled } from '@mui/material/styles';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import { useState, useEffect } from 'react';
-import MyHead from '../../components/MyHead';
-import StartButton from '../../components/StartButton';
-import ResistanceMode from '../../components/ResistanceMode';
-import RollingResistance from '../../components/RollingResistance';
-import Title from '../../components/Title';
+import MyHead from 'components/MyHead';
+import StartButton from 'components/StartButton';
+import ResistanceMode from 'components/ResistanceMode';
+import RollingResistance from 'components/RollingResistance';
+import Title from 'components/Title';
 
 const StyledContainer = styled(Container)(({ theme }) => ({}));
 

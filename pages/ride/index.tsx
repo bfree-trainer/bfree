@@ -1,9 +1,9 @@
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
-import MenuCard from '../../components/MenuCard';
-import MyHead from '../../components/MyHead';
-import Title from '../../components/Title';
+import MenuCard from 'components/MenuCard';
+import MyHead from 'components/MyHead';
+import Title from 'components/Title';
 
 export default function Ride() {
 	return (

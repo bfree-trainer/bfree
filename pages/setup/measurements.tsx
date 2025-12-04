@@ -7,11 +7,11 @@ import DialogContentText from '@mui/material/DialogContentText';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import { useState } from 'react';
-import MyHead from '../../components/MyHead';
-import Title from '../../components/Title';
-import { classes, StyledCard } from '../../components/SetupComponents';
-import PriorityList from '../../components/PriorityList';
-import SetupDialog from '../../components/SetupDialog';
+import MyHead from 'components/MyHead';
+import Title from 'components/Title';
+import { classes, StyledCard } from 'components/SetupComponents';
+import PriorityList from 'components/PriorityList';
+import SetupDialog from 'components/SetupDialog';
 import {
 	GlobalState,
 	SensorSourceType,

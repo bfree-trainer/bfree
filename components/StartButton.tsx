@@ -3,7 +3,7 @@ import IconStart from '@mui/icons-material/PlayArrow';
 import IconStartDisabled from '@mui/icons-material/PlayDisabled';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import { useGlobalState } from '../lib/global';
+import { useGlobalState } from 'lib/global';
 import WarningDialog from './WarningDialog';
 import BottomNavi from './BottomNavi';
 

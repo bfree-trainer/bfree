@@ -7,7 +7,7 @@ import IconButton from '@mui/material/IconButton';
 import IconDelete from '@mui/icons-material/Delete';
 import AutoSizer, { Size } from 'react-virtualized-auto-sizer';
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
-import { PersistedCourse, deleteCourse, getCourses } from '../lib/course_storage';
+import { PersistedCourse, deleteCourse, getCourses } from 'lib/course_storage';
 
 function renderRow(props: ListChildComponentProps) {
 	const { data, index, style } = props;

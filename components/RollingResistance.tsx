@@ -10,7 +10,7 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { useEffect, useState } from 'react';
-import { rollingResistanceCoeff } from '../lib/virtual_params';
+import { rollingResistanceCoeff } from 'lib/virtual_params';
 import { ReactNode } from 'react';
 
 const PREFIX = 'RollingResistance';

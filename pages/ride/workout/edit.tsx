@@ -3,12 +3,12 @@ import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
-import MyHead from '../../../components/MyHead';
-import Title from '../../../components/Title';
-import WorkoutPreviewModal from '../../../components/WorkoutPreview';
-import WorkoutScriptEditor from '../../../components/WorkoutScriptEditor';
-import { saveWorkout, readWorkout } from '../../../lib/workout_storage';
-import scriptExample from '../../../lib/workouts/workout_script_example';
+import MyHead from 'components/MyHead';
+import Title from 'components/Title';
+import WorkoutPreviewModal from 'components/WorkoutPreview';
+import WorkoutScriptEditor from 'components/WorkoutScriptEditor';
+import { saveWorkout, readWorkout } from 'lib/workout_storage';
+import scriptExample from 'lib/workouts/workout_script_example';
 
 const defaultName = 'My Workout';
 const defaultNotes = 'This is just an example.';

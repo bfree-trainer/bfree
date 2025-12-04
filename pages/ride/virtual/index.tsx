@@ -1,8 +1,8 @@
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
-import MyHead from '../../../components/MyHead';
-import Title from '../../../components/Title';
+import MyHead from 'components/MyHead';
+import Title from 'components/Title';
 
 export default function RideWorkout() {
 	return (
