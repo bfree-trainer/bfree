@@ -1,4 +1,7 @@
-import { Card, CardContent, Container } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Container from '@mui/material/Container';
 import {
   ResponsiveContainer,
   LineChart,
@@ -11,6 +14,37 @@ import {
 } from 'recharts';
 import { getElapsedTimeStr } from '../../lib/format';
 import { CurveType } from 'recharts/types/shape/Curve';
+
+const PREFIX = 'Graph';
+const classes = {
+	graphContainer: `${PREFIX}-graphContainer`,
+};
+const StyledCard = styled(Card)(({ theme }) => ({
+	[`& .${classes.graphContainer}`]: {
+		display: 'flex',
+		height: '25vh',
+		width: '100%',
+		background: 'white',
+		transition: '0.3s',
+	},
+}));
+
+// Map Nivo curve types to Recharts
+const getCurveType = (curveType: string) : CurveType => {
+  const curveMap: { [key: string]: string } = {
+    'linear': 'linear',
+    'natural': 'monotoneX',
+    'step': 'stepAfter',
+    'stepAfter': 'stepAfter',
+    'stepBefore': 'stepBefore',
+    'monotoneX': 'monotoneX',
+    'monotoneY': 'monotoneY',
+    'basis': 'basis',
+    'cardinal': 'cardinal',
+    'catmullRom': 'monotoneX'
+  };
+  return curveMap[curveType] as CurveType || 'monotoneX';
+};
 
 export type SeriesDataPoint = {
   x: number;
@@ -54,43 +88,10 @@ export default function Graph({
 }) {
   const data = convertData(series);
 
-  // Map Nivo curve types to Recharts
-  const getCurveType = (curveType: string) : CurveType => {
-    const curveMap: { [key: string]: string } = {
-      'linear': 'linear',
-      'natural': 'monotoneX',
-      'step': 'stepAfter',
-      'stepAfter': 'stepAfter',
-      'stepBefore': 'stepBefore',
-      'monotoneX': 'monotoneX',
-      'monotoneY': 'monotoneY',
-      'basis': 'basis',
-      'cardinal': 'cardinal',
-      'catmullRom': 'monotoneX'
-    };
-    return curveMap[curveType] as CurveType || 'monotoneX';
-  };
-
   return (
-    <Card variant="outlined">
+    <StyledCard variant="outlined">
       <CardContent>
-        <div className="flex items-center mb-4">
-          <div className="flex space-x-4">
-            {series.map((s, index) => (
-              <div
-                key={s.id}
-                className="flex items-center space-x-2"
-              >
-                <div
-                  className="w-4 h-4 rounded-full"
-                  style={{ backgroundColor: colors[index] }}
-                />
-                <span>{s.id}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="h-[25vh] w-full">
+		<Container className={classes.graphContainer}>
           <ResponsiveContainer>
             <LineChart
               data={data}
@@ -138,8 +139,8 @@ export default function Graph({
               ))}
             </LineChart>
           </ResponsiveContainer>
-        </div>
+        </Container>
       </CardContent>
-    </Card>
+    </StyledCard>
   );
 }
