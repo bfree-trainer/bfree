@@ -217,7 +217,16 @@ function Sensor(props: { children: ReactNode; sensorType: SensorType }) {
 				}
 			})();
 		}
-	}, [btDevice, pairingRequest, props.sensorType, setBtDevice, setGloblBatteryLevel, setSensorValue, setSmartTrainerControl, unpairDevice]);
+	}, [
+		btDevice,
+		pairingRequest,
+		props.sensorType,
+		setBtDevice,
+		setGloblBatteryLevel,
+		setSensorValue,
+		setSmartTrainerControl,
+		unpairDevice,
+	]);
 
 	const scanDevices = () => {
 		setPairingRequest(true);

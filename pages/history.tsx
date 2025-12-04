@@ -162,12 +162,12 @@ export default function History() {
 		q.forEach(({ id }) => {
 			deleteActivityLog(id);
 		});
-	    setLogs(getActivityLogs());
+		setLogs(getActivityLogs());
 	};
 
 	useEffect(() => {
-	    setLogs(getActivityLogs());
-	}, [])
+		setLogs(getActivityLogs());
+	}, []);
 	useEffect(() => {
 		setSelectionCount(logs.reduce((acc, cur) => acc + +selectionRef.current.has(cur), 0));
 	}, [logs]);
