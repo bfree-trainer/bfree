@@ -1,41 +1,11 @@
-import Card from '@mui/material/Card';
-import { styled } from '@mui/material/styles';
-import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
-import FormControl from '@mui/material/FormControl';
-import Grid from '@mui/material/Grid';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
 import { useEffect, useState } from 'react';
 import { rollingResistanceCoeff } from 'lib/virtual_params';
 import { ReactNode } from 'react';
-
-const PREFIX = 'RollingResistance';
-
-const classes = {
-	setupCard: `${PREFIX}-setupCard`,
-	media: `${PREFIX}-media`,
-	formControl: `${PREFIX}-formControl`,
-};
-
-const StyledGrid = styled(Grid)(({ theme }) => ({
-	[`& .${classes.setupCard}`]: {
-		height: '15em',
-	},
-
-	[`& .${classes.media}`]: {
-		height: 120,
-	},
-
-	[`& .${classes.formControl}`]: {
-		'& > *': {
-			width: '25ch',
-		},
-	},
-}));
+import ResistanceCard from './ResistanceCard';
 
 const predefinedRollingResistances: [string, number][] = [
 	['Wooden track', rollingResistanceCoeff.wood],
@@ -72,18 +42,11 @@ export default function RollingResistance({
 	};
 
 	useEffect(() => {
-		setRollingResistance((prev) => (Number.isNaN(prev) ? predefinedRollingResistances[2][1] : prev));
+		setRollingResistance((prev: number) => (Number.isNaN(prev) ? predefinedRollingResistances[2][1] : prev));
 	}, [setRollingResistance]);
 
 	return (
-		<StyledGrid item>
-			<Card variant="outlined">
-				<CardMedia className={classes.media} image={getTrackImg(rollingResistance)} title="Filler image" />
-				<Typography gutterBottom variant="h5" component="h2">
-					Rolling Resistance
-				</Typography>
-				<CardContent className={classes.setupCard}>
-					<FormControl className={classes.formControl}>
+		<ResistanceCard title="Rolling Resistance" image={getTrackImg(rollingResistance)}>
 						<InputLabel id="demo-simple-select-label">Mode</InputLabel>
 						<Select
 							variant="standard"
@@ -110,9 +73,6 @@ export default function RollingResistance({
 							label="Coefficient"
 							variant="outlined"
 						/>
-					</FormControl>
-				</CardContent>
-			</Card>
-		</StyledGrid>
+		</ResistanceCard>
 	);
 }
