@@ -19,7 +19,7 @@ import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { red } from '@mui/material/colors';
 import { styled } from '@mui/material/styles';
-import { useState, useEffect, useRef, MutableRefObject } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import BottomNavi from '../components/BottomNavi';
 import MyHead from '../components/MyHead';
 import Title from '../components/Title';
@@ -75,7 +75,7 @@ const StyledContainer = styled(Container)(({ theme }) => ({
 
 type Log = ReturnType<typeof getActivityLogs>[1];
 
-function RideCard({ log, onChange, onSelect }: { log: Log; onChange: () => void; onSelect: (v: boolean) => void }) {
+function RideCard({ log, onSelect }: { log: Log; onSelect: (v: boolean) => void }) {
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const [showEditModal, setShowEditModal] = useState(false);
 	const name = log.logger.getName();
@@ -156,20 +156,19 @@ export default function History() {
 	const [logs, setLogs] = useState<ReturnType<typeof getActivityLogs>>([]);
 	const selectionRef = useRef(new WeakMap<Log, Boolean>());
 	const [selectionCount, setSelectionCount] = useState(0);
-	const handleChange = () => {
-		setLogs(getActivityLogs());
-	};
 	const massDeletion = () => {
 		const q = logs.filter((log) => selectionRef.current.has(log));
 		setSelectionCount(selectionCount - q.length); // RFE Will this go out of sync if deletion fails?
 		q.forEach(({ id }) => {
 			deleteActivityLog(id);
 		});
-		handleChange();
+	    setLogs(getActivityLogs());
 	};
 
 	useEffect(() => {
-		handleChange();
+	    setLogs(getActivityLogs());
+	}, [])
+	useEffect(() => {
 		setSelectionCount(logs.reduce((acc, cur) => acc + +selectionRef.current.has(cur), 0));
 	}, [logs]);
 
@@ -184,7 +183,6 @@ export default function History() {
 					{logs.map((log) => (
 						<RideCard
 							log={log}
-							onChange={handleChange}
 							onSelect={(v: boolean) => {
 								if (v) {
 									selectionRef.current.set(log, true);
