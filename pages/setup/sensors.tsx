@@ -42,7 +42,6 @@ function Trainer() {
 	const [showSmartTrainerCalibrationModal, setShowSmartTrainerCalibrationModal] = useState(false);
 
 	const connectCb = async (server: BluetoothRemoteGATTServer) => {
-
 		const controller = await createSmartTrainerController(server, setSensorValue);
 		await controller.startNotifications();
 
@@ -65,9 +64,9 @@ function Trainer() {
 		{
 			services: [
 				// TACX ANT+ FE-C over BLE
-				'6e40fec1-b5a3-f393-e0a9-e50e24dcca9e', 
-			]
-		}
+				'6e40fec1-b5a3-f393-e0a9-e50e24dcca9e',
+			],
+		},
 	];
 
 	return (
@@ -78,25 +77,23 @@ function Trainer() {
 			filter={filters}
 			connectCb={connectCb}
 			disconnectCb={disconnectCb}
-			extraAction={<ActionButton
-				wait={!smartTrainerControl && !!btDevice}
-				disabled={!smartTrainerControl}
-				onClick={() => setShowSmartTrainerCalibrationModal(true)}
-			>
-				Calibrate
-			</ActionButton>}
+			extraAction={
+				<ActionButton
+					wait={!smartTrainerControl && !!btDevice}
+					disabled={!smartTrainerControl}
+					onClick={() => setShowSmartTrainerCalibrationModal(true)}
+				>
+					Calibrate
+				</ActionButton>
+			}
 		>
-			<SensorValue
-				sensorType={sensorName}
-				sensorValue={sensorValue}
-				className={classes.sensorValue}
-			/>
+			<SensorValue sensorType={sensorName} sensorValue={sensorValue} className={classes.sensorValue} />
 			<TrainerCalibrationModal
 				open={showSmartTrainerCalibrationModal}
 				onClose={() => setShowSmartTrainerCalibrationModal(false)}
 			/>
 		</Ble>
-		);
+	);
 }
 
 function Power() {
@@ -110,7 +107,7 @@ function Power() {
 		setSensorValue(null);
 	};
 
-	const filters = [{ services: [ 'cycling_power' ]}];
+	const filters = [{ services: ['cycling_power'] }];
 
 	return (
 		<Ble
@@ -121,13 +118,9 @@ function Power() {
 			connectCb={connectCb}
 			disconnectCb={disconnectCb}
 		>
-			<SensorValue
-				sensorType={sensorName}
-				sensorValue={sensorValue}
-				className={classes.sensorValue}
-			/>
+			<SensorValue sensorType={sensorName} sensorValue={sensorValue} className={classes.sensorValue} />
 		</Ble>
-		);
+	);
 }
 
 function SpeedCadence() {
@@ -141,7 +134,7 @@ function SpeedCadence() {
 		setSensorValue(null);
 	};
 
-	const filters = [{ services: [ 'cycling_speed_and_cadence' ]}];
+	const filters = [{ services: ['cycling_speed_and_cadence'] }];
 
 	return (
 		<Ble
@@ -152,13 +145,9 @@ function SpeedCadence() {
 			connectCb={connectCb}
 			disconnectCb={disconnectCb}
 		>
-			<SensorValue
-				sensorType={sensorName}
-				sensorValue={sensorValue}
-				className={classes.sensorValue}
-			/>
+			<SensorValue sensorType={sensorName} sensorValue={sensorValue} className={classes.sensorValue} />
 		</Ble>
-		);
+	);
 }
 
 function Speed() {
@@ -172,7 +161,7 @@ function Speed() {
 		setSensorValue(null);
 	};
 
-	const filters = [{ services: [ 'cycling_speed_and_cadence' ]}];
+	const filters = [{ services: ['cycling_speed_and_cadence'] }];
 
 	return (
 		<Ble
@@ -183,13 +172,9 @@ function Speed() {
 			connectCb={connectCb}
 			disconnectCb={disconnectCb}
 		>
-			<SensorValue
-				sensorType={sensorName}
-				sensorValue={sensorValue}
-				className={classes.sensorValue}
-			/>
+			<SensorValue sensorType={sensorName} sensorValue={sensorValue} className={classes.sensorValue} />
 		</Ble>
-		);
+	);
 }
 
 function Cadence() {
@@ -203,7 +188,7 @@ function Cadence() {
 		setSensorValue(null);
 	};
 
-	const filters = [{ services: [ 'cycling_speed_and_cadence', ]}];
+	const filters = [{ services: ['cycling_speed_and_cadence'] }];
 
 	return (
 		<Ble
@@ -214,13 +199,9 @@ function Cadence() {
 			connectCb={connectCb}
 			disconnectCb={disconnectCb}
 		>
-			<SensorValue
-				sensorType={sensorName}
-				sensorValue={sensorValue}
-				className={classes.sensorValue}
-			/>
+			<SensorValue sensorType={sensorName} sensorValue={sensorValue} className={classes.sensorValue} />
 		</Ble>
-		);
+	);
 }
 
 function HRM() {
@@ -234,7 +215,7 @@ function HRM() {
 		setSensorValue(null);
 	};
 
-	const filters = [{ services: [ 'heart_rate' ]}];
+	const filters = [{ services: ['heart_rate'] }];
 
 	return (
 		<Ble
@@ -245,13 +226,9 @@ function HRM() {
 			connectCb={connectCb}
 			disconnectCb={disconnectCb}
 		>
-			<SensorValue
-				sensorType={sensorName}
-				sensorValue={sensorValue}
-				className={classes.sensorValue}
-			/>
+			<SensorValue sensorType={sensorName} sensorValue={sensorValue} className={classes.sensorValue} />
 		</Ble>
-		);
+	);
 }
 
 export default function SetupSensors() {
