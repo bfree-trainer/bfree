@@ -9,6 +9,8 @@ export interface BtDevice {
 	server: BluetoothRemoteGATTServer;
 }
 
+export type Paired = Awaited<ReturnType<typeof pairDevice>>;
+
 async function connect(device: BluetoothDevice): Promise<BluetoothRemoteGATTServer> {
 	try {
 		const server = await exponentialBackoff(
@@ -21,8 +23,7 @@ async function connect(device: BluetoothDevice): Promise<BluetoothRemoteGATTServ
 		);
 
 		console.log(`Bluetooth Device connected (${device.name}).`);
-		// TODO The typing of exponentialBackoff() is not correct
-		return server as BluetoothRemoteGATTServer;
+		return server;
 	} catch (err) {
 		throw err;
 	}
@@ -32,19 +33,20 @@ async function connect(device: BluetoothDevice): Promise<BluetoothRemoteGATTServ
  * @param connectCb is called on the initial connect as well as on reconnects. This allows restarting the notifications.
  */
 export async function pairDevice(
-	service: BluetoothServiceType,
+	filters: any | null,
+	optionalServices: string[] | null,
 	connectCb: (dev: BtDevice) => Promise<void>,
 	onDisconnectedCb: () => void
 ) {
 	const options = {
-		//acceptAllDevices: true,
-		filters: [{ services: [service] }],
-		optionalServices: ['battery_service'],
+		acceptAllDevices: !filters,
+		filters: filters ?? undefined,
+		optionalServices,
 	};
 
 	const device = await navigator.bluetooth.requestDevice(options);
 	const onDisconnected = (e) => {
-		console.log(`> Bluetooth Device disconnected`); // TODO Show the name
+		console.log(`> Bluetooth Device "${e.currentTarget.gatt.device.name}" disconnected`);
 		connect(device)
 			.then(async (server) => {
 				const btDevice = {
@@ -111,8 +113,10 @@ export async function stopNotifications(characteristic) {
 	characteristic.stopNotifications();
 }
 
-async function exponentialBackoff(max: number, delay: number, toTry) {
-	return new Promise((resolve, reject) => _exponentialBackoff(max, delay, toTry, resolve, reject));
+async function exponentialBackoff<T>(max: number, delay: number, toTry: () => Promise<T>) {
+	return new Promise<ReturnType<typeof toTry>>((resolve, reject) =>
+		_exponentialBackoff(max, delay, toTry, resolve, reject)
+	);
 }
 
 async function _exponentialBackoff(max: number, delay: number, toTry, success, fail) {
