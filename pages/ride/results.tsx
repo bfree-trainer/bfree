@@ -4,13 +4,13 @@ import Grid from '@mui/material/Grid';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { styled } from '@mui/material/styles';
 import { useEffect, useMemo } from 'react';
-import ExportCard from '../../components/ExportCard';
-import MyHead from '../../components/MyHead';
-import Title from '../../components/Title';
-import downloadBlob from '../../lib/download_blob';
-import { createActivityLog, saveActivityLog } from '../../lib/activity_log';
-import { getDayPeriod } from '../../lib/locale';
-import { useGlobalState, setGlobalState } from '../../lib/global';
+import ExportCard from 'components/ExportCard';
+import MyHead from 'components/MyHead';
+import Title from 'components/Title';
+import downloadBlob from 'lib/download_blob';
+import { createActivityLog, saveActivityLog } from 'lib/activity_log';
+import { getDayPeriod } from 'lib/locale';
+import { useGlobalState, setGlobalState } from 'lib/global';
 
 const PREFIX = 'results';
 const classes = {

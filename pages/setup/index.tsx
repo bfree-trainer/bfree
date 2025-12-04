@@ -1,9 +1,9 @@
-import Title from '../../components/Title';
+import Title from 'components/Title';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
-import MyHead from '../../components/MyHead';
-import MenuCard from '../../components/MenuCard';
+import MyHead from 'components/MyHead';
+import MenuCard from 'components/MenuCard';
 
 export default function Setup() {
 	return (

@@ -2,10 +2,9 @@ import Box from '@mui/system/Box';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import Image from 'next/image';
-import MenuCard from '../components/MenuCard';
-import MyHead from '../components/MyHead';
-import Title from '../components/Title';
-import styles from '../styles/Home.module.css';
+import MenuCard from 'components/MenuCard';
+import MyHead from 'components/MyHead';
+import Title from 'components/Title';
 
 export default function Home() {
 	return (

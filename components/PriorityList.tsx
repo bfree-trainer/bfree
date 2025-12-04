@@ -7,7 +7,7 @@ import ListItemText from '@mui/material/ListItemText';
 import Checkbox from '@mui/material/Checkbox';
 import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
-import SxPropsTheme from '../lib/SxPropsTheme';
+import SxPropsTheme from 'lib/SxPropsTheme';
 
 export interface ListItem {
 	id: string;

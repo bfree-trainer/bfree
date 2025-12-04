@@ -7,12 +7,12 @@ import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import TextField from '@mui/material/TextField';
 import { useState } from 'react';
-import MyHead from '../../components/MyHead';
-import Title from '../../components/Title';
-import useUserConfigUpdater from '../../lib/useUserConfigUpdater';
-import { classes, StyledParam, ParamInfo } from '../../components/SetupComponents';
-import { isValidUnsigned } from '../../lib/validation';
-import { useGlobalState } from '../../lib/global';
+import MyHead from 'components/MyHead';
+import Title from 'components/Title';
+import useUserConfigUpdater from 'lib/useUserConfigUpdater';
+import { classes, StyledParam } from 'components/SetupComponents';
+import { isValidUnsigned } from 'lib/validation';
+import { useGlobalState } from 'lib/global';
 
 const bikeInfo = `Bike type is used to estimate the drag coefficient which is needed to calculate a realistic wind resistance.
 Wheel diameter is used for distance calculation.

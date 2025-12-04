@@ -1,10 +1,10 @@
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
-import MyHead from '../../components/MyHead';
-import Title from '../../components/Title';
-import { EnumConfigParam, UnsignedConfigParam } from '../../components/SetupComponents';
-import { UnitConv, distanceUnitConv, speedUnitConv } from '../../lib/units';
+import MyHead from 'components/MyHead';
+import Title from 'components/Title';
+import { EnumConfigParam, UnsignedConfigParam } from 'components/SetupComponents';
+import { UnitConv, distanceUnitConv, speedUnitConv } from 'lib/units';
 
 const gen = (uc: UnitConv): [string, string][] => Object.keys(uc).map((k) => [k, uc[k].name]);
 const speedUnits: [string, string][] = gen(speedUnitConv);

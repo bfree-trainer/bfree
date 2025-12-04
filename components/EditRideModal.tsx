@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
-import { createActivityLog, saveActivityLog } from '../lib/activity_log';
-import EditActionButtons from '../components/EditActionButtons';
-import MyModal from '../components/MyModal';
+import { createActivityLog, saveActivityLog } from 'lib/activity_log';
+import EditActionButtons from 'components/EditActionButtons';
+import MyModal from 'components/MyModal';
 
 const editModalStyle = {
 	width: '40em',

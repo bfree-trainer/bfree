@@ -1,8 +1,8 @@
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { CppMeasurements, CscMeasurements, HrmMeasurements } from '../lib/measurements';
-import { SensorType, useGlobalState } from '../lib/global';
-import { speedUnitConv } from '../lib/units';
+import { CppMeasurements, CscMeasurements, HrmMeasurements } from 'lib/measurements';
+import { SensorType, useGlobalState } from 'lib/global';
+import { speedUnitConv } from 'lib/units';
 
 export function SensorValueCC({ sensorValue, className }: { sensorValue: CscMeasurements | null; className: string }) {
 	const cadence = sensorValue && sensorValue.cadence !== null ? Math.round(sensorValue.cadence) : '--';

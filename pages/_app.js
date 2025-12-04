@@ -1,5 +1,5 @@
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import '../styles/globals.css'
+import 'styles/globals.css'
 import CssBaseline from '@mui/material/CssBaseline';
 import { red } from '@mui/material/colors';
 import PropTypes from 'prop-types';

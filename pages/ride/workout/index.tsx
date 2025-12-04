@@ -20,18 +20,18 @@ import Typography from '@mui/material/Typography';
 import { red } from '@mui/material/colors';
 import { useRouter } from 'next/router';
 import { useEffect, useMemo, useState } from 'react';
-import { useGlobalState } from '../../../lib/global';
-import MyHead from '../../../components/MyHead';
-import Title from '../../../components/Title';
-import WarningDialog from '../../../components/WarningDialog';
-import downloadBlob from '../../../lib/download_blob';
+import { useGlobalState } from 'lib/global';
+import MyHead from 'components/MyHead';
+import Title from 'components/Title';
+import WarningDialog from 'components/WarningDialog';
+import downloadBlob from 'lib/download_blob';
 import {
 	generateSystemWorkouts,
 	getWorkouts,
 	getWorkoutDate,
 	deleteWorkout,
 	toggleWorkoutFav,
-} from '../../../lib/workout_storage';
+} from 'lib/workout_storage';
 
 const PREFIX = 'index';
 const classes = {

@@ -14,8 +14,8 @@ import { AlertColor } from '@mui/material/Alert';
 import { styled } from '@mui/material/styles';
 import { useRouter } from 'next/router';
 import BatteryLevel from './BatteryLevel';
-import { GlobalState, sensorNames, SensorType, useGlobalState } from '../lib/global';
-import { TrainerMeasurements, useHeartRateMeasurement } from '../lib/measurements';
+import { GlobalState, sensorNames, SensorType, useGlobalState } from 'lib/global';
+import { TrainerMeasurements, useHeartRateMeasurement } from 'lib/measurements';
 
 type Notification = {
 	severity: AlertColor;
