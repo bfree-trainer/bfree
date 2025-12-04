@@ -9,8 +9,6 @@ import ResistanceMode from '../../components/ResistanceMode';
 import RollingResistance from '../../components/RollingResistance';
 import Title from '../../components/Title';
 
-const PREFIX = 'free';
-
 const StyledContainer = styled(Container)(({ theme }) => ({}));
 
 function makeStartUrl(resistanceMode: string, rollingResistance: number) {
