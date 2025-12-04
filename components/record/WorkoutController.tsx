@@ -71,19 +71,28 @@ export default function WorkoutController({
 	);
 	const [message, setMessage] = useState('');
 
-	const sendBasic = useCallback(async (value: number) => {
-		await smartTrainerControl.sendBasicResistance(value);
-	}, [smartTrainerControl]);
+	const sendBasic = useCallback(
+		async (value: number) => {
+			await smartTrainerControl.sendBasicResistance(value);
+		},
+		[smartTrainerControl]
+	);
 
-	const sendPower = useCallback(async (value: number) => {
-		await smartTrainerControl.sendTargetPower(value);
-	}, [smartTrainerControl]);
-	const sendSlope = useCallback(async (value: number) => {
-		await smartTrainerControl.sendWindResistance(windResistanceCoeff, windSpeed, draftingFactor);
-		// TODO Configurable rolling resistance
-		await smartTrainerControl.sendSlope(value, rollingResistanceCoeff.asphalt);
-		setControlParams((prev: ControlParams) => ({ ...prev, slope: value }));
-	},[setControlParams, smartTrainerControl, windResistanceCoeff]);
+	const sendPower = useCallback(
+		async (value: number) => {
+			await smartTrainerControl.sendTargetPower(value);
+		},
+		[smartTrainerControl]
+	);
+	const sendSlope = useCallback(
+		async (value: number) => {
+			await smartTrainerControl.sendWindResistance(windResistanceCoeff, windSpeed, draftingFactor);
+			// TODO Configurable rolling resistance
+			await smartTrainerControl.sendSlope(value, rollingResistanceCoeff.asphalt);
+			setControlParams((prev: ControlParams) => ({ ...prev, slope: value }));
+		},
+		[setControlParams, smartTrainerControl, windResistanceCoeff]
+	);
 
 	// Load workout runner
 	useEffect(() => {
@@ -175,7 +184,18 @@ export default function WorkoutController({
 				wr.terminate();
 			}
 		};
-	}, [doSplit, endRide, router.isReady, router.query, sendBasic, sendPower, sendSlope, setControlParams, setMeta, smartTrainerControl]);
+	}, [
+		doSplit,
+		endRide,
+		router.isReady,
+		router.query,
+		sendBasic,
+		sendPower,
+		sendSlope,
+		setControlParams,
+		setMeta,
+		smartTrainerControl,
+	]);
 
 	// Call the workout script on every tick.
 	// How? We sort of cheat a bit, we never registered to any event but we
