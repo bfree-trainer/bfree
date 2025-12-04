@@ -19,7 +19,6 @@ import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { red } from '@mui/material/colors';
 import { styled } from '@mui/material/styles';
-import { useRouter } from 'next/router';
 import { useState, useEffect, useRef, MutableRefObject } from 'react';
 import BottomNavi from '../components/BottomNavi';
 import MyHead from '../components/MyHead';
@@ -153,7 +152,6 @@ function RideCard({ log, onChange, onSelect }: { log: Log; onChange: () => void;
 }
 
 export default function History() {
-	const router = useRouter();
 	const isBreakpoint = useMediaQuery('(min-width:800px)');
 	const [logs, setLogs] = useState<ReturnType<typeof getActivityLogs>>([]);
 	const selectionRef = useRef(new WeakMap<Log, Boolean>());
