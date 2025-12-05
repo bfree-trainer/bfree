@@ -5,6 +5,7 @@ import Image from 'next/image';
 import MenuCard from 'components/MenuCard';
 import MyHead from 'components/MyHead';
 import Title from 'components/Title';
+import bfreeImg from 'public/images/bfree.jpg';
 
 export default function Home() {
 	return (
@@ -12,8 +13,10 @@ export default function Home() {
 			<MyHead title="Cycling App" />
 			<Box sx={{ width: '100%', height: '764px', left: '0px', top: '0px' }} overflow="hidden" position="absolute">
 				<Image
-					src="/images/bfree.jpg"
+					src={bfreeImg}
 					alt="Bfree forever"
+					loading="lazy"
+					placeholder="blur"
 					fill
 					style={{
 						maxWidth: '100%',
