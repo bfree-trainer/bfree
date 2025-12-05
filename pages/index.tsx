@@ -49,7 +49,7 @@ export default function Home() {
 				display="flex"
 				justifyContent="center"
 			>
-				<b>Bfree</b>&nbsp;2023
+				<b>Bfree</b>&nbsp;2025
 			</Box>
 		</Container>
 	);
