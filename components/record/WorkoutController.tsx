@@ -7,23 +7,23 @@ import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import { useRouter } from 'next/router';
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { useGlobalState, getGlobalState, ControlParams } from '../../lib/global';
-import createWorkoutRunner, { RunnerResponse } from '../../lib/workout_runner';
-import { readWorkout } from '../../lib/workout_storage';
-import { LapTriggerMethod } from '../../lib/activity_log';
+import { useGlobalState, getGlobalState, ControlParams } from 'lib/global';
+import createWorkoutRunner, { RunnerResponse } from 'lib/workout_runner';
+import { readWorkout } from 'lib/workout_storage';
+import { LapTriggerMethod } from 'lib/activity_log';
 import {
 	stdBikeFrontalArea,
 	stdBikeDragCoefficient,
 	rollingResistanceCoeff,
 	calcWindResistanceCoeff,
-} from '../../lib/virtual_params';
+} from 'lib/virtual_params';
 import {
 	getCyclingCadenceMeasurement,
 	getCyclingPowerMeasurement,
 	getCyclingSpeedMeasurement,
 	getHeartRateMeasurement,
-} from '../../lib/measurements';
-import { getDayPeriod } from '../../lib/locale';
+} from 'lib/measurements';
+import { getDayPeriod } from 'lib/locale';
 
 const PREFIX = 'WorkoutController';
 

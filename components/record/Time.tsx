@@ -4,9 +4,9 @@ import CardContent from '@mui/material/CardContent';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
-import { getElapsedTimeStr } from '../../lib/format';
-import SxPropsTheme from '../../lib/SxPropsTheme';
-import { useGlobalState } from '../../lib/global';
+import { getElapsedTimeStr } from 'lib/format';
+import SxPropsTheme from 'lib/SxPropsTheme';
+import { useGlobalState } from 'lib/global';
 
 const timeStyle: SxPropsTheme = {
 	float: 'right',

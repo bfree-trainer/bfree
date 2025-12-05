@@ -4,8 +4,8 @@ import CardContent from '@mui/material/CardContent';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
-import SxPropsTheme from '../../lib/SxPropsTheme';
-import { useGlobalState } from '../../lib/global';
+import SxPropsTheme from 'lib/SxPropsTheme';
+import { useGlobalState } from 'lib/global';
 
 const distanceStyle: SxPropsTheme = {
 	float: 'right',
