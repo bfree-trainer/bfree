@@ -2,7 +2,7 @@ import Backdrop from '@mui/material/Backdrop';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import { ReactNode } from 'react';
-import SxPropsTheme from '../../lib/SxPropsTheme';
+import SxPropsTheme from 'lib/SxPropsTheme';
 
 const style: SxPropsTheme = {
 	position: 'absolute',

@@ -1,12 +1,12 @@
 import { useEffect } from 'react';
-import { useGlobalState, getGlobalState, setGlobalState } from '../../lib/global';
-import { createActivityLog, saveActivityLog } from '../../lib/activity_log';
+import { useGlobalState, getGlobalState, setGlobalState } from 'lib/global';
+import { createActivityLog, saveActivityLog } from 'lib/activity_log';
 import {
 	getCyclingCadenceMeasurement,
 	getCyclingPowerMeasurement,
 	getCyclingSpeedMeasurement,
 	getHeartRateMeasurement,
-} from '../../lib/measurements';
+} from 'lib/measurements';
 
 export default function FlightRecorder({ startTime }: { startTime: number }) {
 	const [samplingRate] = useGlobalState('samplingRate');

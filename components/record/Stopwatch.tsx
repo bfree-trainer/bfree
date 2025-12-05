@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { getElapsedTimeStr } from '../../lib/format';
+import { getElapsedTimeStr } from 'lib/format';
 
 export default function Stopwatch({
 	startTime,

@@ -10,11 +10,11 @@ import IconSpeed from '@mui/icons-material/Speed';
 import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { styled } from '@mui/material/styles';
-import { Measurement, CscMeasurements, HrmMeasurements, useMeasurementByType } from '../../lib/measurements';
-import SxPropsTheme from '../../lib/SxPropsTheme';
+import { Measurement, CscMeasurements, HrmMeasurements, useMeasurementByType } from 'lib/measurements';
+import SxPropsTheme from 'lib/SxPropsTheme';
 import { ReactElement, useState, useEffect, useMemo } from 'react';
-import { UnitConv, speedUnitConv } from '../../lib/units';
-import { getGlobalState, useGlobalState } from '../../lib/global';
+import { UnitConv, speedUnitConv } from 'lib/units';
+import { useGlobalState } from 'lib/global';
 
 const PREFIX = 'MeasurementCard';
 
