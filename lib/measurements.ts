@@ -85,11 +85,11 @@ export function getCyclingPowerMeasurement() {
 	return getMeasurement('powerSources', (d: CppMeasurements) => d && d.power !== null && d.power !== undefined);
 }
 
-export function useCyclingSpeedMeasurement(): CscMeasurements | null {
+export function useCyclingSpeedMeasurement(): CscMeasurements | TrainerMeasurements | null {
 	return useMeasurement('speedSources', (d: CscMeasurements) => d && d.speed !== null && d.speed !== undefined);
 }
 
-export function getCyclingSpeedMeasurement(): CscMeasurements | null {
+export function getCyclingSpeedMeasurement(): CscMeasurements | TrainerMeasurements | null {
 	return getMeasurement('speedSources', (d: CscMeasurements) => d && d.speed !== null && d.speed !== undefined);
 }
 

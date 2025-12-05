@@ -40,8 +40,9 @@ export default function FlightRecorder({ startTime }: { startTime: number }) {
 				return;
 			}
 
-			let wheelRevolutionsOffset: number;
-			let calculatedDistance: number;
+			let wheelRevolutionsOffset: number; // used as an offset for CscMeasurements
+			let accumulatedDistanceOffset: number; // used as an offset for TrainerMeasurements
+			let calculatedDistance: number = 0;
 			let altitude: number = 0;
 			const intervalId = setInterval(() => {
 				try {
@@ -61,29 +62,42 @@ export default function FlightRecorder({ startTime }: { startTime: number }) {
 					const heartRate = getHeartRateMeasurement();
 					let lapDistance = getGlobalState('lapDistance');
 					const { slope } = getGlobalState('control_params');
-					//const smartTrainer = getGlobalState('smart_trainer');
 
-					if (speed && speed.cumulativeWheelRevolutions) {
-						// Instead of resetting the sensor, we are keeping track off the
-						// initially observed revolutions value and subtract it from
-						// the future readings. Indeed, the reset operation might not be
-						// even available in many sensors.
-						if (wheelRevolutionsOffset === undefined) {
-							wheelRevolutionsOffset = speed.cumulativeWheelRevolutions;
+					if (speed) {
+						let distDiff: number;
+
+						if ('cumulativeWheelRevolutions' in speed) {
+							// Instead of resetting the sensor, we are keeping track off the
+							// initially observed revolutions value and subtract it from
+							// the future readings. Indeed, the reset operation might not be
+							// even available in many sensors.
+							if (wheelRevolutionsOffset === undefined) {
+								wheelRevolutionsOffset = speed.cumulativeWheelRevolutions;
+							}
+							// We calculate the distance inside this if block because the number of
+							// cumulative wheel revolutions might not be available at every measurement point.
+							//
+							// TODO As ble_cscp is state preserving, this is likely happening because we are
+							// jumping to another speed sensor source that doesn't have wheelRevs. We should
+							// probably support the whatever other ways too or implement revs for all speed
+							// sources. (mainly trainer?)
+							const prevCalculatedDistance = calculatedDistance;
+							calculatedDistance =
+								(speed.cumulativeWheelRevolutions - wheelRevolutionsOffset) *
+								(bikeParams.wheelCircumference / 1000);
+							distDiff = calculatedDistance - prevCalculatedDistance;
+						} else if ('accumulatedDistance' in speed) {
+							if (accumulatedDistanceOffset === undefined) {
+								accumulatedDistanceOffset = speed.accumulatedDistance;
+							}
+							const prevCalculatedDistance = calculatedDistance;
+							calculatedDistance = speed.accumulatedDistance - accumulatedDistanceOffset;
+							distDiff = calculatedDistance - prevCalculatedDistance;
+						} else {
+							console.log('No distance source');
+							distDiff = 0;
 						}
-						// We calculate the distance inside this if block because the number of
-						// cumulative wheel revolutions might not be available at every measurement point.
-						//
-						// TODO As ble_cscp is state preserving, this is likely happening because we are
-						// jumping to another speed sensor source that doesn't have wheelRevs. We should
-						// probably support the whatever other ways too or implement revs for all speed
-						// sources. (mainly trainer?)
-						const prevCalculatedDistance = calculatedDistance;
-						calculatedDistance =
-							(speed.cumulativeWheelRevolutions - wheelRevolutionsOffset) *
-							(bikeParams.wheelCircumference / 1000);
 
-						const distDiff = calculatedDistance - prevCalculatedDistance;
 						lapDistance += distDiff;
 
 						// Calculate the elevation difference.
