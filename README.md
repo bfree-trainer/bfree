@@ -1,4 +1,6 @@
-🚵free
+![Bfree logo](/doc/images/logo_tn.png)
+
+Bfree
 ======
 
 Bfree is an open source smart trainer software for indoor cycling running
