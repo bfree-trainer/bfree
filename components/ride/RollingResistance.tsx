@@ -47,32 +47,32 @@ export default function RollingResistance({
 
 	return (
 		<ResistanceCard title="Rolling Resistance" image={getTrackImg(rollingResistance)}>
-						<InputLabel id="demo-simple-select-label">Mode</InputLabel>
-						<Select
-							variant="standard"
-							labelId="resistance-mode-select-label"
-							id="resistance-mode-select"
-							value={rollingResistance || 0}
-							onChange={handleChange}
-						>
-							{predefinedRollingResistances.map((r) => (
-								<MenuItem key={r[0].toLowerCase().replace(/\s/g, '-')} value={r[1]}>
-									{r[0]}
-								</MenuItem>
-							))}
-						</Select>
-						<br />
-						<TextField
-							value={rollingResistance || 0}
-							error={rollingResistance <= 0}
-							onChange={
-								// @ts-ignore
-								(e) => handleChange(e)
-							}
-							id="outlined-basic"
-							label="Coefficient"
-							variant="outlined"
-						/>
+			<InputLabel id="demo-simple-select-label">Mode</InputLabel>
+			<Select
+				variant="standard"
+				labelId="resistance-mode-select-label"
+				id="resistance-mode-select"
+				value={rollingResistance || 0}
+				onChange={handleChange}
+			>
+				{predefinedRollingResistances.map((r) => (
+					<MenuItem key={r[0].toLowerCase().replace(/\s/g, '-')} value={r[1]}>
+						{r[0]}
+					</MenuItem>
+				))}
+			</Select>
+			<br />
+			<TextField
+				value={rollingResistance || 0}
+				error={rollingResistance <= 0}
+				onChange={
+					// @ts-ignore
+					(e) => handleChange(e)
+				}
+				id="outlined-basic"
+				label="Coefficient"
+				variant="outlined"
+			/>
 		</ResistanceCard>
 	);
 }

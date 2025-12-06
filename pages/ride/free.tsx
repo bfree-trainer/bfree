@@ -5,9 +5,9 @@ import Grid from '@mui/material/Grid';
 import { useState, useEffect } from 'react';
 import MyHead from 'components/MyHead';
 import StartButton from 'components/StartButton';
-import ResistanceMode, { TrainerResistanceMode } from 'components/ResistanceMode';
-import PowerResistance, { PowerLimits } from 'components/PowerResistance';
-import RollingResistance from 'components/RollingResistance';
+import ResistanceMode, { TrainerResistanceMode } from 'components/ride/ResistanceMode';
+import PowerResistance, { PowerLimits } from 'components/ride/PowerResistance';
+import RollingResistance from 'components/ride/RollingResistance';
 import Title from 'components/Title';
 
 const StyledContainer = styled(Container)(({ theme }) => ({}));
@@ -46,9 +46,14 @@ export default function RideFree() {
 					{
 						{
 							'': <br />,
-							'basic': <br />,
-							'power': <PowerResistance limits={powerLimits} setLimits={setPowerLimits} />,
-							'slope': <RollingResistance rollingResistance={rollingResistance} setRollingResistance={setRollingResistance} />,
+							basic: <br />,
+							power: <PowerResistance limits={powerLimits} setLimits={setPowerLimits} />,
+							slope: (
+								<RollingResistance
+									rollingResistance={rollingResistance}
+									setRollingResistance={setRollingResistance}
+								/>
+							),
 						}[resistanceMode]
 					}
 				</Grid>
@@ -62,7 +67,10 @@ export default function RideFree() {
 				justifyContent="center"
 				padding="1ex"
 			>
-				<StartButton disabled={!resistanceMode} href={makeStartUrl(resistanceMode, rollingResistance, powerLimits)} />
+				<StartButton
+					disabled={!resistanceMode}
+					href={makeStartUrl(resistanceMode, rollingResistance, powerLimits)}
+				/>
 			</Box>
 		</StyledContainer>
 	);

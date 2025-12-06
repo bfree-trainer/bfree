@@ -19,7 +19,7 @@ import {
 	rollingResistanceCoeff,
 	calcWindResistanceCoeff,
 } from 'lib/virtual_params';
-import { PowerLimits } from 'components/PowerResistance';
+import { PowerLimits } from 'components/ride/PowerResistance';
 
 const PREFIX = 'ResistanceControl';
 const classes = {
@@ -70,7 +70,7 @@ type Params = {
 };
 
 // TODO this is silly now. We can just make a function that returns the needed object by key.
-function r2marks(params: Params): { [k in Resistance]: { value: number; label: string }[] }  {
+function r2marks(params: Params): { [k in Resistance]: { value: number; label: string }[] } {
 	return objectMap(params, (v) => [
 		{
 			value: 0,

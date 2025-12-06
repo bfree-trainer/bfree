@@ -21,7 +21,7 @@ import { Lap, LapTriggerMethod } from 'lib/activity_log';
 import { RecordActionButtons } from 'components/record/ActionButtons';
 import { speedUnitConv } from 'lib/units';
 import { useGlobalState } from 'lib/global';
-import {PowerLimits} from 'components/PowerResistance';
+import { PowerLimits } from 'components/ride/PowerResistance';
 
 const PREFIX = 'record';
 
@@ -116,7 +116,10 @@ function FreeRideDashboard() {
 	const [logger] = useGlobalState('currentActivityLog');
 	const { resistance } = router.query;
 	const rollingResistance = Number(router.query.rollingResistance);
-	const powerLimits: PowerLimits = { min: Number(router.query.minPower) || 0, max: Number(router.query.maxPower) || 0 };
+	const powerLimits: PowerLimits = {
+		min: Number(router.query.minPower) || 0,
+		max: Number(router.query.maxPower) || 0,
+	};
 
 	if (typeof resistance !== 'string' || !['basic', 'power', 'slope'].includes(resistance)) {
 		return <DefaultErrorPage statusCode={400} />;
@@ -129,7 +132,11 @@ function FreeRideDashboard() {
 			<Grid container direction="row" alignItems="center" spacing={2}>
 				<Ride />
 				{logger ? (
-					<ResistanceControl resistance={resistance as Resistance} rollingResistance={rollingResistance} powerLimits={powerLimits} />
+					<ResistanceControl
+						resistance={resistance as Resistance}
+						rollingResistance={rollingResistance}
+						powerLimits={powerLimits}
+					/>
 				) : (
 					<DummyCard />
 				)}
