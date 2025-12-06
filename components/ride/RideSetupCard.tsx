@@ -27,29 +27,34 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 	[`& .${classes.formControl}`]: {
 		'& > *': {
 			width: '25ch',
+			marginBottom: '2ex',
 		},
 	},
 }));
 
-export default function ResistanceCard({
+export function SetupFormControl({ children }: { children: ReactNode }) {
+	return <FormControl className={classes.formControl}>{children}</FormControl>;
+}
+
+export default function RideSetupCard({
 	title,
 	image,
+	imageAlt,
 	children,
 }: {
 	title: string;
 	image: string;
+	imageAlt?: string;
 	children: ReactNode;
 }) {
 	return (
 		<StyledGrid item>
 			<Card variant="outlined">
-				<CardMedia className={classes.media} image={image} title="Filler image" />
+				<CardMedia className={classes.media} image={image} title={imageAlt ?? 'Filler image'} />
 				<Typography gutterBottom variant="h5" component="h2">
 					{title}
 				</Typography>
-				<CardContent className={classes.setupCard}>
-					<FormControl className={classes.formControl}>{children}</FormControl>
-				</CardContent>
+				<CardContent className={classes.setupCard}>{children}</CardContent>
 			</Card>
 		</StyledGrid>
 	);

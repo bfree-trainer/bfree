@@ -75,6 +75,45 @@ function Param({ title, image, info, children }: { title: string; image: string;
 	);
 }
 
+export function UnsignedField({
+	label,
+	initialValue,
+	unit,
+	setValue,
+}: {
+	label?: string;
+	initialValue: number;
+	unit?: string;
+	setValue: (v: number) => void;
+}) {
+	const [tmp, setTmp] = useState(initialValue);
+
+	const handleChange = (event) => {
+		const raw = event.target.value;
+		const v = Number(raw);
+
+		setTmp(raw);
+		if (isValidUnsigned(v)) {
+			setValue(v);
+		}
+	};
+
+	return (
+		<TextField
+			autoComplete="off"
+			value={tmp}
+			error={!isValidUnsigned(Number(tmp))}
+			onChange={handleChange}
+			id="outlined-basic"
+			label={label}
+			InputProps={{
+				endAdornment: unit ? <InputAdornment position="end">{unit}</InputAdornment> : undefined,
+			}}
+			variant="outlined"
+		/>
+	);
+}
+
 export function UnsignedConfigParam({
 	title,
 	image,
@@ -90,32 +129,10 @@ export function UnsignedConfigParam({
 }) {
 	// @ts-ignore
 	const [value, setValue] = useGlobalState(configName);
-	const [tmp, setTmp] = useState(value);
-
-	const handleChange = (event) => {
-		const raw = event.target.value;
-		const v = Number(raw);
-
-		setTmp(raw);
-		if (isValidUnsigned(v)) {
-			setValue(v);
-		}
-	};
 
 	return (
 		<StyledParam title={title} image={image}>
-			<TextField
-				autoComplete="off"
-				value={tmp}
-				error={!isValidUnsigned(Number(tmp))}
-				onChange={handleChange}
-				id="outlined-basic"
-				label={label}
-				InputProps={{
-					endAdornment: unit ? <InputAdornment position="end">{unit}</InputAdornment> : undefined,
-				}}
-				variant="outlined"
-			/>
+			<UnsignedField label={label} initialValue={value} unit={unit} setValue={setValue} />
 		</StyledParam>
 	);
 }
