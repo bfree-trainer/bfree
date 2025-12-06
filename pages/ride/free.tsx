@@ -5,28 +5,33 @@ import Grid from '@mui/material/Grid';
 import { useState, useEffect } from 'react';
 import MyHead from 'components/MyHead';
 import StartButton from 'components/StartButton';
-import ResistanceMode, { TrainerResistanceMode } from 'components/ride/ResistanceMode';
+import RideSetup, { TrainerResistanceMode } from 'components/ride/FreeRideSetup';
 import PowerResistance, { PowerLimits } from 'components/ride/PowerResistance';
 import RollingResistance from 'components/ride/RollingResistance';
 import Title from 'components/Title';
 
 const StyledContainer = styled(Container)(({ theme }) => ({}));
 
-function makeStartUrl(resistanceMode: string, rollingResistance: number, powerLimits: PowerLimits) {
+function makeStartUrl(resistanceMode: string, rollingResistance: number, powerLimits: PowerLimits, autoSplit: string) {
+	let uri = `/ride/record?type=free&resistance=${resistanceMode}`
 	switch (resistanceMode) {
 		case 'power':
-			return `/ride/record?type=free&resistance=${resistanceMode}&minPower=${powerLimits.min}&maxPower=${powerLimits.max}`;
+			uri = `${uri}&minPower=${powerLimits.min}&maxPower=${powerLimits.max}`;
 		case 'slope':
-			return `/ride/record?type=free&resistance=${resistanceMode}&rollingResistance=${rollingResistance}`;
-		default:
-			return `/ride/record?type=free&resistance=${resistanceMode}`;
+			uri = `${uri}&rollingResistance=${rollingResistance}`;
 	}
+	if (autoSplit) {
+		uri = `${uri}&${autoSplit}`
+	}
+
+	return uri;
 }
 
 export default function RideFree() {
 	const [resistanceMode, setResistanceMode] = useState<TrainerResistanceMode>('');
 	const [rollingResistance, setRollingResistance] = useState<number>(NaN);
 	const [powerLimits, setPowerLimits] = useState<PowerLimits>({ min: 0, max: 1000 });
+	const [autoSplit, setAutoSplit] = useState<string>('');
 
 	useEffect(() => {
 		if (resistanceMode !== 'slope') {
@@ -42,7 +47,11 @@ export default function RideFree() {
 				<p>Start a free ride exercise.</p>
 
 				<Grid container direction="row" alignItems="center" spacing={2}>
-					<ResistanceMode mode={resistanceMode} setMode={setResistanceMode} />
+					<RideSetup
+						resistanceMode={resistanceMode}
+						setResistanceMode={setResistanceMode}
+						setAutoSplitValue={setAutoSplit}
+					/>
 					{
 						{
 							'': <br />,
@@ -69,7 +78,7 @@ export default function RideFree() {
 			>
 				<StartButton
 					disabled={!resistanceMode}
-					href={makeStartUrl(resistanceMode, rollingResistance, powerLimits)}
+					href={makeStartUrl(resistanceMode, rollingResistance, powerLimits, autoSplit)}
 				/>
 			</Box>
 		</StyledContainer>

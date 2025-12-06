@@ -5,7 +5,7 @@ import TextField from '@mui/material/TextField';
 import { useEffect, useState } from 'react';
 import { rollingResistanceCoeff } from 'lib/virtual_params';
 import { ReactNode } from 'react';
-import ResistanceCard from './ResistanceCard';
+import RideSetupCard, { SetupFormControl } from 'components/ride/RideSetupCard';
 
 const predefinedRollingResistances: [string, number][] = [
 	['Wooden track', rollingResistanceCoeff.wood],
@@ -46,33 +46,36 @@ export default function RollingResistance({
 	}, [setRollingResistance]);
 
 	return (
-		<ResistanceCard title="Rolling Resistance" image={getTrackImg(rollingResistance)}>
-			<InputLabel id="demo-simple-select-label">Mode</InputLabel>
-			<Select
-				variant="standard"
-				labelId="resistance-mode-select-label"
-				id="resistance-mode-select"
-				value={rollingResistance || 0}
-				onChange={handleChange}
-			>
-				{predefinedRollingResistances.map((r) => (
-					<MenuItem key={r[0].toLowerCase().replace(/\s/g, '-')} value={r[1]}>
-						{r[0]}
-					</MenuItem>
-				))}
-			</Select>
-			<br />
-			<TextField
-				value={rollingResistance || 0}
-				error={rollingResistance <= 0}
-				onChange={
-					// @ts-ignore
-					(e) => handleChange(e)
-				}
-				id="outlined-basic"
-				label="Coefficient"
-				variant="outlined"
-			/>
-		</ResistanceCard>
+		<RideSetupCard title="Rolling Resistance" image={getTrackImg(rollingResistance)}>
+			<SetupFormControl>
+				<InputLabel id="resistance-mode-select-label">Mode</InputLabel>
+				<Select
+					variant="standard"
+					labelId="resistance-mode-select-label"
+					id="resistance-mode-select"
+					value={rollingResistance || 0}
+					onChange={handleChange}
+				>
+					{predefinedRollingResistances.map((r) => (
+						<MenuItem key={r[0].toLowerCase().replace(/\s/g, '-')} value={r[1]}>
+							{r[0]}
+						</MenuItem>
+					))}
+				</Select>
+			</SetupFormControl>
+			<SetupFormControl>
+				<TextField
+					value={rollingResistance || 0}
+					error={rollingResistance <= 0}
+					onChange={
+						// @ts-ignore
+						(e) => handleChange(e)
+					}
+					id="outlined-basic"
+					label="Coefficient"
+					variant="outlined"
+				/>
+			</SetupFormControl>
+		</RideSetupCard>
 	);
 }
