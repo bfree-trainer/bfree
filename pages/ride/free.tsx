@@ -17,11 +17,13 @@ function makeStartUrl(resistanceMode: string, rollingResistance: number, powerLi
 	switch (resistanceMode) {
 		case 'power':
 			uri = `${uri}&minPower=${powerLimits.min}&maxPower=${powerLimits.max}`;
+			break;
 		case 'slope':
 			uri = `${uri}&rollingResistance=${rollingResistance}`;
+			break;
 	}
 	if (autoSplit) {
-		uri = `${uri}&${autoSplit}`
+		uri = `${uri}&split=${autoSplit}`
 	}
 
 	return uri;
