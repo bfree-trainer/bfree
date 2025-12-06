@@ -63,6 +63,7 @@ export default function RollingResistance({
 					))}
 				</Select>
 			</SetupFormControl>
+			<br />
 			<SetupFormControl>
 				<TextField
 					value={rollingResistance || 0}
