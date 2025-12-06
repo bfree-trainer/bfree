@@ -11,7 +11,7 @@ import MyHead from 'components/MyHead';
 import Title from 'components/Title';
 import { classes, StyledCard } from 'components/SetupComponents';
 import PriorityList from 'components/PriorityList';
-import SetupDialog from 'components/SetupDialog';
+import SetupDialog from 'components/setup/SetupDialog';
 import {
 	GlobalState,
 	SensorSourceType,

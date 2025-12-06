@@ -18,7 +18,7 @@ import { createSmartTrainerController } from 'lib/ble/trainer';
 import SensorValue from 'components/SensorValue';
 import { TrainerCalibrationModal } from 'components/TrainerControl';
 import { useGlobalState, getGlobalState } from 'lib/global';
-import Ble from 'components/ble';
+import Ble from 'components/setup/Ble';
 import { ActionButton, iconStyle } from 'components/SensorCard';
 
 const PREFIX = 'sensors';

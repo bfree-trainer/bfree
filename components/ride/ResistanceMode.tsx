@@ -35,7 +35,13 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 
 export type TrainerResistanceMode = '' | 'basic' | 'power' | 'slope';
 
-export default function ResistanceMode({ mode, setMode }: { mode: TrainerResistanceMode; setMode: (m: TrainerResistanceMode) => void }) {
+export default function ResistanceMode({
+	mode,
+	setMode,
+}: {
+	mode: TrainerResistanceMode;
+	setMode: (m: TrainerResistanceMode) => void;
+}) {
 	const handleChange = (event: SelectChangeEvent<string>, _child?: ReactNode) => {
 		setMode(event.target.value as TrainerResistanceMode);
 	};

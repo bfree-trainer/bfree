@@ -48,9 +48,7 @@ export default function ResistanceCard({
 					{title}
 				</Typography>
 				<CardContent className={classes.setupCard}>
-					<FormControl className={classes.formControl}>
-						{children}
-					</FormControl>
+					<FormControl className={classes.formControl}>{children}</FormControl>
 				</CardContent>
 			</Card>
 		</StyledGrid>
