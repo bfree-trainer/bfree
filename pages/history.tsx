@@ -30,6 +30,9 @@ import Title from 'components/Title';
 import EditRideModal from 'components/EditRideModal';
 import downloadBlob from 'lib/download_blob';
 import { deleteActivityLog, getActivityLogs } from 'lib/activity_log';
+import { getElapsedTimeStr } from 'lib/format';
+import { smartDistanceUnitFormat } from 'lib/units';
+import { useGlobalState } from 'lib/global';
 
 const PREFIX = 'history';
 const classes = {
@@ -77,12 +80,86 @@ const StyledContainer = styled(Container)(({ theme }) => ({
 	},
 }));
 
+const FlexParent = styled('div')({
+	margin: 0,
+	padding: 0,
+	display: 'flex',
+	flexDirection: 'row',
+});
+
+const Flex = styled('div')({
+	margin: 0,
+	padding: 0,
+	flex: '1 1',
+	position: 'relative',
+});
+
+const RideStatsUl = styled('ul')({
+	margin: 0,
+	padding: 0,
+	alignItems: 'stretch',
+	display: 'flex',
+	flexFlow: 'row wrap',
+	listStyle: 'none',
+	paddingLeft: 0,
+	marginBottom: 0,
+	marginTop: 0,
+});
+
+const RideStatsLi = styled('li')({
+	listStyle: 'none',
+	margin: 0,
+	padding: 5,
+	display: 'flex',
+	flexDirection: 'column',
+	justifyContent: 'flex-end',
+	borderRight: '1px solid #f2f2f0',
+});
+
+const RideStatsLiLast = styled('li')({
+	listStyle: 'none',
+	margin: 0,
+	padding: 5,
+	display: 'flex',
+	flexDirection: 'column',
+	justifyContent: 'flex-end',
+});
+
 type Log = ReturnType<typeof getActivityLogs>[1];
 
+function RideStats({ stats }: { stats: [string, string][] }) {
+	const last = stats.length - 1;
+	return (
+		<FlexParent>
+			<Flex>
+				<RideStatsUl>
+					{stats.map((stat, i) =>
+						i < last ? (
+							<RideStatsLi>
+								<Typography variant="caption">{stat[0]}</Typography>
+								<Typography variant="body1">{stat[1]}</Typography>
+							</RideStatsLi>
+						) : (
+							<RideStatsLiLast>
+								<Typography variant="caption">{stat[0]}</Typography>
+								<Typography variant="body1">{stat[1]}</Typography>
+							</RideStatsLiLast>
+						)
+					)}
+				</RideStatsUl>
+			</Flex>
+		</FlexParent>
+	);
+}
+
 function RideCard({ log, onSelect }: { log: Log; onSelect: (v: boolean) => void }) {
+	const distanceUnit = useGlobalState('unitDistance')[0];
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const [showEditModal, setShowEditModal] = useState(false);
 	const name = log.logger.getName();
+	const rideTime = log.logger.getTotalTime();
+	const rideDistance = log.logger.getTotalDistance();
+	const calories = log.logger.getTotalCalories();
 	const notes = log.logger.getNotes();
 
 	const handleMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -136,6 +213,13 @@ function RideCard({ log, onSelect }: { log: Log; onSelect: (v: boolean) => void 
 				/>
 				{/* Add preview here */}
 				<CardContent>
+					<RideStats
+						stats={[
+							['Distance', smartDistanceUnitFormat(distanceUnit, rideDistance)],
+							['Time', getElapsedTimeStr(rideTime)],
+							['Calories', `${calories}`],
+						]}
+					/>
 					<Typography variant="body2" color="textSecondary" component="p">
 						{notes}
 					</Typography>

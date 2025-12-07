@@ -20,7 +20,7 @@ export type Intensity = 'Active' | 'Resting';
 export type Lap = {
 	trackPoints: TrackPoint[];
 	startTime: number;
-	totalTime: number; // sec
+	totalTime: number; // ms
 	distanceMeters?: number;
 	maxSpeed?: number;
 	calories?: number;
@@ -145,6 +145,21 @@ export function createActivityLog() {
 		},
 		getCurrentLap: (): undefined | Lap => {
 			return laps[laps.length - 1];
+		},
+		/**
+		 * Total time in ms.
+		 */
+		getTotalTime: (): number => {
+			return laps.reduce((t, lap) => t + lap.totalTime, 0);
+		},
+		/**
+		 * Total distance in meters.
+		 */
+		getTotalDistance: (): number => {
+			return laps.reduce((t, lap) => t + lap.distanceMeters, 0);
+		},
+		getTotalCalories: (): number => {
+			return laps.reduce((t, lap) => t + lap.calories, 0);
 		},
 		lapSplit: (time: number, triggerMethod: LapTriggerMethod, intensity?: Intensity) => {
 			if (laps.length > 0) {
