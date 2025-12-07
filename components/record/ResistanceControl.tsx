@@ -109,7 +109,7 @@ export default function ResistanceControl({
 			minResistance: 0,
 			maxResistance: 100,
 			resistanceUnit: '%',
-			defaultResistance: 20,
+			defaultResistance: 15,
 		},
 		power: {
 			resistanceControlName: 'Target Power',
@@ -117,7 +117,7 @@ export default function ResistanceControl({
 			minResistance: powerLimits.min,
 			maxResistance: powerLimits.max,
 			resistanceUnit: 'W',
-			defaultResistance: 150,
+			defaultResistance: Math.round(0.15 * powerLimits.max),
 		},
 		slope: {
 			resistanceControlName: 'Slope',
