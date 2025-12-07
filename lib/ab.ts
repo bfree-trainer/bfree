@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Olli Vanhoja <olli.vanhoja@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 export function arrayBufferToString(buffer: ArrayBuffer, encoding: string): Promise<string> {
 	return new Promise((resolve) => {
 		const blob = new Blob([buffer], { type: 'text/plain' });

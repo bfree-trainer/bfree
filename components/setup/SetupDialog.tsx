@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Olli Vanhoja <olli.vanhoja@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import { useState, Fragment } from 'react';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';

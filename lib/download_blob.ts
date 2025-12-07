@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Olli Vanhoja <olli.vanhoja@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 export default function downloadBlob(blob: Blob, filename: string) {
 	const url = URL.createObjectURL(blob);
 	const a = document.createElement('a');

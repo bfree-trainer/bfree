@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Olli Vanhoja <olli.vanhoja@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import { useState } from 'react';
 import Grid from '@mui/material/Grid';
 import List from '@mui/material/List';

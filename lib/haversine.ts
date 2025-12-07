@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Olli Vanhoja <olli.vanhoja@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 export default function haversine([lat1, lon1], [lat2, lon2]) {
 	const R = 6371e3; // m
 	const φ1 = (lat1 * Math.PI) / 180; // φ, λ in radians

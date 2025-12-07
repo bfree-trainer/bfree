@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Olli Vanhoja <olli.vanhoja@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import { useEffect, useMemo } from 'react';
 import { useMap, CircleMarker } from 'react-leaflet';
 import AntPath from '../../components/map/AntPath';

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Olli Vanhoja <olli.vanhoja@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import InputLabel from '@mui/material/InputLabel';
 import { OverridableStringUnion } from '@mui/types';
 import Button, { ButtonPropsColorOverrides } from '@mui/material/Button';

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Olli Vanhoja <olli.vanhoja@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import Slider from '@mui/material/Slider';
 import RideSetupCard, { SetupFormControl } from 'components/ride/RideSetupCard';
 

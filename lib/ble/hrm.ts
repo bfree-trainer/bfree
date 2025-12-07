@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Olli Vanhoja <olli.vanhoja@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import { HrmMeasurements } from '../measurements';
 
 export async function startHRMNotifications(server: BluetoothRemoteGATTServer, cb: (res: HrmMeasurements) => void) {

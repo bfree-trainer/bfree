@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Olli Vanhoja <olli.vanhoja@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import { useMemo, useState } from 'react';
 import Box from '@mui/material/Box';
 import ListItem from '@mui/material/ListItem';

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Olli Vanhoja <olli.vanhoja@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import React, { useState, useEffect, useRef } from 'react';
 
 // https://overreacted.io/making-setinterval-declarative-with-react-hooks/
