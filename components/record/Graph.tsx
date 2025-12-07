@@ -6,7 +6,7 @@ import { styled } from '@mui/material/styles';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Container from '@mui/material/Container';
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Area } from 'recharts';
 import { getElapsedTimeStr } from 'lib/format';
 import { CurveType } from 'recharts/types/shape/Curve';
 
@@ -129,12 +129,18 @@ export default function Graph({
 									type={getCurveType(curve)}
 									dataKey={s.id}
 									stroke={colors[index]}
-									fill={enableArea ? colors[index] : undefined}
 									dot={false}
 									yAxisId={index === 0 ? 'left' : 'right'}
 									isAnimationActive={false}
 								/>
 							))}
+							{enableArea ? series.map((s, index) => (
+								<Area
+									key={s.id}
+									dataKey={s.id}
+									fill={enableArea ? colors[index] : undefined}
+								/>
+							)) : ''}
 						</LineChart>
 					</ResponsiveContainer>
 				</Container>
