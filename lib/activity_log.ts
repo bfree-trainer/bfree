@@ -171,7 +171,7 @@ export function createActivityLog() {
 			outputCb(`<Id>${convTs(laps[0].trackPoints[0].time)}</Id>\n`);
 			laps.forEach((lap) => {
 				outputCb(`<Lap StartTime="${convTs(lap.startTime)}">\n`);
-				outputCb(`<TotalTimeSeconds>${lap.totalTime}</TotalTimeSeconds>\n`);
+				outputCb(`<TotalTimeSeconds>${lap.totalTime / 1000}</TotalTimeSeconds>\n`);
 				outputCb(`<DistanceMeters>${lap.distanceMeters || 0}</DistanceMeters>\n`);
 				outputCb(`<MaximumSpeed>${lap.maxSpeed || 0}</MaximumSpeed>\n`);
 				if (typeof lap.calories === 'number') outputCb(`<Calories>${lap.calories}</Calories>\n`);
