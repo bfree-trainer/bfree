@@ -477,7 +477,7 @@ export async function createSmartTrainerController(
 					25: 'Trainer',
 				}[value.getUint8(offset + 1) & 0x1f] || 'Unknown';
 			const elapsedTime = value.getUint8(offset + 2) * 0.25; // Unit 0.25 sec; rollover 64 sec
-			const accumulatedDistance = value.getUint8(offset + 3); // meters
+			const accumulatedDistance = value.getUint8(offset + 3); // meters; rollover 255 meters
 			const speed = (value.getUint8(offset + 4) | (value.getUint8(offset + 5) << 8)) * 0.001;
 			const heartRate = value.getUint8(offset + 6);
 			const capabilityBits = value.getUint8(offset + 7);

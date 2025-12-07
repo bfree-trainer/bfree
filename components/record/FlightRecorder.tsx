@@ -45,7 +45,7 @@ export default function FlightRecorder({ startTime }: { startTime: number }) {
 			}
 
 			let wheelRevolutionsOffset: number; // used as an offset for CscMeasurements
-			let accumulatedDistanceOffset: number; // used as an offset for TrainerMeasurements
+			let prevTrainerAccumulatedDistance: number = 0;
 			let calculatedDistance: number = 0;
 			let altitude: number = 0;
 			const intervalId = setInterval(() => {
@@ -91,11 +91,14 @@ export default function FlightRecorder({ startTime }: { startTime: number }) {
 								(bikeParams.wheelCircumference / 1000);
 							distDiff = calculatedDistance - prevCalculatedDistance;
 						} else if ('accumulatedDistance' in speed) {
-							if (accumulatedDistanceOffset === undefined) {
-								accumulatedDistanceOffset = speed.accumulatedDistance;
-							}
 							const prevCalculatedDistance = calculatedDistance;
-							calculatedDistance = speed.accumulatedDistance - accumulatedDistanceOffset;
+
+							calculatedDistance += speed.accumulatedDistance - prevTrainerAccumulatedDistance;
+							if (prevTrainerAccumulatedDistance > speed.accumulatedDistance) {
+								// ANT+ Device Profile - Fitness Equipment - Rev 5.0, 9.1.2
+								calculatedDistance += 256;
+							}
+
 							distDiff = calculatedDistance - prevCalculatedDistance;
 						} else {
 							console.log('No distance source');
