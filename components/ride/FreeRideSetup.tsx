@@ -6,7 +6,7 @@ import RideSetupCard, { SetupFormControl } from 'components/ride/RideSetupCard';
 import { UnsignedField } from 'components/SetupComponents';
 
 export type TrainerResistanceMode = '' | 'basic' | 'power' | 'slope';
-type AutoSplitMode = 'disabled' | 'distance' | 'time';
+type AutoSplitMode = 'disabled' | 'distance' | 'time' | 'heartRate';
 
 export default function ResistanceMode({
 	resistanceMode,
@@ -67,6 +67,7 @@ export default function ResistanceMode({
 					<MenuItem value={'disabled'}>Disabled</MenuItem>
 					<MenuItem value={'distance'}>Distance</MenuItem>
 					<MenuItem value={'time'}>Time</MenuItem>
+					<MenuItem value={'heartRate'}>Heart rate</MenuItem>
 				</Select>
 			</SetupFormControl>
 			<br />
@@ -88,6 +89,14 @@ export default function ResistanceMode({
 								initialValue={0}
 								unit="min"
 								setValue={(v) => setAutoSplitValue(`${v}min`)}
+							/>
+						),
+						heartRate: (
+							<UnsignedField
+								label="Auto Split Heart Rate (Rising)"
+								initialValue={180}
+								unit="BPM"
+								setValue={(v) => setAutoSplitValue(`${v}bpm`)}
 							/>
 						),
 					}[autoSplitMode]
