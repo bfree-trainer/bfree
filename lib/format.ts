@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Olli Vanhoja <olli.vanhoja@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 const zeroPad = (num: number, places: number) => String(num).padStart(places, '0');
 
 export function getElapsedTimeStr(t: number) {

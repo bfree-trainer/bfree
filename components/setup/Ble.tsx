@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Olli Vanhoja <olli.vanhoja@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import { ReactNode, useEffect, useState } from 'react';
 import Alert from '@mui/material/Alert';
 import CardActions from '@mui/material/CardActions';

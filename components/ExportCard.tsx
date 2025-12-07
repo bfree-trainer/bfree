@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Olli Vanhoja <olli.vanhoja@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';

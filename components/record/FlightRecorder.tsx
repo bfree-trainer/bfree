@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Olli Vanhoja <olli.vanhoja@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import { useEffect } from 'react';
 import { useGlobalState, getGlobalState, setGlobalState } from 'lib/global';
 import { createActivityLog, saveActivityLog } from 'lib/activity_log';

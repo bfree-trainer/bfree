@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Olli Vanhoja <olli.vanhoja@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import { useState, useRef, useMemo } from 'react';
 import L from 'leaflet';
 import { FeatureGroup, Circle, Polyline } from 'react-leaflet';

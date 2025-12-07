@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Olli Vanhoja <olli.vanhoja@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import IconStart from '@mui/icons-material/PlayArrow';
 import IconStartDisabled from '@mui/icons-material/PlayDisabled';

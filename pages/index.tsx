@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Olli Vanhoja <olli.vanhoja@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import Box from '@mui/system/Box';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';

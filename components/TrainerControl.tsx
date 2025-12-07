@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Olli Vanhoja <olli.vanhoja@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import Modal from '@mui/material/Modal';
 import { styled } from '@mui/material/styles';
 import Slider from '@mui/material/Slider';

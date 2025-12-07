@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Olli Vanhoja <olli.vanhoja@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 export type BluetoothServiceType =
 	| 'cycling_power'
 	| 'cycling_speed_and_cadence'

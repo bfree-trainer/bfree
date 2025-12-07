@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Olli Vanhoja <olli.vanhoja@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import { GlobalState, SensorSourceType, getGlobalState, useGlobalState } from './global';
 
 export type Measurement = 'cycling_cadence' | 'cycling_power' | 'cycling_speed' | 'heart_rate';

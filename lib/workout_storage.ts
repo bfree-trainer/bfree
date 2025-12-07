@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Olli Vanhoja <olli.vanhoja@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import { Rider } from './global';
 import { base64ToString, digestSHA1, stringToBase64 } from './ab';
 import generateFTPTest from './workouts/ftp';

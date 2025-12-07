@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Olli Vanhoja <olli.vanhoja@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import Container from '@mui/material/Container';
 import Fab from '@mui/material/Fab';
 import IconCancel from '@mui/icons-material/Cancel';

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Olli Vanhoja <olli.vanhoja@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import Alert from '@mui/material/Alert';
 import AppBar from '@mui/material/AppBar';
 import Badge from '@mui/material/Badge';

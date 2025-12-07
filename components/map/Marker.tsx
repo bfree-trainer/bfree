@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Olli Vanhoja <olli.vanhoja@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 'use client';
 import L from 'leaflet';
 import { Marker, Popup } from 'react-leaflet';

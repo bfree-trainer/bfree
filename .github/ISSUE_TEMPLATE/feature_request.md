@@ -1,4 +1,8 @@
 ---
+# SPDX-FileCopyrightText: Olli Vanhoja <olli.vanhoja@gmail.com>
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 name: Feature request
 about: Suggest an idea for this project
 title: ''

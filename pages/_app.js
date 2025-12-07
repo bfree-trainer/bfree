@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Olli Vanhoja <olli.vanhoja@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import 'styles/globals.css'
 import CssBaseline from '@mui/material/CssBaseline';

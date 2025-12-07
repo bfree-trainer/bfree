@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Olli Vanhoja <olli.vanhoja@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 const scriptExample: string = `const hr_hyst = [ 170, 195 ];
 let pwr_limit = false;
 let interval;

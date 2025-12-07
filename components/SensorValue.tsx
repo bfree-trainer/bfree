@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Olli Vanhoja <olli.vanhoja@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { CppMeasurements, CscMeasurements, HrmMeasurements } from 'lib/measurements';
