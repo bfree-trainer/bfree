@@ -134,13 +134,11 @@ export default function Graph({
 									isAnimationActive={false}
 								/>
 							))}
-							{enableArea ? series.map((s, index) => (
-								<Area
-									key={s.id}
-									dataKey={s.id}
-									fill={enableArea ? colors[index] : undefined}
-								/>
-							)) : ''}
+							{enableArea
+								? series.map((s, index) => (
+										<Area key={s.id} dataKey={s.id} fill={enableArea ? colors[index] : undefined} />
+								  ))
+								: ''}
 						</LineChart>
 					</ResponsiveContainer>
 				</Container>
