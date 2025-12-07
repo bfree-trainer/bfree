@@ -2,7 +2,7 @@
   "name": "bfree",
   "version": "0.1.0",
   "engines": {
-    "node": ">=22.21.1",
+    "node": ">=22.14.0",
     "os": "darwin,linux",
     "cpu": "x64,arm"
   },
