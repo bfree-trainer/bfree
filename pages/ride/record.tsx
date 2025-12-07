@@ -5,7 +5,7 @@ import Grid from '@mui/material/Grid';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { styled } from '@mui/material/styles';
 import { useRouter } from 'next/router';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import FlightRecorder from 'components/record/FlightRecorder';
 import Graph, { SeriesDataPoint, Series } from 'components/record/Graph';
 import DummyCard from 'components/record/DummyCard';
@@ -22,6 +22,7 @@ import { RecordActionButtons } from 'components/record/ActionButtons';
 import { speedUnitConv } from 'lib/units';
 import { useGlobalState } from 'lib/global';
 import { PowerLimits } from 'components/ride/PowerResistance';
+import useInterval from 'lib/use-interval';
 
 const PREFIX = 'record';
 
@@ -220,10 +221,12 @@ function getDashboardConfig(rideType: RideType) {
 export default function RideRecord() {
 	const router = useRouter();
 	const rideType = getRideType(router.query.type);
+	const autoSplit: string | null = typeof router.query.split === 'string' ? router.query.split : null;
 	const [ridePaused, setRidePaused] = useGlobalState('ridePaused');
 	const [currentActivityLog] = useGlobalState('currentActivityLog');
 	const [rideStartTime, setRideStartTime] = useState(0);
 	const [elapsedLapTime, setElapsedLapTime] = useGlobalState('elapsedLapTime');
+	const [lapDistance] = useGlobalState('lapDistance');
 	const [rideEnded, setRideEnded] = useState<boolean>(false);
 	const { title, Dashboard } = useMemo(() => getDashboardConfig(rideType), [rideType]);
 
@@ -258,15 +261,29 @@ export default function RideRecord() {
 		}
 		setRidePaused(0);
 	};
+
 	const doSplit = (time: number, triggerMethod: LapTriggerMethod) => {
 		if (currentActivityLog) {
 			currentActivityLog.lapSplit(time, triggerMethod);
 			setElapsedLapTime(0);
 		}
 	};
-	const handleSplit = () => {
+	const handleManualSplit = () => {
 		doSplit(Date.now(), 'Manual');
 	};
+
+	// auto split handling
+	useInterval(async () => {
+		if (!rideEnded && !ridePaused && !!autoSplit) {
+			if (autoSplit.endsWith('min') && elapsedLapTime >= parseInt(autoSplit) * 60_000) {
+				doSplit(Date.now(), 'Time');
+			} else if (autoSplit.endsWith('km') && lapDistance >= parseInt(autoSplit) * 1000) {
+				doSplit(Date.now(), 'Distance');
+			}
+		}
+	},
+	1000);
+
 	const setMeta = (avatar: string, name: string) => {
 		currentActivityLog.setAvatar(avatar);
 		currentActivityLog.setName(name);
@@ -308,7 +325,7 @@ export default function RideRecord() {
 						isPaused={ridePaused === 0 || ridePaused === -1}
 					/>
 				</PauseModal>
-				<RecordActionButtons onClickPause={pauseRide} onClickSplit={handleSplit} onClickEnd={handleEndRide} />
+				<RecordActionButtons onClickPause={pauseRide} onClickSplit={handleManualSplit} onClickEnd={handleEndRide} />
 			</StyledContainer>
 		);
 	}
