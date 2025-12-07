@@ -40,14 +40,15 @@ const classes = {
 };
 
 const StyledGrid = styled(Grid)(({ theme }) => ({
+	[`& .${classes.markLabel}`]: {
+		marginTop: '1.5ex',
+	},
 	[`& .${classes.resistanceControlCard}`]: {
 		minHeight: '10em',
 	},
-
 	[`& .${classes.resistanceControlSlider}`]: {
 		paddingTop: '3em',
 	},
-
 	[`& .${classes.inlineIcon}`]: {
 		fontSize: '18px !important',
 	},
