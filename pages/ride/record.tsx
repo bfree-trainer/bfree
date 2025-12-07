@@ -23,7 +23,7 @@ import { speedUnitConv } from 'lib/units';
 import { useGlobalState } from 'lib/global';
 import { PowerLimits } from 'components/ride/PowerResistance';
 import useInterval from 'lib/use-interval';
-import {useHeartRateMeasurement} from 'lib/measurements';
+import { useHeartRateMeasurement } from 'lib/measurements';
 
 const PREFIX = 'record';
 
@@ -285,8 +285,7 @@ export default function RideRecord() {
 				doSplit(Date.now(), 'HeartRate');
 			}
 		}
-	},
-	1000);
+	}, 1000);
 
 	const setMeta = (avatar: string, name: string) => {
 		currentActivityLog.setAvatar(avatar);
@@ -329,7 +328,11 @@ export default function RideRecord() {
 						isPaused={ridePaused === 0 || ridePaused === -1}
 					/>
 				</PauseModal>
-				<RecordActionButtons onClickPause={pauseRide} onClickSplit={handleManualSplit} onClickEnd={handleEndRide} />
+				<RecordActionButtons
+					onClickPause={pauseRide}
+					onClickSplit={handleManualSplit}
+					onClickEnd={handleEndRide}
+				/>
 			</StyledContainer>
 		);
 	}
