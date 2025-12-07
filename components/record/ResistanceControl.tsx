@@ -129,7 +129,7 @@ export default function ResistanceControl({
 		},
 	};
 	const isBreakpoint = useMediaQuery('(min-width:800px)');
-	const { resistanceControlName, resistanceStep, maxResistance, resistanceUnit, defaultResistance } =
+	const { resistanceControlName, resistanceStep, minResistance, maxResistance, resistanceUnit, defaultResistance } =
 		params[resistance];
 	const marks = isBreakpoint ? r2marks(params)[resistance] : null;
 	const [smartTrainerControl] = useGlobalState('smart_trainer_control');
@@ -215,7 +215,7 @@ export default function ResistanceControl({
 								aria-label="resistance slider"
 								disabled={!enabled}
 								marks={marks}
-								min={0}
+								min={minResistance}
 								step={resistanceStep}
 								max={maxResistance}
 								defaultValue={defaultResistance}
