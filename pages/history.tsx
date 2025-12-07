@@ -135,12 +135,12 @@ function RideStats({ stats }: { stats: [string, string][] }) {
 				<RideStatsUl>
 					{stats.map((stat, i) =>
 						i < last ? (
-							<RideStatsLi>
+							<RideStatsLi key={i}>
 								<Typography variant="caption">{stat[0]}</Typography>
 								<Typography variant="body1">{stat[1]}</Typography>
 							</RideStatsLi>
 						) : (
-							<RideStatsLiLast>
+							<RideStatsLiLast key={i}>
 								<Typography variant="caption">{stat[0]}</Typography>
 								<Typography variant="body1">{stat[1]}</Typography>
 							</RideStatsLiLast>
