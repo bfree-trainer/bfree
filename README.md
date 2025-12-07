@@ -87,7 +87,7 @@ NEXT_TELEMETRY_DISABLED=0 npm run build
 License
 -------
 
-See [LICENSE.txt](/LICENSE.txt) and [NOTICE.md](/NOTICE.md).
+See [LICENSE.txt](/LICENSE.txt) and SPDX notation in the repo.
 
 
 Related Work
