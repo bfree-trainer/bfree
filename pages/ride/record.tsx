@@ -23,6 +23,7 @@ import { speedUnitConv } from 'lib/units';
 import { useGlobalState } from 'lib/global';
 import { PowerLimits } from 'components/ride/PowerResistance';
 import useInterval from 'lib/use-interval';
+import {useHeartRateMeasurement} from 'lib/measurements';
 
 const PREFIX = 'record';
 
@@ -227,6 +228,7 @@ export default function RideRecord() {
 	const [rideStartTime, setRideStartTime] = useState(0);
 	const [elapsedLapTime, setElapsedLapTime] = useGlobalState('elapsedLapTime');
 	const [lapDistance] = useGlobalState('lapDistance');
+	const { heartRate } = useHeartRateMeasurement() ?? { heartRate: 0 };
 	const [rideEnded, setRideEnded] = useState<boolean>(false);
 	const { title, Dashboard } = useMemo(() => getDashboardConfig(rideType), [rideType]);
 
@@ -279,6 +281,8 @@ export default function RideRecord() {
 				doSplit(Date.now(), 'Time');
 			} else if (autoSplit.endsWith('km') && lapDistance >= parseInt(autoSplit) * 1000) {
 				doSplit(Date.now(), 'Distance');
+			} else if (autoSplit.endsWith('bpm') && heartRate >= parseInt(autoSplit)) {
+				doSplit(Date.now(), 'HeartRate');
 			}
 		}
 	},
