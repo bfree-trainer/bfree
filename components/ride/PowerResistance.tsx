@@ -35,7 +35,7 @@ export default function PowerResistance({
 			<SetupFormControl>
 				<Slider
 					getAriaLabel={() => 'Min and max power'}
-					value={[ limits.min, limits.max ]}
+					value={[limits.min, limits.max]}
 					min={0}
 					max={1000}
 					onChange={handleChange}

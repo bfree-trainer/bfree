@@ -13,7 +13,7 @@ import Title from 'components/Title';
 const StyledContainer = styled(Container)(({ theme }) => ({}));
 
 function makeStartUrl(resistanceMode: string, rollingResistance: number, powerLimits: PowerLimits, autoSplit: string) {
-	let uri = `/ride/record?type=free&resistance=${resistanceMode}`
+	let uri = `/ride/record?type=free&resistance=${resistanceMode}`;
 	switch (resistanceMode) {
 		case 'power':
 			uri = `${uri}&minPower=${powerLimits.min}&maxPower=${powerLimits.max}`;
@@ -23,7 +23,7 @@ function makeStartUrl(resistanceMode: string, rollingResistance: number, powerLi
 			break;
 	}
 	if (autoSplit) {
-		uri = `${uri}&split=${autoSplit}`
+		uri = `${uri}&split=${autoSplit}`;
 	}
 
 	return uri;
