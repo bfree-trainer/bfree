@@ -10,10 +10,10 @@ import Grid from '@mui/material/Grid';
 import IconTimelapse from '@mui/icons-material/Timelapse';
 import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import SxPropsTheme from '../../lib/SxPropsTheme';
-import { getElapsedTimeStr } from '../../lib/format';
-import { useGlobalState } from '../../lib/global';
-import { smartDistanceUnitFormat } from '../../lib/units';
+import SxPropsTheme from 'lib/SxPropsTheme';
+import { getElapsedTimeStr } from 'lib/format';
+import { useGlobalState } from 'lib/global';
+import { smartDistanceUnitFormat } from 'lib/units';
 
 const valueStyle: SxPropsTheme = {
 	float: 'right',
