@@ -20,7 +20,7 @@ export default function EditActionButtons({
 	const actionsStyle = {
 		'> *': {
 			boxShadow: 'none',
-			margin: '3pt',
+			margin: '0.3em',
 			marginBottom: '1.5ex',
 			marginTop: '1.5ex',
 		},
@@ -31,15 +31,17 @@ export default function EditActionButtons({
 	return (
 		<Container sx={actionsStyle}>
 			{onClickSave ? (
-				<Fab size="small" color="primary" aria-label="save" onClick={onClickSave}>
+				<Fab size="small" variant="extended" color="primary" aria-label="save" onClick={onClickSave}>
 					<IconSave />
+					Save
 				</Fab>
 			) : (
 				''
 			)}
 			{onClickDiscard ? (
-				<Fab size="small" color="secondary" aria-label="discard" onClick={onClickDiscard}>
+				<Fab size="small" variant="extended" color="secondary" aria-label="discard" onClick={onClickDiscard}>
 					<IconCancel />
+					Discard
 				</Fab>
 			) : (
 				''
