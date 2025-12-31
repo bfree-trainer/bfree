@@ -9,8 +9,8 @@ import { EditControl } from 'react-leaflet-draw';
 import { createMarkerIcon } from './Marker';
 import { CourseData, Segment, Trackpoint } from '../../lib/gpx_parser';
 import MapWaypoint from './Waypoint';
-import '/node_modules/leaflet/dist/leaflet.css';
-import '/node_modules/leaflet-draw/dist/leaflet.draw.css';
+import 'node_modules/leaflet/dist/leaflet.css';
+import 'node_modules/leaflet-draw/dist/leaflet.draw.css';
 
 function trackSegmentsToPolylines(segments: Segment[]) {
 	return segments.map((seg) => seg.trackpoints.map(({ lat, lon }) => [lat, lon]));
