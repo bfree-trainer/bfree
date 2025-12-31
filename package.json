@@ -13,7 +13,7 @@
     "clean": "rm -rf .next",
     "start": "next start",
     "prettier": "prettier --write './{pages,components,lib}/**/*.{ts,tsx}'",
-    "lint": "next lint"
+    "lint": "eslint ."
   },
   "dependencies": {
     "@emotion/css": "11.11.2",
@@ -29,13 +29,15 @@
     "react-dom": "18.3.1",
     "react-hooks-global-state": "2.1.0",
     "react-leaflet": "4.2.1",
-    "react-leaflet-draw": "^0.20.4",
-    "react-virtualized-auto-sizer": "^1.0.20",
+    "react-leaflet-draw": "0.20.4",
+    "react-virtualized-auto-sizer": "1.0.20",
     "react-window": "^1.8.9",
     "recharts": "^2.15.0",
     "sharp": "0.33.5"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "3.3.3",
+    "@eslint/js": "^9.39.2",
     "@types/node": "22.14.1",
     "@types/react": "18.3.27",
     "@types/web-bluetooth": "0.0.19",
