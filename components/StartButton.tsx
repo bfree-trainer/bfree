@@ -46,7 +46,7 @@ export default function StartButton({ disabled, href }: { disabled?: boolean; hr
 								'&:hover': {
 									color: 'lightgrey',
 								},
-						  }
+							}
 				}
 				label="Start"
 				icon={disabled ? <IconStartDisabled /> : <IconStart />}
