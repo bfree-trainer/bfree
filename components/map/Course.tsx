@@ -6,9 +6,9 @@ import { useEffect, useMemo } from 'react';
 import { useMap, CircleMarker } from 'react-leaflet';
 import AntPath from '../../components/map/AntPath';
 import MapWaypoint from './Waypoint';
-import { CourseData, Segment } from '../../lib/gpx_parser';
+import { CourseData, Segment as SegmentType } from '../../lib/gpx_parser';
 
-function trackSegmentsToPolylines(segments: Segment[]) {
+function trackSegmentsToPolylines(segments: SegmentType[]) {
 	return segments.map((seg) => seg.trackpoints.map(({ lat, lon }) => [lat, lon]));
 }
 
