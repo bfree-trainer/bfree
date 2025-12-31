@@ -113,7 +113,7 @@ export default function ResistanceControl({
 		},
 		power: {
 			resistanceControlName: 'Target Power',
-			resistanceStep: 10,
+			resistanceStep: 25,
 			minResistance: powerLimits.min,
 			maxResistance: powerLimits.max,
 			resistanceUnit: 'W',

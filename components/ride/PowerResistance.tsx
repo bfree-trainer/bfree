@@ -41,6 +41,7 @@ export default function PowerResistance({
 					getAriaLabel={() => 'Min and max power'}
 					value={[limits.min, limits.max]}
 					min={0}
+					step={25}
 					max={1000}
 					onChange={handleChange}
 					valueLabelDisplay="auto"
