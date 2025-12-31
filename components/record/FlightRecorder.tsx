@@ -98,6 +98,7 @@ export default function FlightRecorder({ startTime }: { startTime: number }) {
 								// ANT+ Device Profile - Fitness Equipment - Rev 5.0, 9.1.2
 								calculatedDistance += 256;
 							}
+							prevTrainerAccumulatedDistance = speed.accumulatedDistance;
 
 							distDiff = calculatedDistance - prevCalculatedDistance;
 						} else {
