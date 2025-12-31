@@ -137,7 +137,7 @@ export default function Graph({
 							{enableArea
 								? series.map((s, index) => (
 										<Area key={s.id} dataKey={s.id} fill={enableArea ? colors[index] : undefined} />
-								  ))
+									))
 								: ''}
 						</LineChart>
 					</ResponsiveContainer>

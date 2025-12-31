@@ -152,7 +152,7 @@ function FreeRideDashboard() {
 							<MeasurementCard type="cycling_speed" ribbonColor={classes.colorSpeed} key="2" />,
 							<MeasurementCard type="cycling_power" ribbonColor={classes.colorPower} key="3" />,
 							<MeasurementCard type="heart_rate" ribbonColor={classes.colorHeartRate} key="4" />,
-					  ]
+						]
 					: ''}
 				<DataGraph />
 			</Grid>

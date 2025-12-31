@@ -160,7 +160,7 @@ export default function MeasurementCard({ type, ribbonColor }: { type: Measureme
 										backgroundColor: '#ffaeae', // TODO ribbonColor should be passed as a string
 									},
 								},
-						  }
+							}
 						: undefined
 				}
 			>

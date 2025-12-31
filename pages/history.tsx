@@ -294,7 +294,7 @@ export default function History() {
 									'&:hover': {
 										color: 'lightgrey',
 									},
-							  }
+								}
 					}
 					label="Delete"
 					icon={
