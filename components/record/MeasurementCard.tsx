@@ -114,12 +114,14 @@ function getContentByType(classes, minimal: boolean, speedUnit: UnitConv[''], ty
 export default function MeasurementCard({ type, ribbonColor }: { type: Measurement; ribbonColor?: string }) {
 	const isBreakpoint = useMediaQuery('(min-width:800px)');
 	const speedUnit = speedUnitConv[useGlobalState('unitSpeed')[0]];
+	const maxHr = useGlobalState('rider')[0].heartRate.max; // TODO Avoid having this for every meas
+	const [lapReset] = useGlobalState('lapResetsAgg');
+	const [lapTime] = useGlobalState('elapsedLapTime');
 	const [title, fn, digits] = useMemo(
 		() => getContentByType(classes, !isBreakpoint, speedUnit, type),
 		[isBreakpoint, speedUnit, type]
 	);
 	const m = useMeasurementByType(type);
-	const limitMax = useGlobalState('rider')[0].heartRate.max; // TODO Avoid having this for every meas
 	const { value, unit } = fn(m);
 	const [{ avg, max }, setAgg] = useState({ avg: 0, max: NaN, n: 0 });
 
@@ -129,12 +131,20 @@ export default function MeasurementCard({ type, ribbonColor }: { type: Measureme
 		setAgg((prev) => {
 			const newValue = { ...prev };
 
-			// RFE Sometimes avg goes NaN, this should sort of fix it.
-			// Issue #49
+			if (lapReset && lapTime == 0) {
+				newValue.avg = 0;
+				newValue.n = 0;
+				newValue.max = 0;
+				return newValue;
+			}
+
 			if (Number.isNaN(prev.avg) || prev.avg === Infinity) {
+				// RFE Sometimes avg goes NaN, this should sort of fix it.
+				// Issue #49
 				newValue.avg = 0;
 				newValue.n = 0;
 			} else if (!Number.isNaN(v)) {
+				// This works because the sample interval is fixed.
 				newValue.avg = prev.avg + (v - prev.avg) / (prev.n + 1);
 				newValue.n++;
 			}
@@ -145,14 +155,14 @@ export default function MeasurementCard({ type, ribbonColor }: { type: Measureme
 
 			return newValue;
 		});
-	}, [fn, m, setAgg]);
+	}, [fn, m, lapReset && lapTime == 0, setAgg]);
 
 	return (
 		<StyledGrid item xs={4}>
 			<Card
 				variant="outlined"
 				sx={
-					type === 'heart_rate' && value > limitMax // TODO Could be more generic
+					type === 'heart_rate' && value > maxHr // TODO Could be more generic
 						? {
 								animation: 'blinker 1s linear infinite',
 								'@keyframes blinker': {

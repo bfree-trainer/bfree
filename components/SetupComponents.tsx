@@ -5,7 +5,9 @@
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
+import Checkbox from '@mui/material/Checkbox';
 import FormControl from '@mui/material/FormControl';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import FormHelperText from '@mui/material/FormHelperText';
 import Grid from '@mui/material/Grid';
 import IconHelpOutline from '@mui/icons-material/HelpOutline';
@@ -137,6 +139,32 @@ export function UnsignedConfigParam({
 	return (
 		<StyledParam title={title} image={image}>
 			<UnsignedField label={label} initialValue={value} unit={unit} setValue={setValue} />
+		</StyledParam>
+	);
+}
+
+export function BooleanConfigParam({
+	title,
+	image,
+	label,
+	configName,
+}: {
+	title: string;
+	image: string;
+	label?: string;
+	configName: string;
+}) {
+	// @ts-ignore
+	const [value, setValue] = useGlobalState(configName);
+	const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		setValue(event.target.checked);
+	};
+
+	return (
+		<StyledParam title={title} image={image}>
+			<FormControl className={classes.form}>
+				<FormControlLabel control={<Checkbox checked={value} onChange={handleChange} />} label={label} />
+			</FormControl>
 		</StyledParam>
 	);
 }

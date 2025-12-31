@@ -7,7 +7,7 @@ import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import MyHead from 'components/MyHead';
 import Title from 'components/Title';
-import { EnumConfigParam, UnsignedConfigParam } from 'components/SetupComponents';
+import { BooleanConfigParam, EnumConfigParam, UnsignedConfigParam } from 'components/SetupComponents';
 import { UnitConv, distanceUnitConv, speedUnitConv } from 'lib/units';
 
 const gen = (uc: UnitConv): [string, string][] => Object.keys(uc).map((k) => [k, uc[k].name]);
@@ -42,6 +42,12 @@ export default function SetupGeneral() {
 						idPrefix="distance-unit"
 						items={distanceUnits}
 						configName="unitDistance"
+					/>
+					<BooleanConfigParam
+						title="Ride"
+						image="/images/cards/road.jpg"
+						label="Lap resets aggregated values"
+						configName="lapResetsAgg"
 					/>
 				</Grid>
 			</Box>
