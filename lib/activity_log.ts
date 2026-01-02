@@ -143,6 +143,12 @@ export function createActivityLog() {
 
 			return new Date(lap.startTime).toISOString();
 		},
+		getLaps: (): Lap[] => {
+			return laps;
+		},
+		getLap: (id: number): undefined | Lap => {
+			return laps[id];
+		},
 		getCurrentLap: (): undefined | Lap => {
 			return laps[laps.length - 1];
 		},

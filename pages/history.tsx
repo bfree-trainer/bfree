@@ -11,11 +11,13 @@ import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardHeader from '@mui/material/CardHeader';
 import Checkbox from '@mui/material/Checkbox';
+import Collapse from '@mui/material/Collapse';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
-import IconButton from '@mui/material/IconButton';
+import IconButton, { IconButtonProps } from '@mui/material/IconButton';
 import IconDelete from '@mui/icons-material/Delete';
 import IconDownload from '@mui/icons-material/GetApp';
+import IconExpandMore from '@mui/icons-material/ExpandMore';
 import IconMoreVert from '@mui/icons-material/MoreVert';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
@@ -33,6 +35,7 @@ import { deleteActivityLog, getActivityLogs } from 'lib/activity_log';
 import { getElapsedTimeStr } from 'lib/format';
 import { smartDistanceUnitFormat } from 'lib/units';
 import { useGlobalState } from 'lib/global';
+import DataGraph from 'components/DataGraph';
 
 const PREFIX = 'history';
 const classes = {
@@ -152,10 +155,39 @@ function RideStats({ stats }: { stats: [string, string][] }) {
 	);
 }
 
+interface ExpandMoreProps extends IconButtonProps {
+  expand: boolean;
+}
+
+const ExpandMore = styled((props: ExpandMoreProps) => {
+  const { expand, ...other } = props;
+  return <IconButton {...other} />;
+})(({ theme }) => ({
+  marginLeft: 'auto',
+  transition: theme.transitions.create('transform', {
+    duration: theme.transitions.duration.shortest,
+  }),
+  variants: [
+    {
+      props: ({ expand }) => !expand,
+      style: {
+        transform: 'rotate(0deg)',
+      },
+    },
+    {
+      props: ({ expand }) => !!expand,
+      style: {
+        transform: 'rotate(180deg)',
+      },
+    },
+  ],
+}));
+
 function RideCard({ log, onSelect }: { log: Log; onSelect: (v: boolean) => void }) {
 	const distanceUnit = useGlobalState('unitDistance')[0];
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const [showEditModal, setShowEditModal] = useState(false);
+	const [expanded, setExpanded] = useState(false);
 	const name = log.logger.getName();
 	const rideTime = log.logger.getTotalTime();
 	const rideDistance = log.logger.getTotalDistance();
@@ -181,6 +213,10 @@ function RideCard({ log, onSelect }: { log: Log; onSelect: (v: boolean) => void 
 		const blob = new Blob(xmlLines, { type: 'application/vnd.garmin.tcx+xml' });
 
 		downloadBlob(blob, filename);
+	};
+
+	const handleExpandClick = () => {
+		setExpanded(!expanded);
 	};
 
 	return (
@@ -224,6 +260,11 @@ function RideCard({ log, onSelect }: { log: Log; onSelect: (v: boolean) => void 
 						{notes}
 					</Typography>
 				</CardContent>
+				<Collapse in={expanded} timeout="auto" unmountOnExit>
+					<CardContent>
+						<DataGraph logger={log.logger} type="full" />	
+					</CardContent>
+				</Collapse>
 				<CardActions disableSpacing>
 					<IconButton aria-label="download" onClick={handleDownload} size="large">
 						<IconDownload />
@@ -232,6 +273,14 @@ function RideCard({ log, onSelect }: { log: Log; onSelect: (v: boolean) => void 
 						color="default"
 						onChange={(e: React.ChangeEvent<HTMLInputElement>) => onSelect(e.target.checked)}
 					/>
+					<ExpandMore
+						expand={expanded}
+						onClick={handleExpandClick}
+						aria-expanded={expanded}
+						aria-label="show more"
+					>
+						<IconExpandMore />
+					</ExpandMore>
 				</CardActions>
 			</Card>
 			<EditRideModal open={showEditModal} onClose={() => setShowEditModal(false)} logger={log.logger} />
