@@ -211,7 +211,7 @@ function RideCard({ log, onSelect }: { log: Log; onSelect: (v: boolean) => void 
 					title={name}
 					subheader={log.date}
 				/>
-				{/* Add preview here */}
+				{/* TODO Add preview here */}
 				<CardContent>
 					<RideStats
 						stats={[
