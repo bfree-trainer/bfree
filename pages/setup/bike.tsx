@@ -42,19 +42,19 @@ function WheelCircumference() {
 
 	return (
 		<FormControl className={classes.form}>
-		<TextField
-			autoComplete="off"
-			className={classes.form}
-			value={tmp}
-			error={!isValidUnsigned(Number(tmp))}
-			onChange={handleChange}
-			id="outlined-basic"
-			label="Wheel Circumference"
-			variant="outlined"
-			InputProps={{
-				endAdornment: <InputAdornment position="end">mm</InputAdornment>,
-			}}
-		/>
+			<TextField
+				autoComplete="off"
+				className={classes.form}
+				value={tmp}
+				error={!isValidUnsigned(Number(tmp))}
+				onChange={handleChange}
+				id="outlined-basic"
+				label="Wheel Circumference"
+				variant="outlined"
+				InputProps={{
+					endAdornment: <InputAdornment position="end">mm</InputAdornment>,
+				}}
+			/>
 		</FormControl>
 	);
 }
@@ -78,19 +78,19 @@ function BikeWeight() {
 
 	return (
 		<FormControl className={classes.form}>
-		<TextField
-			autoComplete="off"
-			className={classes.form}
-			value={tmp}
-			error={!isValidUnsigned(Number(tmp))}
-			onChange={handleChange}
-			id="outlined-basic"
-			label="Bike Weight"
-			variant="outlined"
-			InputProps={{
-				endAdornment: <InputAdornment position="end">kg</InputAdornment>,
-			}}
-		/>
+			<TextField
+				autoComplete="off"
+				className={classes.form}
+				value={tmp}
+				error={!isValidUnsigned(Number(tmp))}
+				onChange={handleChange}
+				id="outlined-basic"
+				label="Bike Weight"
+				variant="outlined"
+				InputProps={{
+					endAdornment: <InputAdornment position="end">kg</InputAdornment>,
+				}}
+			/>
 		</FormControl>
 	);
 }
@@ -107,13 +107,20 @@ function BikeType() {
 
 	return (
 		<FormControl className={classes.form} sx={{ marginBottom: '1ex' }}>
-		<InputLabel id="select-bike-type-helper-label">Bike Type</InputLabel>
-		<Select variant="outlined" label="Bike Type" labelId="select-bike-type-helper-label" value={bike.type} onChange={handleChange} defaultValue="road">
-			<MenuItem value="atb">ATB/MTB</MenuItem>
-			<MenuItem value="commuter">Commuter</MenuItem>
-			<MenuItem value="road">Road</MenuItem>
-			<MenuItem value="racing">Racing</MenuItem>
-		</Select>
+			<InputLabel id="select-bike-type-helper-label">Bike Type</InputLabel>
+			<Select
+				variant="outlined"
+				label="Bike Type"
+				labelId="select-bike-type-helper-label"
+				value={bike.type}
+				onChange={handleChange}
+				defaultValue="road"
+			>
+				<MenuItem value="atb">ATB/MTB</MenuItem>
+				<MenuItem value="commuter">Commuter</MenuItem>
+				<MenuItem value="road">Road</MenuItem>
+				<MenuItem value="racing">Racing</MenuItem>
+			</Select>
 		</FormControl>
 	);
 }
@@ -130,9 +137,9 @@ export default function SetupBike() {
 
 				<Grid container direction="row" alignItems="center" spacing={2}>
 					<StyledParam title="Bike Parameters" info={bikeInfo} image="/images/cards/patent.jpg">
-							<BikeType />
-							<WheelCircumference />
-							<BikeWeight />
+						<BikeType />
+						<WheelCircumference />
+						<BikeWeight />
 					</StyledParam>
 				</Grid>
 			</Box>
