@@ -162,7 +162,7 @@ export default function SetupRider() {
 				<Title href="/setup">Rider</Title>
 				<p>Set the rider weight and other measurements.</p>
 
-				<Grid container direction="row" alignItems="center" spacing={2}>
+				<Grid container direction="row" alignItems="flex-start" spacing={2}>
 					<Weight />
 					<FTPValue />
 					<HeartRate />
