@@ -36,7 +36,7 @@ function makeStartUrl(resistanceMode: string, rollingResistance: number, powerLi
 export default function RideFree() {
 	const [resistanceMode, setResistanceMode] = useState<TrainerResistanceMode>('');
 	const [rollingResistance, setRollingResistance] = useState<number>(NaN);
-	const [powerLimits, setPowerLimits] = useState<PowerLimits>({ min: 0, max: 1000 });
+	const [powerLimits, setPowerLimits] = useState<PowerLimits>({ min: 100, max: 300 });
 	const [autoSplit, setAutoSplit] = useState<string>('');
 
 	useEffect(() => {
