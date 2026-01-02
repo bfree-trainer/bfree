@@ -45,7 +45,7 @@ function lap2Series(lap: Lap, speedUnit: UnitConv[string]): Series {
 	];
 }
 
-export default function DataGraph({ logger, type, lapId }: { logger: ReturnType<typeof createActivityLog>, type: 'full' | 'lap', lapId?: number }) {
+export default function DataGraph({ logger, type, lapId, isInteractive }: { logger: ReturnType<typeof createActivityLog>, type: 'full' | 'lap', lapId?: number, isInteractive?: boolean }) {
 	const [unitSpeed] = useGlobalState('unitSpeed');
 	const speedUnit = speedUnitConv[unitSpeed];
 	let series: Series = [];
@@ -80,6 +80,6 @@ export default function DataGraph({ logger, type, lapId }: { logger: ReturnType<
 	}
 
 	return (
-		<Graph series={series} colors={measurementColors} />
+		<Graph series={series} colors={measurementColors} isInteractive={isInteractive} />
 	);
 }
