@@ -6,7 +6,7 @@ import TextField from '@mui/material/TextField';
 import { useState, useEffect } from 'react';
 import { speedUnitConv, distanceUnitConv } from 'lib/units';
 import createWorkoutRunner, { RunnerResponse } from 'lib/workout_runner';
-import Graph, { Series } from './record/Graph';
+import Graph, { Series } from 'components/Graph';
 import { useGlobalState } from 'lib/global';
 import MyModal from './MyModal';
 

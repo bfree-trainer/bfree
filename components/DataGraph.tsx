@@ -5,7 +5,7 @@
 import { useGlobalState } from 'lib/global';
 import { createActivityLog, Lap } from 'lib/activity_log';
 import { speedUnitConv, UnitConv } from 'lib/units';
-import Graph, { SeriesDataPoint, Series } from 'components/record/Graph';
+import Graph, { SeriesDataPoint, Series } from 'components/Graph';
 
 export const measurementColors = [
 	'#ffaeae', // heart_rate
