@@ -127,27 +127,28 @@ function HeartRate() {
 
 	return (
 		<StyledParam title="Heart Rate" image="/images/cards/tempo.jpg">
-			<Container>
-				<TextField
-					autoComplete="off"
-					value={tmpRest}
-					error={!isValidUnsigned(Number(tmpRest))}
-					onChange={handleRestChange}
-					id="outlined-basic"
-					label="Rest BPM"
-					variant="outlined"
-					sx={textFieldStyle}
-				/>
-				<TextField
-					value={tmpMax}
-					error={!isValidUnsigned(Number(tmpMax))}
-					onChange={handleMaxChange}
-					id="outlined-basic"
-					label="Max BPM"
-					variant="outlined"
-					sx={textFieldStyle}
-				/>
-			</Container>
+			<TextField
+				autoComplete="off"
+				className={classes.form}
+				value={tmpRest}
+				error={!isValidUnsigned(Number(tmpRest))}
+				onChange={handleRestChange}
+				id="outlined-basic"
+				label="Rest BPM"
+				variant="outlined"
+				sx={textFieldStyle}
+			/>
+			<TextField
+				autoComplete="off"
+				className={classes.form}
+				value={tmpMax}
+				error={!isValidUnsigned(Number(tmpMax))}
+				onChange={handleMaxChange}
+				id="outlined-basic"
+				label="Max BPM"
+				variant="outlined"
+				sx={textFieldStyle}
+			/>
 		</StyledParam>
 	);
 }
