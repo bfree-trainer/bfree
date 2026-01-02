@@ -262,7 +262,7 @@ function RideCard({ log, onSelect }: { log: Log; onSelect: (v: boolean) => void 
 				</CardContent>
 				<Collapse in={expanded} timeout="auto" unmountOnExit>
 					<CardContent>
-						<DataGraph logger={log.logger} type="full" />	
+						<DataGraph logger={log.logger} type="full" isInteractive={true} />
 					</CardContent>
 				</Collapse>
 				<CardActions disableSpacing>
