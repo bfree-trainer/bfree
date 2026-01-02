@@ -7,6 +7,7 @@ import Container from '@mui/material/Container';
 import FormControl from '@mui/material/FormControl';
 import Grid from '@mui/material/Grid';
 import InputAdornment from '@mui/material/InputAdornment';
+import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import TextField from '@mui/material/TextField';
@@ -40,6 +41,7 @@ function WheelCircumference() {
 	};
 
 	return (
+		<FormControl className={classes.form}>
 		<TextField
 			autoComplete="off"
 			className={classes.form}
@@ -53,6 +55,7 @@ function WheelCircumference() {
 				endAdornment: <InputAdornment position="end">mm</InputAdornment>,
 			}}
 		/>
+		</FormControl>
 	);
 }
 
@@ -74,6 +77,7 @@ function BikeWeight() {
 	};
 
 	return (
+		<FormControl className={classes.form}>
 		<TextField
 			autoComplete="off"
 			className={classes.form}
@@ -87,6 +91,7 @@ function BikeWeight() {
 				endAdornment: <InputAdornment position="end">kg</InputAdornment>,
 			}}
 		/>
+		</FormControl>
 	);
 }
 
@@ -101,12 +106,15 @@ function BikeType() {
 	};
 
 	return (
-		<Select variant="standard" label="Bike Type" value={bike.type} onChange={handleChange} defaultValue="road">
+		<FormControl className={classes.form} sx={{ marginBottom: '1ex' }}>
+		<InputLabel id="select-bike-type-helper-label">Bike Type</InputLabel>
+		<Select variant="outlined" label="Bike Type" labelId="select-bike-type-helper-label" value={bike.type} onChange={handleChange} defaultValue="road">
 			<MenuItem value="atb">ATB/MTB</MenuItem>
 			<MenuItem value="commuter">Commuter</MenuItem>
 			<MenuItem value="road">Road</MenuItem>
 			<MenuItem value="racing">Racing</MenuItem>
 		</Select>
+		</FormControl>
 	);
 }
 
@@ -122,11 +130,9 @@ export default function SetupBike() {
 
 				<Grid container direction="row" alignItems="center" spacing={2}>
 					<StyledParam title="Bike Parameters" info={bikeInfo} image="/images/cards/patent.jpg">
-						<FormControl className={classes.form}>
 							<BikeType />
 							<WheelCircumference />
 							<BikeWeight />
-						</FormControl>
 					</StyledParam>
 				</Grid>
 			</Box>
