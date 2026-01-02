@@ -26,7 +26,7 @@ import { useGlobalState } from 'lib/global';
 import { PowerLimits } from 'components/ride/PowerResistance';
 import useInterval from 'lib/use-interval';
 import { useHeartRateMeasurement } from 'lib/measurements';
-import DataGraph, {measurementColors} from 'components/DataGraph';
+import DataGraph, { measurementColors } from 'components/DataGraph';
 
 const PREFIX = 'record';
 
@@ -62,7 +62,7 @@ function DataGraphCard() {
 
 	return (
 		<Grid item xs={12}>
-            <DataGraph logger={logger} type="lap" />
+			<DataGraph logger={logger} type="lap" />
 		</Grid>
 	);
 }

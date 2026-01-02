@@ -9,8 +9,8 @@ import Container from '@mui/material/Container';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Area } from 'recharts';
 import { getElapsedTimeStr } from 'lib/format';
 import { CurveType } from 'recharts/types/shape/Curve';
-import useContainerMediaQuery, {SizeTo} from 'lib/useContainerMediaQuery';
-import {useRef} from 'react';
+import useContainerMediaQuery, { SizeTo } from 'lib/useContainerMediaQuery';
+import { useRef } from 'react';
 
 const PREFIX = 'Graph';
 const classes = {
@@ -101,7 +101,10 @@ export default function Graph({
 			<CardContent>
 				<Container className={classes.graphContainer}>
 					<ResponsiveContainer ref={setRef}>
-						<LineChart data={data} margin={{ top: 10, right: isWide ? 30 : 6, bottom: isWide ? 50 : 15, left: 30 }}>
+						<LineChart
+							data={data}
+							margin={{ top: 10, right: isWide ? 30 : 6, bottom: isWide ? 50 : 15, left: 30 }}
+						>
 							<CartesianGrid strokeDasharray="3 3" />
 							<XAxis
 								dataKey="x"
@@ -110,8 +113,16 @@ export default function Graph({
 								textAnchor="end"
 								interval={Math.floor(data.length / (isWide ? 20 : 5))}
 							/>
-							{isWide && (<YAxis yAxisId="left" orientation="left" tickFormatter={(v) => Number(v).toFixed(2)} />)}
-							{isWide && (<YAxis yAxisId="right" orientation="right" tickFormatter={(v) => Number(v).toFixed(2)} />)}
+							{isWide && (
+								<YAxis yAxisId="left" orientation="left" tickFormatter={(v) => Number(v).toFixed(2)} />
+							)}
+							{isWide && (
+								<YAxis
+									yAxisId="right"
+									orientation="right"
+									tickFormatter={(v) => Number(v).toFixed(2)}
+								/>
+							)}
 							{isInteractive && (
 								<Tooltip
 									formatter={(value: number) => Number(value).toFixed(2)}
