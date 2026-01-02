@@ -22,7 +22,7 @@ export default function SetupGeneral() {
 				<Title href="/setup">General</Title>
 				<p>Configure measurement units and UX settings.</p>
 
-				<Grid container direction="row" alignItems="center" spacing={2}>
+				<Grid container direction="row" alignItems="flex-start" spacing={2}>
 					<UnsignedConfigParam
 						title="Sampling Rate"
 						image="/images/cards/tic_tac.jpg"
