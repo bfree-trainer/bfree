@@ -45,7 +45,17 @@ function lap2Series(lap: Lap, speedUnit: UnitConv[string]): Series {
 	];
 }
 
-export default function DataGraph({ logger, type, lapId, isInteractive }: { logger: ReturnType<typeof createActivityLog>, type: 'full' | 'lap', lapId?: number, isInteractive?: boolean }) {
+export default function DataGraph({
+	logger,
+	type,
+	lapId,
+	isInteractive,
+}: {
+	logger: ReturnType<typeof createActivityLog>;
+	type: 'full' | 'lap';
+	lapId?: number;
+	isInteractive?: boolean;
+}) {
 	const [unitSpeed] = useGlobalState('unitSpeed');
 	const speedUnit = speedUnitConv[unitSpeed];
 	let series: Series = [];
@@ -59,10 +69,10 @@ export default function DataGraph({ logger, type, lapId, isInteractive }: { logg
 					startTime: laps[0].startTime,
 					totalTime: laps.reduce((acc: number, cur: Lap) => acc + (cur.totalTime ?? 0), 0),
 					distanceMeters: laps.reduce((acc: number, cur: Lap) => acc + (cur.distanceMeters ?? 0), 0),
-					maxSpeed: laps.reduce((max: number, cur: Lap) => max < (cur.maxSpeed ?? 0) ? cur.maxSpeed : 0, 0),
+					maxSpeed: laps.reduce((max: number, cur: Lap) => (max < (cur.maxSpeed ?? 0) ? cur.maxSpeed : 0), 0),
 					calories: laps.reduce((acc: number, cur: Lap) => acc + (cur.calories ?? 0), 0),
 					avgHR: laps.reduce((acc: number, cur: Lap) => acc + (cur.avgHR ?? 0), 0) / laps.length,
-					maxHR: laps.reduce((max: number, cur: Lap) => max < (cur.maxHR ?? 0) ? cur.maxHR : 0, 0),
+					maxHR: laps.reduce((max: number, cur: Lap) => (max < (cur.maxHR ?? 0) ? cur.maxHR : 0), 0),
 					intensity: 'Active',
 					triggerMethod: 'Manual',
 				};
@@ -79,7 +89,5 @@ export default function DataGraph({ logger, type, lapId, isInteractive }: { logg
 		}
 	}
 
-	return (
-		<Graph series={series} colors={measurementColors} isInteractive={isInteractive} />
-	);
+	return <Graph series={series} colors={measurementColors} isInteractive={isInteractive} />;
 }
