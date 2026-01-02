@@ -44,8 +44,8 @@ export default function SetupGeneral() {
 						configName="unitDistance"
 					/>
 					<BooleanConfigParam
-						title="Ride"
-						image="/images/cards/road.jpg"
+						title="Misc"
+						image="/images/cards/misc.jpg"
 						label="Lap resets aggregated values"
 						configName="lapResetsAgg"
 					/>
