@@ -9,9 +9,8 @@ import Grid from '@mui/material/Grid';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { styled } from '@mui/material/styles';
 import { useRouter } from 'next/router';
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import FlightRecorder from 'components/record/FlightRecorder';
-import Graph, { SeriesDataPoint, Series } from 'components/record/Graph';
 import DummyCard from 'components/record/DummyCard';
 import MeasurementCard from 'components/record/MeasurementCard';
 import MyHead from 'components/MyHead';
@@ -21,13 +20,13 @@ import Ride from 'components/record/Ride';
 import Stopwatch from 'components/record/Stopwatch';
 import Title from 'components/Title';
 import WorkoutController from 'components/record/WorkoutController';
-import { Lap, LapTriggerMethod } from 'lib/activity_log';
+import { LapTriggerMethod } from 'lib/activity_log';
 import { RecordActionButtons } from 'components/record/ActionButtons';
-import { speedUnitConv } from 'lib/units';
 import { useGlobalState } from 'lib/global';
 import { PowerLimits } from 'components/ride/PowerResistance';
 import useInterval from 'lib/use-interval';
 import { useHeartRateMeasurement } from 'lib/measurements';
+import DataGraph, {measurementColors} from 'components/DataGraph';
 
 const PREFIX = 'record';
 
@@ -58,60 +57,12 @@ const StyledContainer = styled(Container)(({ theme }) => ({
 
 type RideType = 'free' | 'workout';
 
-const measurementColors = [
-	'#ffaeae', // heart_rate
-	'#b1e67b', // power
-	'#57baeb', // speed
-];
-
-function lap2Series(lap: Lap, speedUnit): Series {
-	const { startTime } = lap;
-
-	const hrData: SeriesDataPoint[] = lap.trackPoints.map((p) => ({
-		x: p.time - startTime,
-		y: !isNaN(p.hr) ? p.hr : 0,
-	}));
-	const powerData: SeriesDataPoint[] = lap.trackPoints.map((p) => ({
-		x: p.time - startTime,
-		y: !isNaN(p.power) ? p.power : 0,
-	}));
-	const speedData: SeriesDataPoint[] = lap.trackPoints.map((p) => ({
-		x: p.time - startTime,
-		y: !isNaN(p.speed) ? speedUnit.convTo(p.speed) : 0,
-	}));
-
-	return [
-		{
-			id: 'HR (BPM)',
-			data: hrData,
-		},
-		{
-			id: 'Power [W]',
-			data: powerData,
-		},
-		{
-			id: `Speed [${speedUnit.name}]`,
-			data: speedData,
-		},
-	];
-}
-
-function DataGraph() {
+function DataGraphCard() {
 	const [logger] = useGlobalState('currentActivityLog');
-	const [unitSpeed] = useGlobalState('unitSpeed');
-	const speedUnit = speedUnitConv[unitSpeed];
-	let series: Series = [];
-
-	if (logger) {
-		const lap = logger.getCurrentLap();
-		if (lap) {
-			series = lap2Series(lap, speedUnit);
-		}
-	}
 
 	return (
 		<Grid item xs={12}>
-			<Graph series={series} colors={measurementColors} />
+            <DataGraph logger={logger} type="lap" />
 		</Grid>
 	);
 }
@@ -154,7 +105,7 @@ function FreeRideDashboard() {
 							<MeasurementCard type="heart_rate" ribbonColor={classes.colorHeartRate} key="4" />,
 						]
 					: ''}
-				<DataGraph />
+				<DataGraphCard />
 			</Grid>
 		</Box>
 	);
@@ -190,7 +141,7 @@ function WorkoutDashboard({
 				<MeasurementCard type="cycling_speed" ribbonColor={classes.colorSpeed} />
 				<MeasurementCard type="cycling_power" ribbonColor={classes.colorPower} />
 				<MeasurementCard type="heart_rate" ribbonColor={classes.colorHeartRate} />
-				<DataGraph />
+				<DataGraphCard />
 			</Grid>
 		</Box>
 	);
