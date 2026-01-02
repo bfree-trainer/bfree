@@ -7,6 +7,8 @@ import { styled } from '@mui/material/styles';
 import Slider from '@mui/material/Slider';
 import Typography from '@mui/material/Typography';
 import { Theme } from '@mui/material/styles';
+import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
+import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import { useState, useEffect } from 'react';
 import { useGlobalState } from 'lib/global';
 import { speedUnitConv } from 'lib/units';
@@ -115,6 +117,42 @@ export function TrainerTestModal({ open, onClose }) {
 	);
 }
 
+function TemperatureCondition({ tempCond }: { tempCond: number }) {
+	switch (tempCond) {
+		case 1:
+			return (
+				<p>
+					<b>Temperature:</b> 'too low'
+				</p>
+			);
+		case 2:
+			return (
+				<p>
+					<b>Temperature:</b> 'ok'
+				</p>
+			);
+		case 3:
+			return (
+				<p>
+					<b>Temperature:</b> 'too high'
+				</p>
+			);
+		default:
+			return <p></p>;
+	}
+}
+
+function SpeedCondArrow({ speedCond }: { speedCond: number }) {
+	switch (speedCond) {
+		case 1:
+			return <ArrowOutwardIcon />;
+		case 2:
+			return <ArrowRightAltIcon />;
+		default:
+			return <></>;
+	}
+}
+
 export function TrainerCalibrationModal({ open, onClose }) {
 	const modalStyle = getModalStyle();
 	const [unitSpeed] = useGlobalState('unitSpeed');
@@ -123,19 +161,31 @@ export function TrainerCalibrationModal({ open, onClose }) {
 	const [smartTrainerStatus] = useGlobalState('smart_trainer');
 	const [smartTrainerControl] = useGlobalState('smart_trainer_control');
 	const [targetSpeed, setTargetSpeed] = useState('');
+	const [speedCond, setSpeedCond] = useState<number>(0);
+	const [tempCond, setTempCond] = useState<number>(0);
 	const [calResult, setCalResult] = useState<'PENDING' | 'PASSED' | 'FAILED'>('PENDING');
 
 	const handleClose = () => {
 		onClose();
 	};
 
+	useEffect(() => {
+		let tim: ReturnType<typeof setTimeout> | null = null;
+		if (calResult === 'PASSED') {
+			tim = setTimeout(handleClose, 1000);
+		}
+		return () => {
+			if (tim) {
+				clearTimeout(tim);
+			}
+		};
+	}, [calResult]);
+
 	useEffect(
 		() => {
 			let tim: ReturnType<typeof setTimeout>;
 			const statusListener = (data) => {
 				console.log('cal', data);
-
-				// TODO Show warning for tempCond 1 = too low; 3 = too high
 
 				if (data.targetSpeed) {
 					if (data.targetSpeed == -1) {
@@ -145,6 +195,8 @@ export function TrainerCalibrationModal({ open, onClose }) {
 						setTargetSpeed(`around ${targetSpeed.toFixed(0)} ${speedUnit.name}`);
 					}
 				}
+				setTempCond(data.tempCond);
+				setSpeedCond(data.speedCond);
 
 				if (data.spinDownCalRes !== undefined) {
 					setTargetSpeed('');
@@ -201,10 +253,12 @@ export function TrainerCalibrationModal({ open, onClose }) {
 			<p id="calibration-modal-description">
 				{targetSpeed !== '' ? `Start the calibration by pedaling ${targetSpeed}.` : ''}
 			</p>
+			<TemperatureCondition tempCond={tempCond} />
 			<p>
 				<b>Calibration status:</b> {calResult}
 			</p>
 			<SensorValue sensorType={'smart_trainer'} sensorValue={smartTrainerStatus} />
+			<SpeedCondArrow speedCond={speedCond} />
 		</div>
 	);
 
