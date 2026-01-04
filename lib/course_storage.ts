@@ -20,7 +20,7 @@ export function getCourses(): PersistedCourse[] {
 		return courses;
 	}
 
-	for (let i in localStorage) {
+	for (const i in localStorage) {
 		if (i.startsWith('course:')) {
 			const v = JSON.parse(localStorage[i]);
 
