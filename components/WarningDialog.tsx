@@ -18,8 +18,8 @@ export default function WarningDialog({
 }: {
 	title: string;
 	show: boolean;
-	handleCancel: (e: any) => void;
-	handleContinue: (e: any) => void;
+	handleCancel: () => void;
+	handleContinue: () => void;
 	children?: any;
 }) {
 	return (
