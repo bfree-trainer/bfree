@@ -57,7 +57,7 @@ export default function CourseList({
 	onSelectCourse: (persistedCourse: PersistedCourse) => void;
 }) {
 	const [lastDel, setLastDel] = useState(0);
-	const courses = useMemo(getCourses, [lastDel, changeId]);
+	const courses = useMemo(() => getCourses(), [lastDel, changeId]);
 
 	return (
 		<Box sx={{ width: '100%', height, maxWidth: 360, bgcolor: 'background.paper' }}>
