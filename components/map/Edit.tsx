@@ -4,7 +4,7 @@
 
 import { useState, useRef, useMemo } from 'react';
 import L from 'leaflet';
-import { FeatureGroup, Circle, Polyline } from 'react-leaflet';
+import { FeatureGroup, Polyline } from 'react-leaflet';
 import { EditControl } from 'react-leaflet-draw';
 import { createMarkerIcon } from './Marker';
 import { CourseData, Segment, Trackpoint } from '../../lib/gpx_parser';
