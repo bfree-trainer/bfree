@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import TextField from '@mui/material/TextField';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ChangeEvent } from 'react';
 import { speedUnitConv, distanceUnitConv } from 'lib/units';
 import createWorkoutRunner, { RunnerResponse } from 'lib/workout_runner';
 import Graph, { Series } from 'components/Graph';
@@ -58,7 +58,7 @@ function PreviewParams({
 		propagateChange();
 	};
 
-	const handleEndDistanceChange = (e) => {
+	const handleEndDistanceChange = (e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
 		const distance: number = Number(e.target.value);
 
 		setEndDistance(distance);
