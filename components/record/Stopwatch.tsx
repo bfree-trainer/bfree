@@ -12,7 +12,7 @@ export default function Stopwatch({
 }: {
 	startTime: number;
 	isPaused?: boolean;
-	className?: any;
+	className?: string;
 }) {
 	const [time, setTime] = useState(() => Date.now() - startTime);
 	const intervalId = useRef(null);
