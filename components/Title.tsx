@@ -94,7 +94,7 @@ function useBatteryLevelAlerts(): Notification[] {
 	const getIcon = (l: number) => <BatteryLevel batteryLevel={l} />;
 	return sensors
 		.filter(([_, battLevel]) => battLevel >= 0 && battLevel <= 20)
-		.map(([sensorType, battLevel], i) => ({
+		.map(([sensorType, battLevel]) => ({
 			severity: 'warning',
 			icon: getIcon(battLevel),
 			text: `Low battery: ${sensorNames[sensorType]}`,
