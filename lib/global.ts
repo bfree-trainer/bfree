@@ -6,6 +6,7 @@ import { createGlobalState } from 'react-hooks-global-state';
 import { BtDevice } from './ble';
 import { createActivityLog } from './activity_log';
 import { CppMeasurements, CscMeasurements, HrmMeasurements, TrainerMeasurements } from './measurements';
+import { createSmartTrainerController } from 'lib/ble/trainer';
 
 export type SensorType =
 	| 'cycling_cadence'
@@ -130,7 +131,7 @@ export type GlobalState = {
 	smart_trainer: null | TrainerMeasurements;
 	// Control
 	control_params: ControlParams;
-	smart_trainer_control: any;
+	smart_trainer_control: any; // TODO This breaks typing of the whole global null | ReturnType<typeof createSmartTrainerController>;
 	// Recording state
 	currentActivityLog: null | ReturnType<typeof createActivityLog>;
 	ridePaused: number; // -1 = not started; 0 = not paused; anything else is a timestamp
