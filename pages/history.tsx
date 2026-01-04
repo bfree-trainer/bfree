@@ -291,7 +291,7 @@ function RideCard({ log, onSelect }: { log: Log; onSelect: (v: boolean) => void 
 export default function History() {
 	const isBreakpoint = useMediaQuery('(min-width:800px)');
 	const [logs, setLogs] = useState<ReturnType<typeof getActivityLogs>>([]);
-	const selectionRef = useRef(new WeakMap<Log, Boolean>());
+	const selectionRef = useRef(new WeakMap<Log, boolean>());
 	const [selectionCount, setSelectionCount] = useState(0);
 	const massDeletion = () => {
 		const q = logs.filter((log) => selectionRef.current.has(log));
