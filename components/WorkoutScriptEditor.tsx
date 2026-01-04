@@ -37,9 +37,9 @@ export default function WorkoutScriptEditor({
 	defaultNotes: string;
 	code: string;
 	onCodeChange: (txt: string) => void;
-	onClickSave: (e: any, name: string, notes: string) => void;
-	onClickDiscard: (e: any) => void;
-	onClickPreview: (e: any) => void;
+	onClickSave: (name: string, notes: string) => void;
+	onClickDiscard: () => void;
+	onClickPreview: () => void;
 }) {
 	const [name, setName] = useState(defaultName);
 	const [notes, setNotes] = useState(defaultNotes);
@@ -60,7 +60,7 @@ export default function WorkoutScriptEditor({
 						Workout Script
 					</Typography>
 					<EditActionButtons
-						onClickSave={(e: any) => onClickSave(e, name, notes)}
+						onClickSave={() => onClickSave(name, notes)}
 						onClickDiscard={onClickDiscard}
 						onClickPreview={onClickPreview}
 					/>
