@@ -14,17 +14,6 @@ const graphColors = [
 	'#b1e67b', // load resistance
 ];
 
-function getModalStyle() {
-	const top = 50;
-	const left = 50;
-
-	return {
-		top: `${top}%`,
-		left: `${left}%`,
-		transform: `translate(-${top}%, -${left}%)`,
-	};
-}
-
 function PreviewParams({
 	onChange,
 }: {
