@@ -13,9 +13,9 @@ export default function EditActionButtons({
 	onClickDiscard,
 	onClickPreview,
 }: {
-	onClickSave?: (e: any) => void;
-	onClickDiscard?: (e: any) => void;
-	onClickPreview?: (e: any) => void;
+	onClickSave?: () => void;
+	onClickDiscard?: () => void;
+	onClickPreview?: () => void;
 }) {
 	const actionsStyle = {
 		'> *': {

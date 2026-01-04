@@ -41,12 +41,12 @@ export default function RideWorkoutEdit() {
 		}
 	}, [router.isReady, id]); // eslint-disable-line react-hooks/exhaustive-deps
 
-	const onClickSave = (e: any, name: string, notes: string) => {
+	const onClickSave = (name: string, notes: string) => {
 		saveWorkout(name, notes, workoutScript)
 			.catch(console.error) // TODO Show an error???
 			.then(() => router.push('/ride/workout'));
 	};
-	const onClickDiscard = (e: any) => {
+	const onClickDiscard = () => {
 		router.push('/ride/workout');
 	};
 

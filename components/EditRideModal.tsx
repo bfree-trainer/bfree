@@ -38,7 +38,7 @@ export default function EditModal({
 		saveActivityLog(logger);
 		onClose();
 	};
-	const onClickDiscard = (e: any) => {
+	const onClickDiscard = () => {
 		onClose();
 	};
 
