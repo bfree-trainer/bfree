@@ -260,7 +260,7 @@ export function getActivityLogs(): {
 		return [];
 	}
 
-	for (let i in localStorage) {
+	for (const i in localStorage) {
 		if (i.startsWith('activity_log:')) {
 			const logger = createActivityLog();
 			logger.importJson(localStorage[i]);

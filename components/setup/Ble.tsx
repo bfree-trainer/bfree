@@ -59,7 +59,7 @@ export default function Ble({
 	// @ts-ignore
 	const [_GloblBatteryLevel, setGloblBatteryLevel] = useGlobalState(`batt_${globalBtDeviceName}`);
 	const [batteryLevel, setBatteryLevel] = useState(-1);
-	let [info, setInfo] = useState<InfoMessage>(pairedWithMessage(btDevice));
+	const [info, setInfo] = useState<InfoMessage>(pairedWithMessage(btDevice));
 
 	const unpairDevice = () => {
 		if (btDevice) {

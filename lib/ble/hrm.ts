@@ -38,7 +38,7 @@ export async function startHRMNotifications(server: BluetoothRemoteGATTServer, c
 		}
 		const rrIntervalPresent = flags & 0x10;
 		if (rrIntervalPresent) {
-			let rrIntervals = [];
+			const rrIntervals = [];
 			for (; index + 1 < value.byteLength; index += 2) {
 				rrIntervals.push(value.getUint16(index, /*littleEndian=*/ true));
 			}

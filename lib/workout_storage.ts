@@ -23,7 +23,7 @@ export function getWorkouts(): WorkoutScript[] {
 		return workouts;
 	}
 
-	for (let i in localStorage) {
+	for (const i in localStorage) {
 		if (i.startsWith('workout:')) {
 			const v = JSON.parse(localStorage[i]);
 
