@@ -33,6 +33,9 @@ export default function Setup() {
 					<MenuCard title="Sensors" href="/setup/sensors">
 						Connect to BLE sensors.
 					</MenuCard>
+					<MenuCard title="Import/Export" href="/setup/json">
+						Import or export settings.
+					</MenuCard>
 				</Grid>
 			</Box>
 		</Container>

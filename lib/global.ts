@@ -6,7 +6,6 @@ import { createGlobalState } from 'react-hooks-global-state';
 import { BtDevice } from './ble';
 import { createActivityLog } from './activity_log';
 import { CppMeasurements, CscMeasurements, HrmMeasurements, TrainerMeasurements } from './measurements';
-import { createSmartTrainerController } from 'lib/ble/trainer';
 
 export type SensorType =
 	| 'cycling_cadence'
@@ -201,16 +200,18 @@ const initialState: GlobalState = {
 
 const { useGlobalState: _useGlobalState, getGlobalState, setGlobalState } = createGlobalState(initialState);
 
-type ConfigKey =
-	| 'samplingRate'
-	| 'cadenceSources'
-	| 'speedSources'
-	| 'powerSources'
-	| 'unitDistance'
-	| 'unitSpeed'
-	| 'rider'
-	| 'bike'
-	| 'lapResetsAgg';
+export const configKeys = [
+	'samplingRate',
+	'cadenceSources',
+	'speedSources',
+	'powerSources',
+	'unitDistance',
+	'unitSpeed',
+	'rider',
+	'bike',
+	'lapResetsAgg',
+] as const;
+export type ConfigKey = (typeof configKeys)[number];
 
 function useGlobalState(key: keyof GlobalState) {
 	const [value, setValue] = _useGlobalState(key);
@@ -228,6 +229,7 @@ function useGlobalState(key: keyof GlobalState) {
 }
 
 function saveConfig() {
+	// TODO loop over keys
 	const config: { [k in ConfigKey]: any } = {
 		samplingRate: getGlobalState('samplingRate'),
 		cadenceSources: getGlobalState('cadenceSources'),
@@ -243,4 +245,18 @@ function saveConfig() {
 	localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(config));
 }
 
-export { useGlobalState, getGlobalState, setGlobalState, saveConfig };
+function importConfig(json: string): void {
+	const d = JSON.parse(json);
+	for (const k of configKeys) {
+		if (k in d) {
+			setGlobalState(k, d[k]);
+		}
+	}
+	saveConfig();
+}
+
+function exportConfig(): string {
+	return localStorage.getItem(LOCAL_STORAGE_KEY);
+}
+
+export { useGlobalState, getGlobalState, setGlobalState, saveConfig, importConfig, exportConfig };
