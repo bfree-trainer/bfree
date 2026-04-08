@@ -362,7 +362,7 @@ function VirtualRideDashboard() {
 					{gpxError}
 				</Box>
 			)}
-			{/* Overlay ride data */}
+			{/* Overlay: top-left — time/distance and cadence */}
 			<Box
 				sx={{
 					position: 'absolute',
@@ -386,6 +386,30 @@ function VirtualRideDashboard() {
 				>
 					<Ride />
 					<MeasurementCard type="cycling_cadence" />
+				</Grid>
+			</Box>
+			{/* Overlay: bottom — speed, power, heart rate */}
+			<Box
+				sx={{
+					position: 'absolute',
+					bottom: 0,
+					left: 0,
+					width: '100%',
+					pointerEvents: 'none',
+					padding: 1,
+				}}
+			>
+				<Grid
+					container
+					direction="row"
+					spacing={1}
+					sx={{
+						'& .MuiCard-root': {
+							opacity: 0.85,
+							backdropFilter: 'blur(4px)',
+						},
+					}}
+				>
 					<MeasurementCard type="cycling_speed" ribbonColor={classes.colorSpeed} />
 					<MeasurementCard type="cycling_power" ribbonColor={classes.colorPower} />
 					<MeasurementCard type="heart_rate" ribbonColor={classes.colorHeartRate} />
