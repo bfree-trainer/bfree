@@ -10,7 +10,6 @@ import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tool
 import { getElapsedTimeStr } from 'lib/format';
 import { CurveType } from 'recharts/types/shape/Curve';
 import useContainerMediaQuery, { SizeTo } from 'lib/useContainerMediaQuery';
-import { useRef } from 'react';
 
 const PREFIX = 'Graph';
 const classes = {
