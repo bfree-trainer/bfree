@@ -4,16 +4,45 @@
 
 import haversine from './haversine';
 import { CourseData, Trackpoint } from './gpx_parser';
+import { rollingResistanceCoeff } from './virtual_params';
 
 /** Metadata for a virtual ride video clip as loaded from the remote JSON feed. */
 export type VideoClip = {
 	title: string;
-	gpxUrl: string;
+	/** HTTPS URL of the GPX file describing the route. Optional – enables GPS sync and slope resistance when present. */
+	gpxUrl?: string;
 	videoUrl: string;
 	copyright: string;
 	/** Average cycling speed of the video in km/h, used for the 'average' sync method. */
 	avgSpeedKmh?: number;
+	/**
+	 * Road surface of the route.  Controls the rolling resistance sent to the smart trainer.
+	 * Valid values: `'WoodenTrack'`, `'Concrete'`, `'AsphaltRoad'`, `'RoughRoad'`.
+	 * Defaults to `'AsphaltRoad'` when omitted.
+	 */
+	roadSurface?: string;
 };
+
+/**
+ * Predefined road surfaces and their rolling-resistance coefficients.
+ * Keys match the `roadSurface` field of the `VideoClip` JSON schema.
+ */
+export const predefinedRollingResistances: [string, number][] = [
+	['WoodenTrack', rollingResistanceCoeff.wood],
+	['Concrete', rollingResistanceCoeff.concrete],
+	['AsphaltRoad', rollingResistanceCoeff.asphalt],
+	['RoughRoad', rollingResistanceCoeff.rough],
+];
+
+/**
+ * Return the rolling-resistance coefficient for the given road surface name.
+ * Falls back to asphalt when the surface is unknown or omitted.
+ */
+export function getRollingResistanceCoeff(roadSurface?: string): number {
+	if (!roadSurface) return rollingResistanceCoeff.asphalt;
+	const found = predefinedRollingResistances.find(([name]) => name === roadSurface);
+	return found ? found[1] : rollingResistanceCoeff.asphalt;
+}
 
 /**
  * How the video playback speed is synchronised with the rider's speed.
@@ -92,4 +121,38 @@ export function calcAveragePlaybackRate(avgSpeedKmh: number, currentSpeedMs: num
 	if (avgSpeedMs <= 0) return 1;
 	const rate = currentSpeedMs / avgSpeedMs;
 	return Math.max(0.1, Math.min(4.0, rate));
+}
+
+/**
+ * Compute the road grade (%) at the current video position from timed+elevation trackpoints.
+ *
+ * Uses the same time-to-index algorithm as `calcGpsPlaybackRate`, then derives the grade from
+ * the elevation difference between the two surrounding trackpoints.
+ *
+ * @param points       Timed trackpoints extracted from the GPX file.
+ * @param videoTimeSec Current video playback position in seconds.
+ * @returns  Grade in percent (clamped to [−20, 20]), or null when elevation data is unavailable.
+ */
+export function calcSlopeAtVideoTime(points: TimedTrackpoint[], videoTimeSec: number): number | null {
+	if (points.length < 2) return null;
+
+	const startMs = points[0].time.getTime();
+	const targetMs = startMs + videoTimeSec * 1000;
+
+	let idx = 1;
+	for (; idx < points.length; idx++) {
+		if (points[idx].time.getTime() >= targetMs) break;
+	}
+	if (idx >= points.length) idx = points.length - 1;
+
+	const prev = points[idx - 1];
+	const curr = points[idx];
+
+	if (prev.ele === undefined || curr.ele === undefined) return null;
+
+	const distM = haversine([prev.lat, prev.lon], [curr.lat, curr.lon]);
+	if (distM <= 0) return null;
+
+	const gradePercent = ((curr.ele - prev.ele) / distM) * 100;
+	return Math.max(-20, Math.min(20, gradePercent));
 }

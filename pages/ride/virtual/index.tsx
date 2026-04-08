@@ -38,6 +38,9 @@ function makeStartUrl(clip: VideoClip): string {
 	if (syncMethod === 'average' && clip.avgSpeedKmh !== undefined) {
 		params.set('avgSpeedKmh', String(clip.avgSpeedKmh));
 	}
+	if (clip.roadSurface) {
+		params.set('roadSurface', clip.roadSurface);
+	}
 	return `/ride/record?${params.toString()}`;
 }
 
