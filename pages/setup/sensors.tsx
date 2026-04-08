@@ -22,7 +22,6 @@ import { startCyclingPowerMeasurementNotifications } from 'lib/ble/cpp';
 import { startCyclingSpeedAndCadenceMeasurementNotifications } from 'lib/ble/cscp';
 import { startHRMNotifications } from 'lib/ble/hrm';
 import { createSmartTrainerController } from 'lib/ble/trainer';
-import type { createTrainerEmulator } from 'lib/ble/trainer_emulator';
 import SensorValue from 'components/SensorValue';
 import { TrainerCalibrationModal } from 'components/TrainerControl';
 import { useGlobalState, getGlobalState } from 'lib/global';
@@ -69,12 +68,6 @@ function TrainerEmulatorSetup() {
 		// just like a real BLE trainer that stays connected across page navigations.
 	}, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-	const disconnect = () => {
-		(smartTrainerControl as ReturnType<typeof createTrainerEmulator>)?.stop();
-		setSmartTrainerControl(null);
-		setSensorValue(null);
-	};
-
 	return (
 		<SensorCard
 			icon={<IconBike sx={iconStyle} />}
@@ -82,9 +75,6 @@ function TrainerEmulatorSetup() {
 			batteryLevel={-1}
 			actions={
 				<CardActions>
-					<ActionButton wait={false} disabled={!smartTrainerControl} onClick={disconnect}>
-						Disconnect
-					</ActionButton>
 					<ActionButton
 						wait={false}
 						disabled={!smartTrainerControl}
