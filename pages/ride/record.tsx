@@ -153,17 +153,32 @@ function WorkoutDashboard({
 	);
 }
 
+/** Return true only when url is a safe HTTP(S) URL, preventing open-redirect/XSS. */
+function isSafeUrl(url: string): boolean {
+	try {
+		const parsed = new URL(url);
+		return parsed.protocol === 'https:' || parsed.protocol === 'http:';
+	} catch {
+		return false;
+	}
+}
+
 function VirtualRideDashboard() {
 	const router = useRouter();
 	const { videoUrl, gpxUrl, syncMethod, avgSpeedKmh } = router.query;
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const [ridePaused] = useGlobalState('ridePaused');
+	const [gpxError, setGpxError] = useState<string | null>(null);
 
 	// GPX timed trackpoints, only needed for GPS sync
 	const [gpxPoints, setGpxPoints] = useState<ReturnType<typeof getTimedTrackpoints>>([]);
 
 	useEffect(() => {
 		if (syncMethod !== 'gps' || typeof gpxUrl !== 'string' || !gpxUrl) return;
+		if (!isSafeUrl(gpxUrl)) {
+			console.error('Invalid GPX URL – must be HTTP or HTTPS.');
+			return;
+		}
 
 		fetch(gpxUrl)
 			.then((r) => {
@@ -175,8 +190,9 @@ function VirtualRideDashboard() {
 				const gpxData = gpxDocument2obj(doc);
 				setGpxPoints(getTimedTrackpoints(gpxData));
 			})
-			.catch((err) => {
+			.catch((err: Error) => {
 				console.error('Failed to load GPX for virtual ride:', err);
+				setGpxError(`Failed to load GPS data: ${err.message}. Video will play at constant speed.`);
 			});
 	}, [gpxUrl, syncMethod]);
 
@@ -187,8 +203,8 @@ function VirtualRideDashboard() {
 		if (ridePaused !== 0) {
 			video.pause();
 		} else {
-			video.play().catch(() => {
-				// Autoplay may be blocked; user gesture will be required.
+			video.play().catch((err: Error) => {
+				console.log('Autoplay blocked, user gesture required:', err.message);
 			});
 		}
 	}, [ridePaused]);
@@ -212,7 +228,7 @@ function VirtualRideDashboard() {
 		}
 	}, 1000);
 
-	if (typeof videoUrl !== 'string' || !videoUrl) {
+	if (typeof videoUrl !== 'string' || !videoUrl || !isSafeUrl(videoUrl)) {
 		return <DefaultErrorPage statusCode={400} />;
 	}
 
@@ -224,11 +240,29 @@ function VirtualRideDashboard() {
 				style={{ width: '100%', display: 'block', maxHeight: '80vh' }}
 				playsInline
 			/>
+			{gpxError && (
+				<Box
+					sx={{
+						position: 'absolute',
+						top: 8,
+						left: 0,
+						width: '100%',
+						textAlign: 'center',
+						color: 'warning.main',
+						bgcolor: 'rgba(0,0,0,0.6)',
+						px: 2,
+						py: 0.5,
+						fontSize: '0.85rem',
+					}}
+				>
+					{gpxError}
+				</Box>
+			)}
 			{/* Overlay ride data */}
 			<Box
 				sx={{
 					position: 'absolute',
-					top: 0,
+					top: gpxError ? 48 : 0,
 					left: 0,
 					width: '100%',
 					pointerEvents: 'none',

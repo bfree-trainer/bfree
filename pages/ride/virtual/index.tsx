@@ -128,9 +128,9 @@ export default function RideVirtual() {
 				)}
 
 				<Grid container direction="row" alignItems="stretch" spacing={2} sx={{ mt: 1 }}>
-					{clips.map((clip, i) => (
+					{clips.map((clip) => (
 						<VideoClipCard
-							key={i}
+							key={clip.videoUrl}
 							clip={clip}
 							selected={selectedClip === clip}
 							onSelect={() => setSelectedClip(clip)}
