@@ -203,6 +203,11 @@ function VirtualRideDashboard() {
 		[bike],
 	);
 
+	// Low-pass filter for slope: smoothed value stored in a ref to persist across ticks.
+	// α = 0.2 keeps ~80 % of the previous smoothed value each second → ~5 s time constant.
+	const smoothedSlopeRef = useRef<number | null>(null);
+	const SLOPE_LPF_ALPHA = 0.2;
+
 	// GPX timed trackpoints – loaded whenever gpxUrl is present (used for both GPS sync and slope)
 	const [gpxPoints, setGpxPoints] = useState<ReturnType<typeof getTimedTrackpoints>>([]);
 
@@ -221,6 +226,7 @@ function VirtualRideDashboard() {
 			.then((text) => {
 				const doc = parseGpxText2Document(text);
 				const gpxData = gpxDocument2obj(doc);
+				smoothedSlopeRef.current = null; // reset LPF state for the new route
 				setGpxPoints(getTimedTrackpoints(gpxData));
 			})
 			.catch((err: Error) => {
@@ -304,8 +310,12 @@ function VirtualRideDashboard() {
 
 		// Apply slope resistance from GPX elevation when available
 		if (gpxPoints.length >= 2 && smartTrainerControl) {
-			const slope = calcSlopeAtVideoTime(gpxPoints, video.currentTime);
-			if (slope !== null) {
+			const rawSlope = calcSlopeAtVideoTime(gpxPoints, video.currentTime);
+			if (rawSlope !== null) {
+				// Exponential moving average to smooth out abrupt grade changes.
+				const prev = smoothedSlopeRef.current;
+				const slope = prev === null ? rawSlope : prev + SLOPE_LPF_ALPHA * (rawSlope - prev);
+				smoothedSlopeRef.current = slope;
 				smartTrainerControl.sendSlope(slope, rollingResistanceValue).catch(console.error);
 				setControlParams((prev: ControlParams) => ({ ...prev, slope }));
 			}
