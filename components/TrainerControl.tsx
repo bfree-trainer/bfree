@@ -122,19 +122,19 @@ function TemperatureCondition({ tempCond }: { tempCond: number }) {
 		case 1:
 			return (
 				<p>
-					<b>Temperature:</b> 'too low'
+					<b>Temperature:</b> &apos;too low&apos;
 				</p>
 			);
 		case 2:
 			return (
 				<p>
-					<b>Temperature:</b> 'ok'
+					<b>Temperature:</b> &apos;ok&apos;
 				</p>
 			);
 		case 3:
 			return (
 				<p>
-					<b>Temperature:</b> 'too high'
+					<b>Temperature:</b> &apos;too high&apos;
 				</p>
 			);
 		default:
