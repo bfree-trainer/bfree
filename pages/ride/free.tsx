@@ -14,7 +14,7 @@ import PowerResistance, { PowerLimits } from 'components/ride/PowerResistance';
 import RollingResistance from 'components/ride/RollingResistance';
 import Title from 'components/Title';
 
-const StyledContainer = styled(Container)(({ theme }) => ({}));
+const StyledContainer = styled(Container)(() => ({}));
 
 function makeStartUrl(resistanceMode: string, rollingResistance: number, powerLimits: PowerLimits, autoSplit: string) {
 	let uri = `/ride/record?type=free&resistance=${resistanceMode}`;

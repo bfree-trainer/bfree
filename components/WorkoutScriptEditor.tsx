@@ -16,7 +16,7 @@ const classes = {
 	editor: `${PREFIX}-editor`,
 };
 
-const StyledGrid = styled(Grid)(({ theme }) => ({
+const StyledGrid = styled(Grid)(() => ({
 	[`& .${classes.editor}`]: {
 		overflow: 'scroll',
 		fontFamily: '"Fira code", "Fira Mono", monospace',

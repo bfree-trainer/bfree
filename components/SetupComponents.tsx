@@ -30,7 +30,7 @@ export const classes = {
 	media: `${PREFIX}-media`,
 	form: `${PREFIX}-form`,
 };
-const makeStyles = ({ theme }: { theme: Theme }) => ({
+const makeStyles = () => ({
 	[`& .${classes.root}`]: {
 		display: 'flex',
 		alignItems: 'center',

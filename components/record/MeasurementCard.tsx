@@ -31,7 +31,7 @@ const classes = {
 	unit: `${PREFIX}-unit`,
 };
 
-const StyledGrid = styled(Grid)(({ theme }) => ({
+const StyledGrid = styled(Grid)(() => ({
 	[`& .${classes.cardHeader}`]: {
 		padding: 2,
 	},

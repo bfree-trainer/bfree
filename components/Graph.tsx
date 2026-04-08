@@ -15,7 +15,7 @@ const PREFIX = 'Graph';
 const classes = {
 	graphContainer: `${PREFIX}-graphContainer`,
 };
-const StyledCard = styled(Card)(({ theme }) => ({
+const StyledCard = styled(Card)(() => ({
 	[`& .${classes.graphContainer}`]: {
 		display: 'flex',
 		height: '25vh',

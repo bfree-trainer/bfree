@@ -37,7 +37,7 @@ const classes = {
 	pauseStopwatch: `${PREFIX}-pauseStopwatch`,
 };
 
-const StyledContainer = styled(Container)(({ theme }) => ({
+const StyledContainer = styled(Container)(() => ({
 	[`& .${classes.colorPower}`]: {
 		background: measurementColors[1],
 	},
