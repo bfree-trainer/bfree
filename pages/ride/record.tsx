@@ -169,6 +169,8 @@ function VirtualRideDashboard() {
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const [ridePaused] = useGlobalState('ridePaused');
 	const [gpxError, setGpxError] = useState<string | null>(null);
+	// True when the video was auto-paused because the rider's speed dropped to zero.
+	const speedPausedRef = useRef(false);
 
 	// GPX timed trackpoints, only needed for GPS sync
 	const [gpxPoints, setGpxPoints] = useState<ReturnType<typeof getTimedTrackpoints>>([]);
@@ -203,6 +205,9 @@ function VirtualRideDashboard() {
 		if (ridePaused !== 0) {
 			video.pause();
 		} else {
+			// User manually resumed – clear the speed-pause flag so the interval can
+			// restart playback once speed is non-zero.
+			speedPausedRef.current = false;
 			video.play().catch((err: Error) => {
 				console.log('Autoplay blocked, user gesture required:', err.message);
 			});
@@ -212,10 +217,27 @@ function VirtualRideDashboard() {
 	// Adjust playback rate every second based on current speed
 	useInterval(async () => {
 		const video = videoRef.current;
-		if (!video || video.paused || ridePaused !== 0) return;
+		if (!video || ridePaused !== 0) return;
 
 		const speedMeas = getCyclingSpeedMeasurement();
 		const currentSpeedMs = speedMeas?.speed ?? 0;
+
+		// Pause when the rider is stationary; auto-resume when they start moving again.
+		if (currentSpeedMs === 0) {
+			if (!video.paused) {
+				video.pause();
+				speedPausedRef.current = true;
+			}
+			return;
+		}
+		if (speedPausedRef.current && video.paused) {
+			speedPausedRef.current = false;
+			video.play().catch((err: Error) => {
+				console.log('Could not resume video after speed-pause:', err.message);
+			});
+		}
+
+		if (video.paused) return;
 
 		if (syncMethod === 'gps' && gpxPoints.length >= 2) {
 			const rate = calcGpsPlaybackRate(gpxPoints, video.currentTime, currentSpeedMs);
@@ -233,11 +255,21 @@ function VirtualRideDashboard() {
 	}
 
 	return (
-		<Box sx={{ position: 'relative', width: '100%', background: '#000' }}>
+		<Box
+			sx={{
+				position: 'relative',
+				width: '100%',
+				height: 'calc(100vh - 56px)', // 56px = MUI BottomNavigation height
+				background: '#000',
+				display: 'flex',
+				alignItems: 'center',
+				overflow: 'hidden',
+			}}
+		>
 			<video
 				ref={videoRef}
 				src={videoUrl}
-				style={{ width: '100%', display: 'block', maxHeight: '80vh' }}
+				style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }}
 				playsInline
 			/>
 			{gpxError && (
