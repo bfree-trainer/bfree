@@ -138,7 +138,9 @@ export function calcPositionAtVideoTime(
 	if (points.length < 2) return null;
 
 	const startMs = points[0].time.getTime();
-	const targetMs = startMs + videoTimeSec * 1000;
+	// Clamp to GPX data range so we never extrapolate beyond the last trackpoint.
+	const endMs = points[points.length - 1].time.getTime();
+	const targetMs = Math.min(startMs + videoTimeSec * 1000, endMs);
 
 	let idx = 1;
 	for (; idx < points.length; idx++) {
@@ -149,7 +151,7 @@ export function calcPositionAtVideoTime(
 	const prev = points[idx - 1];
 	const curr = points[idx];
 	const dtMs = curr.time.getTime() - prev.time.getTime();
-	const t = dtMs <= 0 ? 0 : Math.min(1, (targetMs - prev.time.getTime()) / dtMs);
+	const t = dtMs <= 0 ? 0 : (targetMs - prev.time.getTime()) / dtMs;
 
 	return {
 		lat: prev.lat + t * (curr.lat - prev.lat),
