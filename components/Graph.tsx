@@ -10,13 +10,12 @@ import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tool
 import { getElapsedTimeStr } from 'lib/format';
 import { CurveType } from 'recharts/types/shape/Curve';
 import useContainerMediaQuery, { SizeTo } from 'lib/useContainerMediaQuery';
-import { useRef } from 'react';
 
 const PREFIX = 'Graph';
 const classes = {
 	graphContainer: `${PREFIX}-graphContainer`,
 };
-const StyledCard = styled(Card)(({ theme }) => ({
+const StyledCard = styled(Card)(() => ({
 	[`& .${classes.graphContainer}`]: {
 		display: 'flex',
 		height: '25vh',

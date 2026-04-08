@@ -16,7 +16,7 @@ const classes = {
 	inlineIcon: `${PREFIX}-inlineIcon`,
 };
 
-const StyledGrid = styled(Grid)(({ theme }) => ({
+const StyledGrid = styled(Grid)(() => ({
 	[`& .${classes.dummyCard}`]: {
 		height: '10em',
 	},

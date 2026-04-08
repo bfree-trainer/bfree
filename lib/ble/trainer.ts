@@ -376,7 +376,7 @@ export async function createSmartTrainerController(
 			return;
 		}
 		const msgLen = value.getUint8(1);
-		const msgId = value.getUint8(2);
+		const _msgId = value.getUint8(2);
 		if (value.byteLength < 3 + msgLen + 1) {
 			console.error('Invalid ANT+ message size');
 			return;

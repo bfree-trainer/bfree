@@ -30,7 +30,7 @@ const classes = {
 	sensorValue: `${PREFIX}-sensorValue`,
 };
 
-const StyledContainer = styled(Container)(({ theme }) => ({
+const StyledContainer = styled(Container)(() => ({
 	[`& .${classes.sensorValue}`]: {
 		position: 'relative',
 		marginBottom: '1em',
