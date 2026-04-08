@@ -88,6 +88,8 @@ function WorkoutCard({ workout, onChange }) {
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const [showWarning, setShowWarning] = useState(false);
 	const [btDevice_smart_trainer] = useGlobalState('btDevice_smart_trainer');
+	const [smartTrainerControl] = useGlobalState('smart_trainer_control');
+	const hasTrainer = !!btDevice_smart_trainer || !!smartTrainerControl;
 	const href = useMemo(() => `/ride/record?type=workout&id=${workout.id}`, [workout.id]);
 
 	const handleMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -118,7 +120,7 @@ function WorkoutCard({ workout, onChange }) {
 		toggleWorkoutFav(workout.id).catch(console.error).then(onChange());
 	};
 	const handleRide = (e) => {
-		if (!btDevice_smart_trainer) {
+		if (!hasTrainer) {
 			e.preventDefault();
 			setShowWarning(true);
 		} else {

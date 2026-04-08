@@ -50,12 +50,13 @@ function TrainerEmulatorSetup() {
 	const [showCalibrationModal, setShowCalibrationModal] = useState(false);
 
 	useEffect(() => {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		let controller: ReturnType<typeof createTrainerEmulator> | null = null;
+		// Only start the emulator once; it should persist even when this
+		// component unmounts (i.e. the user navigates away from this page).
+		if (getGlobalState('smart_trainer_control')) return;
 
 		// Lazy import to keep the emulator out of non-emulator builds.
 		import('lib/ble/trainer_emulator').then(({ createTrainerEmulator }) => {
-			controller = createTrainerEmulator(setSensorValue);
+			const controller = createTrainerEmulator(setSensorValue);
 			controller.startNotifications();
 
 			const { weight: userWeightKg } = getGlobalState('rider');
@@ -64,13 +65,8 @@ function TrainerEmulatorSetup() {
 
 			setSmartTrainerControl(controller);
 		});
-
-		return () => {
-			// Tear down the emulator when the component is unmounted.
-			controller?.stop();
-			setSmartTrainerControl(null);
-			setSensorValue(null);
-		};
+		// No cleanup – the emulator stays running as long as the app is open,
+		// just like a real BLE trainer that stays connected across page navigations.
 	}, []); // eslint-disable-line react-hooks/exhaustive-deps
 
 	const disconnect = () => {
