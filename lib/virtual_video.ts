@@ -124,6 +124,40 @@ export function calcAveragePlaybackRate(avgSpeedKmh: number, currentSpeedMs: num
 }
 
 /**
+ * Compute the geographic position (lat/lon) at the current video position by linearly
+ * interpolating between the two surrounding timed trackpoints.
+ *
+ * @param points       Timed trackpoints extracted from the GPX file.
+ * @param videoTimeSec Current video playback position in seconds.
+ * @returns  `{ lat, lon }` or null when there are not enough points.
+ */
+export function calcPositionAtVideoTime(
+	points: TimedTrackpoint[],
+	videoTimeSec: number
+): { lat: number; lon: number } | null {
+	if (points.length < 2) return null;
+
+	const startMs = points[0].time.getTime();
+	const targetMs = startMs + videoTimeSec * 1000;
+
+	let idx = 1;
+	for (; idx < points.length; idx++) {
+		if (points[idx].time.getTime() >= targetMs) break;
+	}
+	if (idx >= points.length) idx = points.length - 1;
+
+	const prev = points[idx - 1];
+	const curr = points[idx];
+	const dtMs = curr.time.getTime() - prev.time.getTime();
+	const t = dtMs <= 0 ? 0 : Math.min(1, (targetMs - prev.time.getTime()) / dtMs);
+
+	return {
+		lat: prev.lat + t * (curr.lat - prev.lat),
+		lon: prev.lon + t * (curr.lon - prev.lon),
+	};
+}
+
+/**
  * Compute the road grade (%) at the current video position from timed+elevation trackpoints.
  *
  * Uses the same time-to-index algorithm as `calcGpsPlaybackRate`, then derives the grade from

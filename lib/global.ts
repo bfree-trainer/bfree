@@ -134,6 +134,8 @@ export type GlobalState = {
 	// Recording state
 	currentActivityLog: null | ReturnType<typeof createActivityLog>;
 	ridePaused: number; // -1 = not started; 0 = not paused; anything else is a timestamp
+	/** Current GPS position for virtual rides, updated every recording tick. Null in all other ride modes. */
+	virtualPosition: null | { lat: number; lon: number };
 	elapsedTime: number;
 	elapsedLapTime: number;
 	rideDistance: number;
@@ -190,6 +192,7 @@ const initialState: GlobalState = {
 	// Recording state
 	currentActivityLog: null,
 	ridePaused: -1,
+	virtualPosition: null,
 	elapsedTime: 0,
 	elapsedLapTime: 0,
 	rideDistance: 0,

@@ -64,6 +64,7 @@ export default function FlightRecorder({ startTime }: { startTime: number }) {
 					const power = getCyclingPowerMeasurement();
 					const speed = getCyclingSpeedMeasurement();
 					const heartRate = getHeartRateMeasurement();
+					const virtualPosition = getGlobalState('virtualPosition');
 					let lapDistance = getGlobalState('lapDistance');
 					const { slope } = getGlobalState('control_params');
 
@@ -120,6 +121,7 @@ export default function FlightRecorder({ startTime }: { startTime: number }) {
 					const now = Date.now();
 					logger.addTrackPoint({
 						time: now,
+						position: virtualPosition ?? undefined,
 						alt: loggedAlt,
 						dist: !speed ? undefined : calculatedDistance || 0,
 						speed: !speed ? undefined : speed.speed,
