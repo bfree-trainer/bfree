@@ -2,9 +2,10 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
+import CardActions from '@mui/material/CardActions';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import IconBike from '@mui/icons-material/DirectionsBike';
@@ -12,6 +13,8 @@ import IconCadence from '@mui/icons-material/FlipCameraAndroid';
 import IconHeart from '@mui/icons-material/Favorite';
 import IconPower from '@mui/icons-material/OfflineBolt';
 import IconSpeed from '@mui/icons-material/Speed';
+import Alert from '@mui/material/Alert';
+import CardContent from '@mui/material/CardContent';
 import Title from 'components/Title';
 import MyHead from 'components/MyHead';
 import { Paired } from 'lib/ble';
@@ -19,11 +22,14 @@ import { startCyclingPowerMeasurementNotifications } from 'lib/ble/cpp';
 import { startCyclingSpeedAndCadenceMeasurementNotifications } from 'lib/ble/cscp';
 import { startHRMNotifications } from 'lib/ble/hrm';
 import { createSmartTrainerController } from 'lib/ble/trainer';
+import type { createTrainerEmulator } from 'lib/ble/trainer_emulator';
 import SensorValue from 'components/SensorValue';
 import { TrainerCalibrationModal } from 'components/TrainerControl';
 import { useGlobalState, getGlobalState } from 'lib/global';
 import Ble from 'components/setup/Ble';
-import { ActionButton, iconStyle } from 'components/SensorCard';
+import { ActionButton, SensorCard, iconStyle } from 'components/SensorCard';
+
+const EMULATOR_ENABLED = process.env.NEXT_PUBLIC_TRAINER_EMULATOR === '1';
 
 const PREFIX = 'sensors';
 const classes = {
@@ -37,6 +43,75 @@ const StyledContainer = styled(Container)(({ theme }) => ({
 		width: '300px',
 	},
 }));
+
+function TrainerEmulatorSetup() {
+	const [sensorValue, setSensorValue] = useGlobalState('smart_trainer');
+	const [smartTrainerControl, setSmartTrainerControl] = useGlobalState('smart_trainer_control');
+	const [showCalibrationModal, setShowCalibrationModal] = useState(false);
+
+	useEffect(() => {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		let controller: ReturnType<typeof createTrainerEmulator> | null = null;
+
+		// Lazy import to keep the emulator out of non-emulator builds.
+		import('lib/ble/trainer_emulator').then(({ createTrainerEmulator }) => {
+			controller = createTrainerEmulator(setSensorValue);
+			controller.startNotifications();
+
+			const { weight: userWeightKg } = getGlobalState('rider');
+			const { weight: bikeWeightKg, wheelCircumference } = getGlobalState('bike');
+			controller.sendUserConfiguration({ userWeightKg, bikeWeightKg, wheelCircumference });
+
+			setSmartTrainerControl(controller);
+		});
+
+		return () => {
+			// Tear down the emulator when the component is unmounted.
+			controller?.stop();
+			setSmartTrainerControl(null);
+			setSensorValue(null);
+		};
+	}, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+	const disconnect = () => {
+		(smartTrainerControl as ReturnType<typeof createTrainerEmulator>)?.stop();
+		setSmartTrainerControl(null);
+		setSensorValue(null);
+	};
+
+	return (
+		<SensorCard
+			icon={<IconBike sx={iconStyle} />}
+			title="Smart Trainer"
+			batteryLevel={-1}
+			actions={
+				<CardActions>
+					<ActionButton wait={false} disabled={!smartTrainerControl} onClick={disconnect}>
+						Disconnect
+					</ActionButton>
+					<ActionButton
+						wait={false}
+						disabled={!smartTrainerControl}
+						onClick={() => setShowCalibrationModal(true)}
+					>
+						Calibrate
+					</ActionButton>
+				</CardActions>
+			}
+		>
+			<SensorValue sensorType="smart_trainer" sensorValue={sensorValue} className={classes.sensorValue} />
+			<CardContent>
+				<Alert severity={smartTrainerControl ? 'success' : 'info'}>
+					{smartTrainerControl ? 'Emulator active' : 'Starting emulator…'}
+				</Alert>
+			</CardContent>
+			<TrainerCalibrationModal
+				open={showCalibrationModal}
+				onClose={() => setShowCalibrationModal(false)}
+			/>
+		</SensorCard>
+	);
+}
 
 function Trainer() {
 	const sensorName = 'smart_trainer';
@@ -244,7 +319,7 @@ export default function SetupSensors() {
 				<p>Connect your smart trainer, HRM, and other sensors using BLE.</p>
 
 				<Grid container direction="row" alignItems="center" spacing={2}>
-					<Trainer />
+					{EMULATOR_ENABLED ? <TrainerEmulatorSetup /> : <Trainer />}
 					<Power />
 					<SpeedCadence />
 					<Speed />
