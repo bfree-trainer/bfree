@@ -73,7 +73,7 @@ export async function startCyclingPowerMeasurementNotifications(
 
 		const flags = value.getUint16(0, true);
 		const wheelRevolutionDataPresent = !!(flags & 0x10) && feature.wheelRevolutionData;
-		const _crankRevolutionDataPresent = !!(flags & 0x20) && feature.crankRevolutionData;
+		const crankRevolutionDataPresent = !!(flags & 0x20) && feature.crankRevolutionData;
 
 		// This field is mandatory and in the first position
 		const instantaneousPower = value.getUint16(2, true);

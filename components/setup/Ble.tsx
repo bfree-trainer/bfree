@@ -18,7 +18,7 @@ type InfoMessage = {
 	severity: Severity;
 };
 
-function DeviceStatus({ wait: _wait, severity, children }: { wait?: boolean; severity: Severity; children: any }) {
+function DeviceStatus({ wait, severity, children }: { wait?: boolean; severity: Severity; children: any }) {
 	return (
 		<CardContent>
 			<Alert severity={severity}>{children}</Alert>
@@ -101,7 +101,7 @@ export default function Ble({
 								try {
 									setBatteryLevel(await readBatteryLevel(server));
 									startBatteryLevelNotifications(server, setGloblBatteryLevel);
-								} catch (_err) {
+								} catch (err) {
 									console.log(`Device ${device.name} doesn't support battery_level`);
 								}
 

@@ -37,7 +37,7 @@ const classes = {
 	value: `${PREFIX}-value`,
 };
 
-const StyledGrid = styled(Grid)(() => ({
+const StyledGrid = styled(Grid)(({ theme }) => ({
 	[`& .${classes.inlineIcon}`]: {
 		fontSize: '18px !important',
 	},

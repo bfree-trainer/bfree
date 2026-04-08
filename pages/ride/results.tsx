@@ -21,7 +21,7 @@ const classes = {
 	exportCard: `${PREFIX}-exportCard`,
 };
 
-const StyledContainer = styled(Container)(() => ({
+const StyledContainer = styled(Container)(({ theme }) => ({
 	[`& .${classes.exportCard}`]: {
 		height: '16.3em',
 	},

@@ -19,7 +19,7 @@ const classes = {
 	formControl: `${PREFIX}-formControl`,
 };
 
-const StyledGrid = styled(Grid)(() => ({
+const StyledGrid = styled(Grid)(({ theme }) => ({
 	[`& .${classes.setupCard}`]: {
 		height: '15em',
 	},

@@ -70,7 +70,7 @@ export async function pairDevice(
 	let server: BluetoothRemoteGATTServer | null;
 	try {
 		server = await connect(device);
-	} catch (_err) {
+	} catch (err) {
 		console.error('> Bluetooth Device connect failed');
 		server = null;
 	}

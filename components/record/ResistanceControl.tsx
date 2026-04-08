@@ -39,7 +39,7 @@ const classes = {
 	inlineIcon: `${PREFIX}-inlineIcon`,
 };
 
-const StyledGrid = styled(Grid)(() => ({
+const StyledGrid = styled(Grid)(({ theme }) => ({
 	[`& .${classes.markLabel}`]: {
 		marginTop: '1.5ex',
 	},
@@ -246,7 +246,7 @@ export default function ResistanceControl({
 							/>
 							<ButtonGroup variant="outlined" orientation="vertical" aria-label="resistance-control">
 								<Button
-									onClick={(_v) => {
+									onClick={(v) => {
 										if (currentResistanceValue + resistanceStep <= maxResistance) {
 											setCurrentResistanceValue(currentResistanceValue + resistanceStep);
 										}
@@ -255,7 +255,7 @@ export default function ResistanceControl({
 									+
 								</Button>
 								<Button
-									onClick={(_v) => {
+									onClick={(v) => {
 										if (currentResistanceValue - resistanceStep >= 0) {
 											setCurrentResistanceValue(currentResistanceValue - resistanceStep);
 										}

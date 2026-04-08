@@ -48,7 +48,7 @@ export default function MapEditCourse({
 	);
 	const init = useMemo<CourseData>(() => JSON.parse(initStr), [initStr]);
 	const initTrackpoints = useMemo(() => trackSegmentsToPolylines(init?.tracks[0]?.segments || []), [init]);
-	const editEvent = (_e) => {
+	const editEvent = (e) => {
 		if (!featureGroupRef.current) {
 			return;
 		}
@@ -61,7 +61,7 @@ export default function MapEditCourse({
 		newCourse.waypoints = [];
 
 		// @ts-expect-error featureGroupRef.current.getLayers() exists at runtime
-		for (const [, layer] of Object.entries(featureGroupRef.current.getLayers())) {
+		for (const [_key, layer] of Object.entries(featureGroupRef.current.getLayers())) {
 			if (layer instanceof L.Polyline) {
 				// @ts-expect-error accessing private Leaflet property _latlngs
 				if (layer._latlngs && layer._latlngs.length > 0) {
