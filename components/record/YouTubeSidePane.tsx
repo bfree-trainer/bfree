@@ -76,7 +76,7 @@ function parseYouTubeUrl(raw: string): string | null {
  */
 export default function YouTubeSidePane() {
 	const [open, setOpen] = useState(false);
-	const [urlInput, setUrlInput] = useState('');
+	const [urlInput, setUrlInput] = useState('https://www.youtube.com/playlist?list=WL');
 	const [embedUrl, setEmbedUrl] = useState<string | null>(null);
 	const [urlError, setUrlError] = useState(false);
 
