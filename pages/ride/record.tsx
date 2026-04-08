@@ -182,7 +182,7 @@ export default function RideRecord() {
 	const [currentActivityLog] = useGlobalState('currentActivityLog');
 	const [rideStartTime, setRideStartTime] = useState(0);
 	const [elapsedLapTime, setElapsedLapTime] = useGlobalState('elapsedLapTime');
-	const [lapDistance] = useGlobalState('lapDistance');
+	const [lapDistance, setLapDistance] = useGlobalState('lapDistance');
 	const { heartRate } = useHeartRateMeasurement() ?? { heartRate: 0 };
 	const [rideEnded, setRideEnded] = useState<boolean>(false);
 	const { title, Dashboard } = useMemo(() => getDashboardConfig(rideType), [rideType]);
@@ -223,6 +223,7 @@ export default function RideRecord() {
 		if (currentActivityLog) {
 			currentActivityLog.lapSplit(time, triggerMethod);
 			setElapsedLapTime(0);
+			setLapDistance(0);
 		}
 	};
 	const handleManualSplit = () => {

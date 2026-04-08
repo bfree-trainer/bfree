@@ -17,9 +17,9 @@ const distanceStyle: SxPropsTheme = {
 
 export default function Distance() {
 	const [rideDistance] = useGlobalState('rideDistance');
+	const [lapDistance] = useGlobalState('lapDistance');
 
 	// TODO meters & km based on length
-	// TODO lap distance
 	return (
 		<Grid item xs={4}>
 			<Card variant="outlined">
@@ -30,7 +30,7 @@ export default function Distance() {
 					<Container>
 						<b>Ride distance:</b> <Box sx={distanceStyle}>{rideDistance}</Box>
 						<br />
-						<b>Lap distance:</b> <Box sx={distanceStyle}>--</Box>
+						<b>Lap distance:</b> <Box sx={distanceStyle}>{lapDistance}</Box>
 					</Container>
 				</CardContent>
 			</Card>
