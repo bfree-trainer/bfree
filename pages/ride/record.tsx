@@ -28,6 +28,17 @@ import useInterval from 'lib/use-interval';
 import { useHeartRateMeasurement } from 'lib/measurements';
 import DataGraph, { measurementColors } from 'components/DataGraph';
 
+const EMULATOR_ENABLED = process.env.NEXT_PUBLIC_TRAINER_EMULATOR === '1';
+// Conditionally import the overlay so it is excluded from non-emulator builds.
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+let TrainerEmulatorOverlay: () => JSX.Element | null = () => null;
+if (EMULATOR_ENABLED) {
+	// This dynamic require is intentional: when the env flag is false the
+	// bundler tree-shakes this branch away.
+	// eslint-disable-next-line @typescript-eslint/no-var-requires
+	TrainerEmulatorOverlay = require('components/TrainerEmulator').TrainerEmulatorOverlay;
+}
+
 const PREFIX = 'record';
 
 const classes = {
@@ -288,6 +299,7 @@ export default function RideRecord() {
 					onClickSplit={handleManualSplit}
 					onClickEnd={handleEndRide}
 				/>
+				{EMULATOR_ENABLED && <TrainerEmulatorOverlay />}
 			</StyledContainer>
 		);
 	}

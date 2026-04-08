@@ -2,9 +2,10 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
+import CardActions from '@mui/material/CardActions';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import IconBike from '@mui/icons-material/DirectionsBike';
@@ -12,6 +13,8 @@ import IconCadence from '@mui/icons-material/FlipCameraAndroid';
 import IconHeart from '@mui/icons-material/Favorite';
 import IconPower from '@mui/icons-material/OfflineBolt';
 import IconSpeed from '@mui/icons-material/Speed';
+import Alert from '@mui/material/Alert';
+import CardContent from '@mui/material/CardContent';
 import Title from 'components/Title';
 import MyHead from 'components/MyHead';
 import { Paired } from 'lib/ble';
@@ -23,7 +26,9 @@ import SensorValue from 'components/SensorValue';
 import { TrainerCalibrationModal } from 'components/TrainerControl';
 import { useGlobalState, getGlobalState } from 'lib/global';
 import Ble from 'components/setup/Ble';
-import { ActionButton, iconStyle } from 'components/SensorCard';
+import { ActionButton, SensorCard, iconStyle } from 'components/SensorCard';
+
+const EMULATOR_ENABLED = process.env.NEXT_PUBLIC_TRAINER_EMULATOR === '1';
 
 const PREFIX = 'sensors';
 const classes = {
@@ -37,6 +42,62 @@ const StyledContainer = styled(Container)(({ theme }) => ({
 		width: '300px',
 	},
 }));
+
+function TrainerEmulatorSetup() {
+	const [sensorValue, setSensorValue] = useGlobalState('smart_trainer');
+	const [smartTrainerControl, setSmartTrainerControl] = useGlobalState('smart_trainer_control');
+	const [showCalibrationModal, setShowCalibrationModal] = useState(false);
+
+	useEffect(() => {
+		// Only start the emulator once; it should persist even when this
+		// component unmounts (i.e. the user navigates away from this page).
+		if (getGlobalState('smart_trainer_control')) return;
+
+		// Lazy import to keep the emulator out of non-emulator builds.
+		import('lib/ble/trainer_emulator').then(({ createTrainerEmulator }) => {
+			const controller = createTrainerEmulator(setSensorValue);
+			controller.startNotifications();
+
+			const { weight: userWeightKg } = getGlobalState('rider');
+			const { weight: bikeWeightKg, wheelCircumference } = getGlobalState('bike');
+			controller.sendUserConfiguration({ userWeightKg, bikeWeightKg, wheelCircumference });
+
+			setSmartTrainerControl(controller);
+		});
+		// No cleanup – the emulator stays running as long as the app is open,
+		// just like a real BLE trainer that stays connected across page navigations.
+	}, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+	return (
+		<SensorCard
+			icon={<IconBike sx={iconStyle} />}
+			title="Smart Trainer"
+			batteryLevel={-1}
+			actions={
+				<CardActions>
+					<ActionButton
+						wait={false}
+						disabled={!smartTrainerControl}
+						onClick={() => setShowCalibrationModal(true)}
+					>
+						Calibrate
+					</ActionButton>
+				</CardActions>
+			}
+		>
+			<SensorValue sensorType="smart_trainer" sensorValue={sensorValue} className={classes.sensorValue} />
+			<CardContent>
+				<Alert severity={smartTrainerControl ? 'success' : 'info'}>
+					{smartTrainerControl ? 'Emulator active' : 'Starting emulator…'}
+				</Alert>
+			</CardContent>
+			<TrainerCalibrationModal
+				open={showCalibrationModal}
+				onClose={() => setShowCalibrationModal(false)}
+			/>
+		</SensorCard>
+	);
+}
 
 function Trainer() {
 	const sensorName = 'smart_trainer';
@@ -244,7 +305,7 @@ export default function SetupSensors() {
 				<p>Connect your smart trainer, HRM, and other sensors using BLE.</p>
 
 				<Grid container direction="row" alignItems="center" spacing={2}>
-					<Trainer />
+					{EMULATOR_ENABLED ? <TrainerEmulatorSetup /> : <Trainer />}
 					<Power />
 					<SpeedCadence />
 					<Speed />

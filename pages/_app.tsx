@@ -41,6 +41,13 @@ function App({ Component, pageProps }) {
 		if (jssStyles) {
 			jssStyles.parentElement.removeChild(jssStyles);
 		}
+
+		// Register the service worker for PWA / offline support.
+		if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {
+			navigator.serviceWorker.register('/sw.js').catch((err) => {
+				console.error('Service worker registration failed:', err);
+			});
+		}
 	}, []);
 
 	return (

@@ -58,6 +58,8 @@ class MyDocument extends Document {
 		return (
 			<Html lang="en">
 				<Head>
+					<link rel="manifest" href="/manifest.json" />
+					<meta name="theme-color" content="#1976D2" />
 					<link
 						rel="stylesheet"
 						href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
