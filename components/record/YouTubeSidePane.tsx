@@ -137,7 +137,7 @@ export default function YouTubeSidePane() {
 					right: open ? 0 : -PANE_WIDTH,
 					top: 0,
 					width: PANE_WIDTH,
-					height: '100dvh',
+					height: '100vh',
 					zIndex: 1199,
 					transition: 'right 0.3s ease',
 					display: 'flex',
