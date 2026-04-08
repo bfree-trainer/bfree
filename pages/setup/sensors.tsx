@@ -75,13 +75,6 @@ function TrainerEmulatorSetup() {
 			batteryLevel={-1}
 			actions={
 				<CardActions>
-					<ActionButton
-						wait={false}
-						disabled={!smartTrainerControl}
-						onClick={() => setShowCalibrationModal(true)}
-					>
-						Calibrate
-					</ActionButton>
 				</CardActions>
 			}
 		>
