@@ -22,7 +22,7 @@ import Title from 'components/Title';
 import WorkoutController from 'components/record/WorkoutController';
 import { LapTriggerMethod } from 'lib/activity_log';
 import { RecordActionButtons } from 'components/record/ActionButtons';
-import { useGlobalState } from 'lib/global';
+import { useGlobalState, ControlParams } from 'lib/global';
 import { PowerLimits } from 'components/ride/PowerResistance';
 import useInterval from 'lib/use-interval';
 import { useHeartRateMeasurement, getCyclingSpeedMeasurement } from 'lib/measurements';
@@ -32,7 +32,10 @@ import {
 	getTimedTrackpoints,
 	calcGpsPlaybackRate,
 	calcAveragePlaybackRate,
+	calcSlopeAtVideoTime,
+	getRollingResistanceCoeff,
 } from 'lib/virtual_video';
+import { calcWindResistanceCoeff, stdBikeFrontalArea, stdBikeDragCoefficient } from 'lib/virtual_params';
 
 const EMULATOR_ENABLED = process.env.NEXT_PUBLIC_TRAINER_EMULATOR === '1';
 // Conditionally import the overlay so it is excluded from non-emulator builds.
@@ -176,18 +179,29 @@ function isSafeUrl(url: string): boolean {
 
 function VirtualRideDashboard() {
 	const router = useRouter();
-	const { videoUrl, gpxUrl, syncMethod, avgSpeedKmh } = router.query;
+	const { videoUrl, gpxUrl, syncMethod, avgSpeedKmh, roadSurface } = router.query;
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const [ridePaused] = useGlobalState('ridePaused');
 	const [gpxError, setGpxError] = useState<string | null>(null);
 	// True when the video was auto-paused because the rider's speed dropped to zero.
 	const speedPausedRef = useRef(false);
 
-	// GPX timed trackpoints, only needed for GPS sync
+	// Smart trainer – used for slope resistance mode
+	const [smartTrainerControl] = useGlobalState('smart_trainer_control');
+	const [bike] = useGlobalState('bike');
+	const [, setControlParams] = useGlobalState('control_params');
+
+	const rollingResistanceValue = getRollingResistanceCoeff(typeof roadSurface === 'string' ? roadSurface : undefined);
+	const windResistanceCoeff = useMemo(
+		() => calcWindResistanceCoeff(stdBikeFrontalArea[bike.type], stdBikeDragCoefficient[bike.type], 0),
+		[bike],
+	);
+
+	// GPX timed trackpoints – loaded whenever gpxUrl is present (used for both GPS sync and slope)
 	const [gpxPoints, setGpxPoints] = useState<ReturnType<typeof getTimedTrackpoints>>([]);
 
 	useEffect(() => {
-		if (syncMethod !== 'gps' || typeof gpxUrl !== 'string' || !gpxUrl) return;
+		if (typeof gpxUrl !== 'string' || !gpxUrl) return;
 		if (!isSafeUrl(gpxUrl)) {
 			console.error('Invalid GPX URL – must be HTTP or HTTPS.');
 			return;
@@ -207,7 +221,7 @@ function VirtualRideDashboard() {
 				console.error('Failed to load GPX for virtual ride:', err);
 				setGpxError(`Failed to load GPS data: ${err.message}. Video will play at constant speed.`);
 			});
-	}, [gpxUrl, syncMethod]);
+	}, [gpxUrl]);
 
 	// Pause / resume the video when the ride is paused
 	useEffect(() => {
@@ -225,7 +239,21 @@ function VirtualRideDashboard() {
 		}
 	}, [ridePaused]);
 
-	// Adjust playback rate every second based on current speed
+	// Reset slope to zero when the dashboard unmounts.
+	useEffect(() => {
+		return () => {
+			if (smartTrainerControl) {
+				smartTrainerControl.sendSlope(0, rollingResistanceValue).catch(console.error);
+			}
+			setControlParams((prev: ControlParams) => {
+				const next = { ...prev };
+				delete next.slope;
+				return next;
+			});
+		};
+	}, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+	// Adjust playback rate and slope resistance every second
 	useInterval(async () => {
 		const video = videoRef.current;
 		if (!video || ridePaused !== 0) return;
@@ -257,6 +285,16 @@ function VirtualRideDashboard() {
 			const avg = parseFloat(avgSpeedKmh);
 			if (!Number.isNaN(avg) && avg > 0) {
 				video.playbackRate = calcAveragePlaybackRate(avg, currentSpeedMs);
+			}
+		}
+
+		// Apply slope resistance from GPX elevation when available
+		if (gpxPoints.length >= 2 && smartTrainerControl) {
+			const slope = calcSlopeAtVideoTime(gpxPoints, video.currentTime);
+			if (slope !== null) {
+				smartTrainerControl.sendWindResistance(windResistanceCoeff, 0, 1.0).catch(console.error);
+				smartTrainerControl.sendSlope(slope, rollingResistanceValue).catch(console.error);
+				setControlParams((prev: ControlParams) => ({ ...prev, slope }));
 			}
 		}
 	}, 1000);

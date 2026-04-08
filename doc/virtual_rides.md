@@ -34,7 +34,8 @@ ride clip:
     "gpxUrl": "https://example.com/alpine.gpx",
     "videoUrl": "https://example.com/alpine.mp4",
     "copyright": "© 2024 Jane Doe",
-    "avgSpeedKmh": 24.5
+    "avgSpeedKmh": 24.5,
+    "roadSurface": "AsphaltRoad"
   }
 ]
 ```
@@ -44,10 +45,20 @@ ride clip:
 | Field          | Type     | Required | Description |
 |----------------|----------|----------|-------------|
 | `title`        | `string` | Yes      | Display name shown in the clip selection list. |
-| `gpxUrl`       | `string` | Yes      | HTTPS URL of a GPX file describing the route. Used for GPS-based speed sync (see below). |
+| `gpxUrl`       | `string` | No       | HTTPS URL of a GPX file describing the route. Used for GPS-based speed sync and slope resistance (see below). |
 | `videoUrl`     | `string` | Yes      | HTTPS URL of the video clip file (e.g. MP4). Must be accessible by the browser; ensure CORS headers are set appropriately. |
 | `copyright`    | `string` | Yes      | Copyright notice displayed to the user. |
 | `avgSpeedKmh`  | `number` | No       | Average cycling speed of the original recording in km/h. Required to enable the **average-speed sync** method. |
+| `roadSurface`  | `string` | No       | Road surface of the route. Controls the rolling-resistance coefficient sent to the smart trainer when slope mode is active. See [Road surfaces](#road-surfaces) below. Defaults to `AsphaltRoad`. |
+
+### Road surfaces
+
+| Value          | Rolling-resistance coeff | Description |
+|----------------|--------------------------|-------------|
+| `WoodenTrack`  | 0.001                    | Smooth wooden track (e.g. velodrome) |
+| `Concrete`     | 0.002                    | Concrete road |
+| `AsphaltRoad`  | 0.004                    | Paved asphalt (default) |
+| `RoughRoad`    | 0.008                    | Gravel or rough road |
 
 Speed Sync Methods
 ------------------
@@ -85,10 +96,13 @@ because it also reflects the natural speed variations in the original recording
 
 Both methods clamp `playbackRate` to the range **[0.1, 4.0]**.
 
-GPX Requirements for GPS Sync
-------------------------------
+GPX Requirements for GPS Sync and Slope
+----------------------------------------
 
-The GPX file must include `<time>` elements inside each `<trkpt>`:
+The GPX file must include `<time>` elements inside each `<trkpt>`.  Adding
+`<ele>` (elevation) elements enables slope-resistance calculation — the grade
+at the current video position is derived from the elevation difference between
+consecutive track points and sent to the smart trainer automatically:
 
 ```xml
 <trk>
@@ -107,4 +121,6 @@ The GPX file must include `<time>` elements inside each `<trkpt>`:
 ```
 
 Track points without a `<time>` element are silently ignored when computing
-GPS-based playback rates.
+GPS-based playback rates and slope.  Track points without an `<ele>` element
+are ignored when computing slope (the trainer falls back to the last known
+slope or zero if none has been set yet).
