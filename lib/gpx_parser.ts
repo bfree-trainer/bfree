@@ -8,6 +8,7 @@ export type Coord = {
 };
 export type Trackpoint = Coord & {
 	ele?: number;
+	time?: Date;
 };
 export type Segment = {
 	trackpoints: Trackpoint[];
@@ -48,6 +49,16 @@ export async function parseGpxFile2Document(file: File): Promise<Document> {
 	});
 }
 
+export function parseGpxText2Document(text: string): Document {
+	const parser = new DOMParser();
+	const xmlDoc = parser.parseFromString(text, 'text/xml');
+	const errorNode = xmlDoc.querySelector('parsererror');
+	if (errorNode) {
+		throw new Error('Failed to parse the GPX data');
+	}
+	return xmlDoc;
+}
+
 function* elIter<T>(el: HTMLCollectionOf<Element>, callback: (el: Element) => T) {
 	for (let i = 0; i < el.length; i++) {
 		yield callback(el[i]);
@@ -66,6 +77,16 @@ function parseTrackpoint(el: Element): Trackpoint {
 	const ele = parseFloat(getElValue(el.getElementsByTagName('ele')));
 	if (!Number.isNaN(ele)) {
 		trackpoint.ele = ele;
+	}
+	const timeEls = el.getElementsByTagName('time');
+	if (timeEls.length > 0) {
+		const timeStr = timeEls[0].childNodes[0]?.nodeValue;
+		if (timeStr) {
+			const parsed = new Date(timeStr);
+			if (!Number.isNaN(parsed.getTime())) {
+				trackpoint.time = parsed;
+			}
+		}
 	}
 
 	return trackpoint;

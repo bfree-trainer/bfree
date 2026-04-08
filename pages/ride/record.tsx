@@ -9,7 +9,7 @@ import Grid from '@mui/material/Grid';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { styled } from '@mui/material/styles';
 import { useRouter } from 'next/router';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import FlightRecorder from 'components/record/FlightRecorder';
 import DummyCard from 'components/record/DummyCard';
 import MeasurementCard from 'components/record/MeasurementCard';
@@ -25,8 +25,14 @@ import { RecordActionButtons } from 'components/record/ActionButtons';
 import { useGlobalState } from 'lib/global';
 import { PowerLimits } from 'components/ride/PowerResistance';
 import useInterval from 'lib/use-interval';
-import { useHeartRateMeasurement } from 'lib/measurements';
+import { useHeartRateMeasurement, getCyclingSpeedMeasurement } from 'lib/measurements';
 import DataGraph, { measurementColors } from 'components/DataGraph';
+import { gpxDocument2obj, parseGpxText2Document } from 'lib/gpx_parser';
+import {
+	getTimedTrackpoints,
+	calcGpsPlaybackRate,
+	calcAveragePlaybackRate,
+} from 'lib/virtual_video';
 
 const EMULATOR_ENABLED = process.env.NEXT_PUBLIC_TRAINER_EMULATOR === '1';
 // Conditionally import the overlay so it is excluded from non-emulator builds.
@@ -66,7 +72,7 @@ const StyledContainer = styled(Container)(({ theme }) => ({
 	},
 }));
 
-type RideType = 'free' | 'workout';
+type RideType = 'free' | 'workout' | 'virtual';
 
 function DataGraphCard() {
 	const [logger] = useGlobalState('currentActivityLog');
@@ -158,10 +164,115 @@ function WorkoutDashboard({
 	);
 }
 
+function VirtualRideDashboard() {
+	const router = useRouter();
+	const { videoUrl, gpxUrl, syncMethod, avgSpeedKmh } = router.query;
+	const videoRef = useRef<HTMLVideoElement>(null);
+	const [ridePaused] = useGlobalState('ridePaused');
+
+	// GPX timed trackpoints, only needed for GPS sync
+	const [gpxPoints, setGpxPoints] = useState<ReturnType<typeof getTimedTrackpoints>>([]);
+
+	useEffect(() => {
+		if (syncMethod !== 'gps' || typeof gpxUrl !== 'string' || !gpxUrl) return;
+
+		fetch(gpxUrl)
+			.then((r) => {
+				if (!r.ok) throw new Error(`HTTP ${r.status}`);
+				return r.text();
+			})
+			.then((text) => {
+				const doc = parseGpxText2Document(text);
+				const gpxData = gpxDocument2obj(doc);
+				setGpxPoints(getTimedTrackpoints(gpxData));
+			})
+			.catch((err) => {
+				console.error('Failed to load GPX for virtual ride:', err);
+			});
+	}, [gpxUrl, syncMethod]);
+
+	// Pause / resume the video when the ride is paused
+	useEffect(() => {
+		const video = videoRef.current;
+		if (!video) return;
+		if (ridePaused !== 0) {
+			video.pause();
+		} else {
+			video.play().catch(() => {
+				// Autoplay may be blocked; user gesture will be required.
+			});
+		}
+	}, [ridePaused]);
+
+	// Adjust playback rate every second based on current speed
+	useInterval(async () => {
+		const video = videoRef.current;
+		if (!video || video.paused || ridePaused !== 0) return;
+
+		const speedMeas = getCyclingSpeedMeasurement();
+		const currentSpeedMs = speedMeas?.speed ?? 0;
+
+		if (syncMethod === 'gps' && gpxPoints.length >= 2) {
+			const rate = calcGpsPlaybackRate(gpxPoints, video.currentTime, currentSpeedMs);
+			if (rate !== null) video.playbackRate = rate;
+		} else if (syncMethod === 'average' && typeof avgSpeedKmh === 'string') {
+			const avg = parseFloat(avgSpeedKmh);
+			if (!Number.isNaN(avg) && avg > 0) {
+				video.playbackRate = calcAveragePlaybackRate(avg, currentSpeedMs);
+			}
+		}
+	}, 1000);
+
+	if (typeof videoUrl !== 'string' || !videoUrl) {
+		return <DefaultErrorPage statusCode={400} />;
+	}
+
+	return (
+		<Box sx={{ position: 'relative', width: '100%', background: '#000' }}>
+			<video
+				ref={videoRef}
+				src={videoUrl}
+				style={{ width: '100%', display: 'block', maxHeight: '80vh' }}
+				playsInline
+			/>
+			{/* Overlay ride data */}
+			<Box
+				sx={{
+					position: 'absolute',
+					top: 0,
+					left: 0,
+					width: '100%',
+					pointerEvents: 'none',
+					padding: 1,
+				}}
+			>
+				<Grid
+					container
+					direction="row"
+					spacing={1}
+					sx={{
+						'& .MuiCard-root': {
+							opacity: 0.85,
+							backdropFilter: 'blur(4px)',
+						},
+					}}
+				>
+					<Ride />
+					<MeasurementCard type="cycling_cadence" />
+					<MeasurementCard type="cycling_speed" ribbonColor={classes.colorSpeed} />
+					<MeasurementCard type="cycling_power" ribbonColor={classes.colorPower} />
+					<MeasurementCard type="heart_rate" ribbonColor={classes.colorHeartRate} />
+				</Grid>
+			</Box>
+		</Box>
+	);
+}
+
 function getRideType(rideType: string | string[]): RideType {
 	switch (rideType) {
 		case 'free':
 		case 'workout':
+		case 'virtual':
 			return rideType;
 		default:
 			return undefined;
@@ -179,6 +290,11 @@ function getDashboardConfig(rideType: RideType) {
 			return {
 				title: 'Workout',
 				Dashboard: WorkoutDashboard,
+			};
+		case 'virtual':
+			return {
+				title: 'Virtual Ride',
+				Dashboard: VirtualRideDashboard,
 			};
 		default:
 			return {};
