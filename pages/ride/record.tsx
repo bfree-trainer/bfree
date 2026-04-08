@@ -191,6 +191,12 @@ function VirtualRideDashboard() {
 	const [bike] = useGlobalState('bike');
 	const [, setControlParams] = useGlobalState('control_params');
 
+	// Keep a ref so the cleanup effect always sees the latest trainer control.
+	const smartTrainerControlRef = useRef(smartTrainerControl);
+	useEffect(() => {
+		smartTrainerControlRef.current = smartTrainerControl;
+	}, [smartTrainerControl]);
+
 	const rollingResistanceValue = getRollingResistanceCoeff(typeof roadSurface === 'string' ? roadSurface : undefined);
 	const windResistanceCoeff = useMemo(
 		() => calcWindResistanceCoeff(stdBikeFrontalArea[bike.type], stdBikeDragCoefficient[bike.type], 0),
@@ -223,6 +229,14 @@ function VirtualRideDashboard() {
 			});
 	}, [gpxUrl]);
 
+	// Send wind resistance to the trainer once whenever the coefficient changes (i.e. on
+	// mount or when the user changes bike type).  Slope mode requires wind resistance to be
+	// set before the slope command is issued.
+	useEffect(() => {
+		if (!smartTrainerControl) return;
+		smartTrainerControl.sendWindResistance(windResistanceCoeff, 0, 1.0).catch(console.error);
+	}, [smartTrainerControl, windResistanceCoeff]);
+
 	// Pause / resume the video when the ride is paused
 	useEffect(() => {
 		const video = videoRef.current;
@@ -242,8 +256,8 @@ function VirtualRideDashboard() {
 	// Reset slope to zero when the dashboard unmounts.
 	useEffect(() => {
 		return () => {
-			if (smartTrainerControl) {
-				smartTrainerControl.sendSlope(0, rollingResistanceValue).catch(console.error);
+			if (smartTrainerControlRef.current) {
+				smartTrainerControlRef.current.sendSlope(0, rollingResistanceValue).catch(console.error);
 			}
 			setControlParams((prev: ControlParams) => {
 				const next = { ...prev };
@@ -292,7 +306,6 @@ function VirtualRideDashboard() {
 		if (gpxPoints.length >= 2 && smartTrainerControl) {
 			const slope = calcSlopeAtVideoTime(gpxPoints, video.currentTime);
 			if (slope !== null) {
-				smartTrainerControl.sendWindResistance(windResistanceCoeff, 0, 1.0).catch(console.error);
 				smartTrainerControl.sendSlope(slope, rollingResistanceValue).catch(console.error);
 				setControlParams((prev: ControlParams) => ({ ...prev, slope }));
 			}
