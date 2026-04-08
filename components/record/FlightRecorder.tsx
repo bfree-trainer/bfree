@@ -121,7 +121,7 @@ export default function FlightRecorder({ startTime }: { startTime: number }) {
 					const now = Date.now();
 					logger.addTrackPoint({
 						time: now,
-						position: virtualPosition ?? undefined,
+						position: virtualPosition !== null ? virtualPosition : undefined,
 						alt: loggedAlt,
 						dist: !speed ? undefined : calculatedDistance || 0,
 						speed: !speed ? undefined : speed.speed,
