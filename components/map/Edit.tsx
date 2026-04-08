@@ -60,20 +60,20 @@ export default function MapEditCourse({
 		newCourse.tracks = [{ segments: [] }];
 		newCourse.waypoints = [];
 
-		// @ts-ignore
+		// @ts-expect-error featureGroupRef.current.getLayers() exists at runtime
 		for (const [_key, layer] of Object.entries(featureGroupRef.current.getLayers())) {
 			if (layer instanceof L.Polyline) {
-				// @ts-ignore
+				// @ts-expect-error accessing private Leaflet property _latlngs
 				if (layer._latlngs && layer._latlngs.length > 0) {
 					updateTrackSegment(
 						newCourse,
 						seg++,
-						// @ts-ignore
+						// @ts-expect-error accessing private Leaflet property _latlngs
 						layer._latlngs.map((v) => ({ lat: v.lat, lon: v.lng }))
 					);
 				}
 			} else if (layer instanceof L.Marker) {
-				// @ts-ignore
+				// @ts-expect-error accessing private Leaflet property _latlng
 				newCourse.waypoints[wp++] = { lat: layer._latlng.lat, lon: layer._latlng.lng };
 			}
 		}

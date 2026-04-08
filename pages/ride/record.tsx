@@ -193,7 +193,6 @@ export default function RideRecord() {
 
 		(async () => {
 			try {
-				// @ts-ignore
 				wakeLock = await navigator.wakeLock.request('screen');
 				console.log('WakeLock acquired');
 			} catch (err) {

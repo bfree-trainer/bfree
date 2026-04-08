@@ -21,7 +21,7 @@ export default function CreateCourseDialog({ newCourse }: { newCourse: (name: st
 		setOpen(true);
 	};
 	const handleCreate = () => {
-		// @ts-ignore
+		// @ts-expect-error uploadInputRef.current.files may be null
 		newCourse(nameRef?.current?.value || '', uploadInputRef.current?.files[0] || null);
 		setOpen(false);
 	};

@@ -28,14 +28,14 @@ const OpenStreetMap = ({
 					width,
 					height,
 				}}
-				// @ts-ignore
+				// @ts-expect-error react-leaflet MapContainer center prop type mismatch
 				center={center}
 				zoom={13}
 				scrollWheelZoom={false}
 				ref={setMap}
 			>
 				<TileLayer
-					// @ts-ignore
+					// @ts-expect-error react-leaflet TileLayer attribution prop type mismatch
 					attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 					url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 				/>

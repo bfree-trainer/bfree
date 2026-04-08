@@ -8,10 +8,9 @@ export function getClientLang(): string {
 			return Intl.NumberFormat().resolvedOptions().locale;
 		} catch (_err) {
 			if (window.navigator.languages) {
-				// @ts-ignore
 				return window.navigator.languages[0];
 			} else {
-				// @ts-ignore
+				// @ts-expect-error userLanguage is a non-standard IE property
 				return window.navigator.userLanguage || window.navigator.language;
 			}
 		}

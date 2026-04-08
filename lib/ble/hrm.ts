@@ -9,7 +9,7 @@ export async function startHRMNotifications(server: BluetoothRemoteGATTServer, c
 	const characteristic = await service.getCharacteristic('heart_rate_measurement');
 
 	characteristic.addEventListener('characteristicvaluechanged', (event) => {
-		// @ts-ignore
+		// @ts-expect-error event.target.value is a DataView at runtime
 		const value = event.target.value;
 		const flags = value.getUint8(0);
 		const rate16Bits = flags & 0x1;

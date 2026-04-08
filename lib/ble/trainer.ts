@@ -367,7 +367,7 @@ export async function createSmartTrainerController(
 	};
 
 	rxCharacteristic.addEventListener('characteristicvaluechanged', (event) => {
-		// @ts-ignore
+		// @ts-expect-error event.target.value is a DataView at runtime
 		const value = event.target.value;
 
 		const sync = value.getUint8(0);

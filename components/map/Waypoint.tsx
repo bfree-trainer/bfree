@@ -13,7 +13,7 @@ export default function MapWaypoint({ position, children }: { position: [number,
 	return (
 		<Marker
 			position={position}
-			// @ts-ignore
+			// @ts-expect-error react-leaflet Marker icon prop type mismatch
 			icon={
 				new L.Icon({
 					iconUrl: MarkerIcon.src,

@@ -68,7 +68,7 @@ export async function startCyclingPowerMeasurementNotifications(
 
 	const characteristic = await service.getCharacteristic('cycling_power_measurement');
 	characteristic.addEventListener('characteristicvaluechanged', (event) => {
-		// @ts-ignore
+		// @ts-expect-error event.target.value is a DataView at runtime
 		const value = event.target.value;
 
 		const flags = value.getUint16(0, true);
@@ -85,7 +85,7 @@ export async function startCyclingPowerMeasurementNotifications(
 		if (wheelRevolutionDataPresent) {
 			// The field index may change if there are other fields present.
 			// See CPS_v1.1 3.2
-			// @ts-ignore TS doesn't like number + bool
+			// @ts-expect-error TS doesn't like number + bool
 			const iWheelRevolutionDataFieldPair = 4 + feature.pedalPowerBalance + feature.accumulatedTorque;
 
 			cumulativeWheelRevolutions = value.getUint32(iWheelRevolutionDataFieldPair, true);

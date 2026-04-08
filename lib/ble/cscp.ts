@@ -20,7 +20,7 @@ export async function startCyclingSpeedAndCadenceMeasurementNotifications(
 	let prevLastCrankEvent = null;
 
 	characteristic.addEventListener('characteristicvaluechanged', (event) => {
-		// @ts-ignore
+		// @ts-expect-error event.target.value is a DataView at runtime
 		const value = event.target.value;
 
 		const flags = value.getUint8(0, true);
@@ -43,7 +43,6 @@ export async function startCyclingSpeedAndCadenceMeasurementNotifications(
 				const curRevs = cumulativeWheelRevolutions;
 				const deltaRevs = curRevs - prevRevs;
 
-				// @ts-ignore sensorValue is never undefined here
 				const curLastWheelEvent = lastWheelEvent;
 				const deltaWheelEvents =
 					curLastWheelEvent >= prevLastWheelEvent

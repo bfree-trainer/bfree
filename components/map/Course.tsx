@@ -22,9 +22,9 @@ function Segment({ polyline }) {
 
 	return (
 		<>
-			{/* @ts-ignore*/}
+			{/* @ts-expect-error react-leaflet CircleMarker center type mismatch */}
 			<CircleMarker center={first} radius={20} pathOptions={{ color: 'blue' }} />
-			{/* @ts-ignore*/}
+			{/* @ts-expect-error react-leaflet CircleMarker center type mismatch */}
 			<CircleMarker center={last} radius={20} pathOptions={{ color: 'red' }} />
 			<AntPath positions={polyline} options={{ hardwareAccelerated: true, delay: 2000 }} />
 		</>

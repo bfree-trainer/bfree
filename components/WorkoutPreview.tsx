@@ -138,7 +138,6 @@ export default function WorkoutPreviewModal({ code, open, onClose }) {
 					reject(new Error('Simulation timed out'));
 				}, 20000);
 
-				// @ts-ignore
 				runner = createWorkoutRunner(code);
 
 				runner.onMessage((msg: RunnerResponse) => {

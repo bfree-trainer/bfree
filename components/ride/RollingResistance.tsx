@@ -73,7 +73,7 @@ export default function RollingResistance({
 					value={rollingResistance || 0}
 					error={rollingResistance <= 0}
 					onChange={
-						// @ts-ignore
+						// @ts-expect-error TextField onChange event type mismatch
 						(e) => handleChange(e)
 					}
 					id="outlined-basic"

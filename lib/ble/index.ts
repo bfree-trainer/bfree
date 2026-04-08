@@ -102,7 +102,7 @@ export async function startBatteryLevelNotifications(server: BluetoothRemoteGATT
 	const characteristic = await service.getCharacteristic('battery_level');
 
 	characteristic.addEventListener('characteristicvaluechanged', (event) => {
-		// @ts-ignore value does exist in event.target
+		// @ts-expect-error value does exist in event.target
 		cb(event.target.value.getUint8(0));
 	});
 

@@ -43,7 +43,7 @@ export default function MapMarker({
 	return (
 		<Marker
 			position={position}
-			// @ts-ignore
+			// @ts-expect-error react-leaflet icon prop type mismatch
 			icon={createMarkerIcon(icon)}
 			hidden={hidden}
 		>

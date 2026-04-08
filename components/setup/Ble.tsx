@@ -54,9 +54,9 @@ export default function Ble({
 	const [btAvailable, setBtAvailable] = useState(false);
 	const [pairingRequest, setPairingRequest] = useState(false);
 	const [isPairing, setIsPairing] = useState(false);
-	// @ts-ignore
+	// @ts-expect-error useGlobalState accepts dynamic string keys
 	const [btDevice, setBtDevice] = useGlobalState(`btDevice_${globalBtDeviceName}`);
-	// @ts-ignore
+	// @ts-expect-error useGlobalState accepts dynamic string keys
 	const [_GloblBatteryLevel, setGloblBatteryLevel] = useGlobalState(`batt_${globalBtDeviceName}`);
 	const [batteryLevel, setBatteryLevel] = useState(-1);
 	const [info, setInfo] = useState<InfoMessage>(pairedWithMessage(btDevice));

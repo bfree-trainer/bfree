@@ -133,7 +133,7 @@ export function UnsignedConfigParam({
 	unit?: string;
 	configName: string;
 }) {
-	// @ts-ignore
+	// @ts-expect-error useGlobalState accepts dynamic string keys
 	const [value, setValue] = useGlobalState(configName);
 
 	return (
@@ -154,7 +154,7 @@ export function BooleanConfigParam({
 	label?: string;
 	configName: string;
 }) {
-	// @ts-ignore
+	// @ts-expect-error useGlobalState accepts dynamic string keys
 	const [value, setValue] = useGlobalState(configName);
 	const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setValue(event.target.checked);
@@ -186,7 +186,7 @@ export function EnumConfigParam({
 	items: [string, string][];
 	configName: string;
 }) {
-	// @ts-ignore
+	// @ts-expect-error useGlobalState accepts dynamic string keys
 	const [value, setValue] = useGlobalState(configName);
 	const handleChange = (event: SelectChangeEvent<string>) => setValue(event.target.value);
 
