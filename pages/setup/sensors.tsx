@@ -46,7 +46,6 @@ const StyledContainer = styled(Container)(({ theme }) => ({
 function TrainerEmulatorSetup() {
 	const [sensorValue, setSensorValue] = useGlobalState('smart_trainer');
 	const [smartTrainerControl, setSmartTrainerControl] = useGlobalState('smart_trainer_control');
-	const [showCalibrationModal, setShowCalibrationModal] = useState(false);
 
 	useEffect(() => {
 		// Only start the emulator once; it should persist even when this
@@ -73,10 +72,6 @@ function TrainerEmulatorSetup() {
 			icon={<IconBike sx={iconStyle} />}
 			title="Smart Trainer"
 			batteryLevel={-1}
-			actions={
-				<CardActions>
-				</CardActions>
-			}
 		>
 			<SensorValue sensorType="smart_trainer" sensorValue={sensorValue} className={classes.sensorValue} />
 			<CardContent>
@@ -84,10 +79,6 @@ function TrainerEmulatorSetup() {
 					{smartTrainerControl ? 'Emulator active' : 'Starting emulator…'}
 				</Alert>
 			</CardContent>
-			<TrainerCalibrationModal
-				open={showCalibrationModal}
-				onClose={() => setShowCalibrationModal(false)}
-			/>
 		</SensorCard>
 	);
 }
