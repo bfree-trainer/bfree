@@ -20,6 +20,7 @@ import Ride from 'components/record/Ride';
 import Stopwatch from 'components/record/Stopwatch';
 import Title from 'components/Title';
 import WorkoutController from 'components/record/WorkoutController';
+import YouTubeSidePane from 'components/record/YouTubeSidePane';
 import { LapTriggerMethod } from 'lib/activity_log';
 import { RecordActionButtons } from 'components/record/ActionButtons';
 import { useGlobalState, ControlParams, setGlobalState } from 'lib/global';
@@ -574,6 +575,7 @@ export default function RideRecord() {
 					onClickSplit={handleManualSplit}
 					onClickEnd={handleEndRide}
 				/>
+				<YouTubeSidePane />
 				{EMULATOR_ENABLED && <TrainerEmulatorOverlay />}
 			</StyledContainer>
 		);
