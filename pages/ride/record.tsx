@@ -22,7 +22,7 @@ import Title from 'components/Title';
 import WorkoutController from 'components/record/WorkoutController';
 import { LapTriggerMethod } from 'lib/activity_log';
 import { RecordActionButtons } from 'components/record/ActionButtons';
-import { useGlobalState, ControlParams } from 'lib/global';
+import { useGlobalState, ControlParams, setGlobalState } from 'lib/global';
 import { PowerLimits } from 'components/ride/PowerResistance';
 import useInterval from 'lib/use-interval';
 import { useHeartRateMeasurement, getCyclingSpeedMeasurement } from 'lib/measurements';
@@ -33,6 +33,7 @@ import {
 	calcGpsPlaybackRate,
 	calcAveragePlaybackRate,
 	calcSlopeAtVideoTime,
+	calcPositionAtVideoTime,
 	getRollingResistanceCoeff,
 } from 'lib/virtual_video';
 import { calcWindResistanceCoeff, stdBikeFrontalArea, stdBikeDragCoefficient } from 'lib/virtual_params';
@@ -259,7 +260,7 @@ function VirtualRideDashboard() {
 		}
 	}, [ridePaused]);
 
-	// Reset slope to zero when the dashboard unmounts.
+	// Reset slope to zero and clear virtual position when the dashboard unmounts.
 	useEffect(() => {
 		return () => {
 			if (smartTrainerControlRef.current) {
@@ -270,10 +271,11 @@ function VirtualRideDashboard() {
 				delete next.slope;
 				return next;
 			});
+			setGlobalState('virtualPosition', null);
 		};
 	}, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-	// Adjust playback rate and slope resistance every second
+	// Adjust playback rate, slope resistance, and virtual GPS position every second
 	useInterval(async () => {
 		const video = videoRef.current;
 		if (!video || ridePaused !== 0) return;
@@ -319,6 +321,12 @@ function VirtualRideDashboard() {
 				smartTrainerControl.sendSlope(slope, rollingResistanceValue).catch(console.error);
 				setControlParams((prev: ControlParams) => ({ ...prev, slope }));
 			}
+		}
+
+		// Publish the current interpolated GPS position so FlightRecorder can log it
+		if (gpxPoints.length >= 2) {
+			const pos = calcPositionAtVideoTime(gpxPoints, video.currentTime);
+			setGlobalState('virtualPosition', pos);
 		}
 	}, 1000);
 
