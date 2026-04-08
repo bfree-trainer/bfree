@@ -15,11 +15,13 @@ export default function StartButton({ disabled, href }: { disabled?: boolean; hr
 	const router = useRouter();
 	const [showWarning, setShowWarning] = useState(false);
 	const [btDevice_smart_trainer] = useGlobalState('btDevice_smart_trainer');
+	const [smartTrainerControl] = useGlobalState('smart_trainer_control');
+	const hasTrainer = !!btDevice_smart_trainer || !!smartTrainerControl;
 
 	const handleOnClick = (e: React.MouseEvent<HTMLElement>) => {
 		if (disabled) {
 			e.preventDefault();
-		} else if (!btDevice_smart_trainer) {
+		} else if (!hasTrainer) {
 			e.preventDefault();
 			setShowWarning(true);
 		} else {
