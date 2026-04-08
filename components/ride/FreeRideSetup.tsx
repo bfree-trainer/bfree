@@ -5,23 +5,28 @@
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
-import { ReactNode, useState } from 'react';
+import { ReactNode } from 'react';
 import RideSetupCard, { SetupFormControl } from 'components/ride/RideSetupCard';
 import { UnsignedField } from 'components/SetupComponents';
 
 export type TrainerResistanceMode = '' | 'basic' | 'power' | 'slope';
-type AutoSplitMode = 'disabled' | 'distance' | 'time' | 'heartRate';
+export type AutoSplitMode = 'disabled' | 'distance' | 'time' | 'heartRate';
 
 export default function ResistanceMode({
 	resistanceMode,
 	setResistanceMode,
+	autoSplitMode,
+	setAutoSplitMode,
 	setAutoSplitValue,
+	initialAutoSplitValue,
 }: {
 	resistanceMode: TrainerResistanceMode;
 	setResistanceMode: (m: TrainerResistanceMode) => void;
+	autoSplitMode: AutoSplitMode;
+	setAutoSplitMode: (m: AutoSplitMode) => void;
 	setAutoSplitValue: (v: string) => void;
+	initialAutoSplitValue?: number;
 }) {
-	const [autoSplitMode, setAutoSplitMode] = useState<AutoSplitMode>('disabled');
 	const handleResistanceModeChange = (event: SelectChangeEvent<string>, _child?: ReactNode) => {
 		setResistanceMode(event.target.value as TrainerResistanceMode);
 	};
@@ -82,7 +87,7 @@ export default function ResistanceMode({
 						distance: (
 							<UnsignedField
 								label="Auto Split Distance"
-								initialValue={0}
+								initialValue={initialAutoSplitValue ?? 0}
 								unit="km"
 								setValue={(v) => setAutoSplitValue(`${v}km`)}
 							/>
@@ -90,7 +95,7 @@ export default function ResistanceMode({
 						time: (
 							<UnsignedField
 								label="Auto Split Time"
-								initialValue={0}
+								initialValue={initialAutoSplitValue ?? 0}
 								unit="min"
 								setValue={(v) => setAutoSplitValue(`${v}min`)}
 							/>
@@ -98,7 +103,7 @@ export default function ResistanceMode({
 						heartRate: (
 							<UnsignedField
 								label="Auto Split Heart Rate (Rising)"
-								initialValue={180}
+								initialValue={initialAutoSplitValue ?? 180}
 								unit="BPM"
 								setValue={(v) => setAutoSplitValue(`${v}bpm`)}
 							/>

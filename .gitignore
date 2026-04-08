@@ -5,4 +5,5 @@
 /.next
 /node_modules
 *.swp
+tsconfig.tsbuildinfo
 /next-env.d.ts
