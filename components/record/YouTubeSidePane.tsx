@@ -15,6 +15,13 @@ import { useState } from 'react';
 const PANE_WIDTH = 380;
 
 /**
+ * All generated embed URLs are rooted at this prefix.  The check at the end
+ * of parseYouTubeUrl acts as an explicit safety guard so that only URLs with
+ * this trusted origin can ever reach the iframe src attribute.
+ */
+const YOUTUBE_EMBED_PREFIX = 'https://www.youtube.com/embed/';
+
+/**
  * Parse a YouTube URL and return the corresponding embed URL, or null if the
  * input is not a recognised YouTube link.
  *
@@ -32,29 +39,34 @@ function parseYouTubeUrl(raw: string): string | null {
 		return null;
 	}
 
+	// Extract and encode IDs from the parsed URL so that user-supplied values
+	// cannot inject unexpected characters into the embed URL.
 	const videoId = u.searchParams.get('v');
 	const listId = u.searchParams.get('list');
+
+	let embedUrl: string | null = null;
 
 	if (u.hostname === 'youtu.be') {
 		const id = u.pathname.replace(/^\//, '').split('/')[0];
 		if (!id) return null;
-		return listId
-			? `https://www.youtube.com/embed/${id}?list=${listId}`
-			: `https://www.youtube.com/embed/${id}`;
-	}
-
-	if (u.hostname === 'www.youtube.com' || u.hostname === 'youtube.com') {
+		const encodedId = encodeURIComponent(id);
+		embedUrl = listId
+			? `${YOUTUBE_EMBED_PREFIX}${encodedId}?list=${encodeURIComponent(listId)}`
+			: `${YOUTUBE_EMBED_PREFIX}${encodedId}`;
+	} else if (u.hostname === 'www.youtube.com' || u.hostname === 'youtube.com') {
 		if (videoId) {
-			return listId
-				? `https://www.youtube.com/embed/${videoId}?list=${listId}`
-				: `https://www.youtube.com/embed/${videoId}`;
-		}
-		if (listId) {
-			return `https://www.youtube.com/embed/videoseries?list=${listId}`;
+			const encodedId = encodeURIComponent(videoId);
+			embedUrl = listId
+				? `${YOUTUBE_EMBED_PREFIX}${encodedId}?list=${encodeURIComponent(listId)}`
+				: `${YOUTUBE_EMBED_PREFIX}${encodedId}`;
+		} else if (listId) {
+			embedUrl = `${YOUTUBE_EMBED_PREFIX}videoseries?list=${encodeURIComponent(listId)}`;
 		}
 	}
 
-	return null;
+	// Safety guard: only return the URL when it genuinely starts with the
+	// trusted YouTube embed origin.
+	return embedUrl !== null && embedUrl.startsWith(YOUTUBE_EMBED_PREFIX) ? embedUrl : null;
 }
 
 /**
@@ -196,8 +208,6 @@ export default function YouTubeSidePane() {
 							flexShrink: 0,
 							backgroundColor: '#FF0000',
 							'&:hover': { backgroundColor: '#CC0000' },
-							// Align with the text field when no helper text is visible.
-							mt: urlError ? 0 : 0,
 						}}
 					>
 						Load
