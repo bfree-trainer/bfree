@@ -15,8 +15,13 @@ export type VideoClip = {
 	avgSpeedKmh?: number;
 };
 
-/** How the video playback speed is synchronised with the rider's speed. */
-export type SyncMethod = 'average' | 'gps';
+/**
+ * How the video playback speed is synchronised with the rider's speed.
+ * - `'gps'`     – interpolate original speed from timed GPX trackpoints
+ * - `'average'` – scale by ratio of current speed to recorded average speed
+ * - `'none'`    – play at constant speed (no sync)
+ */
+export type SyncMethod = 'average' | 'gps' | 'none';
 
 type TimedTrackpoint = Trackpoint & { time: Date };
 

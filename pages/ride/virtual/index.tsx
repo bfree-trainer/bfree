@@ -8,12 +8,7 @@ import CardActionArea from '@mui/material/CardActionArea';
 import CardContent from '@mui/material/CardContent';
 import CircularProgress from '@mui/material/CircularProgress';
 import Container from '@mui/material/Container';
-import FormControl from '@mui/material/FormControl';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormLabel from '@mui/material/FormLabel';
 import Grid from '@mui/material/Grid';
-import Radio from '@mui/material/Radio';
-import RadioGroup from '@mui/material/RadioGroup';
 import Typography from '@mui/material/Typography';
 import MyHead from 'components/MyHead';
 import StartButton from 'components/StartButton';
@@ -23,13 +18,23 @@ import { useEffect, useState } from 'react';
 
 const VIDEOS_URL = process.env.NEXT_PUBLIC_VIRTUAL_VIDEOS_URL;
 
-function makeStartUrl(clip: VideoClip, syncMethod: SyncMethod): string {
+/** Auto-select sync method: GPS first, then average speed, then none. */
+function chooseSyncMethod(clip: VideoClip): SyncMethod {
+	if (clip.gpxUrl) return 'gps';
+	if (clip.avgSpeedKmh !== undefined) return 'average';
+	return 'none';
+}
+
+function makeStartUrl(clip: VideoClip): string {
+	const syncMethod = chooseSyncMethod(clip);
 	const params = new URLSearchParams({
 		type: 'virtual',
 		videoUrl: clip.videoUrl,
-		gpxUrl: clip.gpxUrl,
 		syncMethod,
 	});
+	if (clip.gpxUrl) {
+		params.set('gpxUrl', clip.gpxUrl);
+	}
 	if (syncMethod === 'average' && clip.avgSpeedKmh !== undefined) {
 		params.set('avgSpeedKmh', String(clip.avgSpeedKmh));
 	}
@@ -80,7 +85,6 @@ export default function RideVirtual() {
 		return { clips: [], loading: true, error: null };
 	});
 	const [selectedClip, setSelectedClip] = useState<VideoClip | null>(null);
-	const [syncMethod, setSyncMethod] = useState<SyncMethod>('average');
 
 	useEffect(() => {
 		if (!VIDEOS_URL) return;
@@ -100,9 +104,7 @@ export default function RideVirtual() {
 
 	const { clips, loading, error } = fetchState;
 
-	const canStart =
-		selectedClip !== null &&
-		(syncMethod === 'gps' || (syncMethod === 'average' && selectedClip.avgSpeedKmh !== undefined));
+	const canStart = selectedClip !== null;
 
 	return (
 		<Container maxWidth="md">
@@ -137,30 +139,6 @@ export default function RideVirtual() {
 						/>
 					))}
 				</Grid>
-
-				{selectedClip && (
-					<Box sx={{ mt: 3 }}>
-						<FormControl component="fieldset">
-							<FormLabel component="legend">Speed Sync Method</FormLabel>
-							<RadioGroup
-								value={syncMethod}
-								onChange={(e) => setSyncMethod(e.target.value as SyncMethod)}
-							>
-								<FormControlLabel
-									value="average"
-									control={<Radio />}
-									label="Sync to average speed of the video"
-									disabled={selectedClip.avgSpeedKmh === undefined}
-								/>
-								<FormControlLabel
-									value="gps"
-									control={<Radio />}
-									label="Sync to embedded GPS speed in the GPX file"
-								/>
-							</RadioGroup>
-						</FormControl>
-					</Box>
-				)}
 			</Box>
 
 			<Box
@@ -172,7 +150,7 @@ export default function RideVirtual() {
 				justifyContent="center"
 				padding="1ex"
 			>
-				<StartButton disabled={!canStart} href={canStart ? makeStartUrl(selectedClip, syncMethod) : '#'} />
+				<StartButton disabled={!canStart} href={canStart ? makeStartUrl(selectedClip) : '#'} />
 			</Box>
 		</Container>
 	);
