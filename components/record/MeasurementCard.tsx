@@ -145,8 +145,10 @@ export default function MeasurementCard({ type, ribbonColor }: { type: Measureme
 				newValue.n = 0;
 			} else if (!Number.isNaN(v)) {
 				// This works because the sample interval is fixed.
-				newValue.avg = prev.avg + (v - prev.avg) / (prev.n + 1);
-				newValue.n++;
+				if (!(v === 0 && type === 'cycling_cadence')) {
+					newValue.avg = prev.avg + (v - prev.avg) / (prev.n + 1);
+					newValue.n++;
+				}
 			}
 
 			if (Number.isNaN(prev.max) || (v > prev.max && v < Infinity)) {
