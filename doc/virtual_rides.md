@@ -52,21 +52,25 @@ ride clip:
 Speed Sync Methods
 ------------------
 
-Two methods are available to keep the video speed proportional to the rider's
-current speed:
+The sync method is chosen automatically based on what information is available in the clip:
 
-### Average speed sync (`average`)
+| Priority | Condition | Method used |
+|----------|-----------|-------------|
+| 1st | `gpxUrl` present | **GPS sync** |
+| 2nd | `avgSpeedKmh` present | **Average speed sync** |
+| 3rd | Neither | **No sync** (video plays at constant speed) |
+
+### Average speed sync
 
 ```
 playbackRate = riderSpeed / avgSpeedKmh
 ```
 
 The video is sped up or slowed down so that it plays at normal speed when the
-rider matches the average speed that was recorded in the video.  This is the
-simplest method and works with any video; it only requires the `avgSpeedKmh`
-field to be set.
+rider matches the average speed that was recorded in the video.  This requires
+the `avgSpeedKmh` field to be set.
 
-### GPS sync (`gps`)
+### GPS sync
 
 ```
 playbackRate = riderSpeed / originalSpeedAtCurrentVideoPosition
