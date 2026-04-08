@@ -73,8 +73,6 @@ When the emulator is enabled:
 1. **Sensor setup page** – the BLE smart trainer card is replaced by a
    *Trainer Emulator* card. The emulator starts automatically on page load
    and persists across page navigations, just like a real BLE connection.
-   A *Calibrate* action simulates a successful spin-down calibration after
-   about two seconds.
 
 2. **Ride / record page** – a small overlay panel appears in the bottom-right
    corner of the screen. It shows the current resistance mode and setting, and
