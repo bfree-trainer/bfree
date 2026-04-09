@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import dynamic from 'next/dynamic';
 import Avatar from '@mui/material/Avatar';
 import Badge from '@mui/material/Badge';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
@@ -36,6 +37,12 @@ import { getElapsedTimeStr } from 'lib/format';
 import { smartDistanceUnitFormat } from 'lib/units';
 import { useGlobalState } from 'lib/global';
 import DataGraph from 'components/DataGraph';
+import type RideMiniMapType from 'components/map/RideMiniMap';
+
+type RideMiniMapArgs = Parameters<typeof RideMiniMapType>[0];
+const DynamicRideMiniMap = dynamic<RideMiniMapArgs>(() => import('components/map/RideMiniMap'), {
+	ssr: false,
+});
 
 const PREFIX = 'history';
 const classes = {
@@ -247,7 +254,8 @@ function RideCard({ log, onSelect }: { log: Log; onSelect: (v: boolean) => void 
 					title={name}
 					subheader={log.date}
 				/>
-				{/* TODO Add preview here */}
+				{/* Minimap showing ride route if GPS location data is available */}
+				<DynamicRideMiniMap logger={log.logger} />
 				<CardContent>
 					<RideStats
 						stats={[
