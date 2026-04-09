@@ -50,12 +50,24 @@ function makeStartUrl(resistanceMode: string, rollingResistance: number, powerLi
 }
 
 export default function RideFree() {
-	const [savedSettings] = useState(() => loadSession(SESSION_KEY) ?? {});
-	const [resistanceMode, setResistanceMode] = useState<TrainerResistanceMode>(savedSettings.resistanceMode || '');
-	const [rollingResistance, setRollingResistance] = useState<number>(savedSettings.rollingResistance ?? NaN);
-	const [powerLimits, setPowerLimits] = useState<PowerLimits>(savedSettings.powerLimits || { min: 100, max: 300 });
-	const [autoSplitMode, setAutoSplitMode] = useState<AutoSplitMode>(savedSettings.autoSplitMode || 'disabled');
-	const [autoSplit, setAutoSplit] = useState<string>(savedSettings.autoSplit || '');
+	const [resistanceMode, setResistanceMode] = useState<TrainerResistanceMode>('');
+	const [rollingResistance, setRollingResistance] = useState<number>(NaN);
+	const [powerLimits, setPowerLimits] = useState<PowerLimits>({ min: 100, max: 300 });
+	const [autoSplitMode, setAutoSplitMode] = useState<AutoSplitMode>('disabled');
+	const [autoSplit, setAutoSplit] = useState<string>('');
+	const [hydrated, setHydrated] = useState(false);
+
+	useEffect(() => {
+		const saved = loadSession(SESSION_KEY);
+		if (saved) {
+			if (saved.resistanceMode) setResistanceMode(saved.resistanceMode);
+			if (saved.rollingResistance != null) setRollingResistance(saved.rollingResistance);
+			if (saved.powerLimits) setPowerLimits(saved.powerLimits);
+			if (saved.autoSplitMode) setAutoSplitMode(saved.autoSplitMode);
+			if (saved.autoSplit) setAutoSplit(saved.autoSplit);
+		}
+		setHydrated(true);
+	}, []);
 
 	useEffect(() => {
 		if (resistanceMode !== 'slope') {
@@ -64,6 +76,7 @@ export default function RideFree() {
 	}, [resistanceMode]);
 
 	useEffect(() => {
+		if (!hydrated) return;
 		saveSession(SESSION_KEY, {
 			resistanceMode,
 			rollingResistance: isNaN(rollingResistance) ? null : rollingResistance,
@@ -71,7 +84,7 @@ export default function RideFree() {
 			autoSplitMode,
 			autoSplit,
 		});
-	}, [resistanceMode, rollingResistance, powerLimits, autoSplitMode, autoSplit]);
+	}, [hydrated, resistanceMode, rollingResistance, powerLimits, autoSplitMode, autoSplit]);
 
 	return (
 		<StyledContainer maxWidth="md">
