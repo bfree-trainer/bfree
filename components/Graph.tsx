@@ -23,6 +23,9 @@ const StyledCard = styled(Card)(({ theme }) => ({
 		width: '100%',
 		background: 'white',
 		transition: '0.3s',
+		'@media (prefers-reduced-motion: reduce)': {
+			transition: 'none',
+		},
 	},
 }));
 

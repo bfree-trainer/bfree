@@ -55,7 +55,11 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 
 	[`& .${classes.value}`]: {
 		width: '10em',
+		maxWidth: '10em',
 		textAlign: 'right',
+		overflow: 'hidden',
+		textOverflow: 'ellipsis',
+		whiteSpace: 'nowrap',
 	},
 
 	[`& .${classes.unit}`]: {
@@ -172,6 +176,10 @@ export default function MeasurementCard({ type, ribbonColor }: { type: Measureme
 									'50%': {
 										backgroundColor: '#ffaeae', // TODO ribbonColor should be passed as a string
 									},
+								},
+								'@media (prefers-reduced-motion: reduce)': {
+									animation: 'none',
+									backgroundColor: '#ffaeae',
 								},
 							}
 						: undefined

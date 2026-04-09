@@ -17,13 +17,18 @@ export default function CreateCourseDialog({ newCourse }: { newCourse: (name: st
 	const nameRef = useRef();
 	const uploadInputRef = useRef<HTMLInputElement | null>(null);
 	const [open, setOpen] = useState(false);
+	const [creating, setCreating] = useState(false);
 	const handleClickOpen = () => {
 		setOpen(true);
 	};
 	const handleCreate = () => {
+		const file = uploadInputRef.current?.files?.[0];
+		if (!file) return;
+		setCreating(true);
 		// @ts-ignore
-		newCourse(nameRef?.current?.value || '', uploadInputRef.current?.files[0] || null);
+		newCourse(nameRef?.current?.value || '', file);
 		setOpen(false);
+		setCreating(false);
 	};
 	const handleCancel = () => {
 		setOpen(false);
@@ -37,7 +42,7 @@ export default function CreateCourseDialog({ newCourse }: { newCourse: (name: st
 			<Dialog open={open} onClose={handleCancel}>
 				<DialogTitle>New Course</DialogTitle>
 				<DialogContent>
-					<DialogContentText sx={{ width: '25em' }}>
+					<DialogContentText sx={{ maxWidth: '25em' }}>
 						Course name can be read from the imported file by leaving the name field blank.
 					</DialogContentText>
 					<Stack spacing={3}>
@@ -49,9 +54,10 @@ export default function CreateCourseDialog({ newCourse }: { newCourse: (name: st
 							fullWidth
 							variant="standard"
 							inputRef={nameRef}
+							inputProps={{ maxLength: 200 }}
 						/>
 						<InputLabel htmlFor="import-file" hidden>
-							<input ref={uploadInputRef} id="import-file" name="import-file" type="file" />
+							<input ref={uploadInputRef} id="import-file" name="import-file" type="file" accept=".gpx,.GPX" />
 							GPX
 						</InputLabel>
 					</Stack>
@@ -60,7 +66,7 @@ export default function CreateCourseDialog({ newCourse }: { newCourse: (name: st
 					<Button color="secondary" onClick={handleCancel}>
 						Cancel
 					</Button>
-					<Button onClick={handleCreate}>Create</Button>
+					<Button onClick={handleCreate} disabled={creating}>Create</Button>
 				</DialogActions>
 			</Dialog>
 		</>

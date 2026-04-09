@@ -43,9 +43,17 @@ const Offset = styled('div')(({ theme }) => theme.mixins.toolbar);
 
 function BackButton({ disable, onClick }: { disable: boolean; onClick?: (e?: React.MouseEvent<HTMLElement>) => void }) {
 	return (
-		<Typography sx={disable ? sxArrowDisabled : sxArrowEnabled} onClick={onClick}>
-			&larr; &nbsp;
-		</Typography>
+		<IconButton
+			aria-label="Go back"
+			disabled={disable}
+			onClick={onClick}
+			sx={disable ? sxArrowDisabled : { color: 'inherit', ...sxArrowEnabled }}
+			size="small"
+		>
+			<Typography component="span" aria-hidden>
+				&larr;
+			</Typography>
+		</IconButton>
 	);
 }
 

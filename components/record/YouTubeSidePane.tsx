@@ -109,8 +109,9 @@ export default function YouTubeSidePane() {
 					top: '50%',
 					transform: 'translateY(-50%)',
 					zIndex: 1200,
-					transition: 'right 0.3s ease',
-				}}
+					transition: 'right 0.3s ease',				'@media (prefers-reduced-motion: reduce)': {
+					transition: 'none',
+				},				}}
 			>
 				<IconButton
 					onClick={() => setOpen((prev) => !prev)}
@@ -139,8 +140,9 @@ export default function YouTubeSidePane() {
 					width: PANE_WIDTH,
 					height: '100vh',
 					zIndex: 1199,
-					transition: 'right 0.3s ease',
-					display: 'flex',
+					transition: 'right 0.3s ease',				'@media (prefers-reduced-motion: reduce)': {
+					transition: 'none',
+				},					display: 'flex',
 					flexDirection: 'column',
 					overflow: 'hidden',
 				}}

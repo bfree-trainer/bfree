@@ -9,6 +9,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import IconButton from '@mui/material/IconButton';
 import IconDelete from '@mui/icons-material/Delete';
+import Typography from '@mui/material/Typography';
 import AutoSizer, { Size } from 'react-virtualized-auto-sizer';
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
 import { PersistedCourse, deleteCourse, getCourses } from 'lib/course_storage';
@@ -40,8 +41,15 @@ function renderRow(props: ListChildComponentProps) {
 				onClick={() => {
 					if (course) data.onSelectCourse(course);
 				}}
+				sx={{ overflow: 'hidden' }}
 			>
-				<ListItemText primary={course?.name || '<Load error>'} />
+				<ListItemText
+					primary={course?.name || '<Load error>'}
+					primaryTypographyProps={{
+						noWrap: true,
+						title: course?.name || undefined,
+					}}
+				/>
 			</ListItemButton>
 		</ListItem>
 	);
@@ -61,6 +69,11 @@ export default function CourseList({
 
 	return (
 		<Box sx={{ width: '100%', height, maxWidth: 360, bgcolor: 'background.paper' }}>
+			{courses.length === 0 ? (
+				<Typography sx={{ p: 2 }} color="text.secondary">
+					No courses yet. Create one to get started.
+				</Typography>
+			) : (
 			<AutoSizer>
 				{(size: Size) => (
 					<FixedSizeList
@@ -75,6 +88,7 @@ export default function CourseList({
 					</FixedSizeList>
 				)}
 			</AutoSizer>
+			)}
 		</Box>
 	);
 }
