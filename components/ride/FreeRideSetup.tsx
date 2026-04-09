@@ -50,7 +50,6 @@ export default function ResistanceMode({
 					label="Resistance Mode"
 					labelId="select-resistance-mode"
 					id="resistance-mode-select"
-					notched={true}
 					value={resistanceMode}
 					onChange={handleResistanceModeChange}
 				>
@@ -69,7 +68,6 @@ export default function ResistanceMode({
 					label="Auto Split"
 					labelId="auto-split-select-label"
 					id="auto-slit-select"
-					notched={true}
 					value={autoSplitMode}
 					onChange={handleAutoSplitChange}
 				>
