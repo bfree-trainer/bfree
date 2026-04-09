@@ -25,25 +25,25 @@ export default function BatteryLevel({ batteryLevel }: { batteryLevel: number })
 	return (
 		<Tooltip title={`${batteryLevel} %`} describeChild={true} enterTouchDelay={10}>
 			<span role="img" aria-label={label}>
-			{batteryLevel < 0 ? (
-				<BatteryUnknownIcon sx={style} />
-			) : batteryLevel < 20 ? (
-				<Battery0Icon sx={style} />
-			) : batteryLevel < 30 ? (
-				<Battery20Icon sx={style} />
-			) : batteryLevel < 50 ? (
-				<Battery30Icon sx={style} />
-			) : batteryLevel < 60 ? (
-				<Battery50Icon sx={style} />
-			) : batteryLevel < 80 ? (
-				<Battery60Icon sx={style} />
-			) : batteryLevel < 90 ? (
-				<Battery80Icon sx={style} />
-			) : batteryLevel < 100 ? (
-				<Battery90Icon sx={style} />
-			) : (
-				<Battery100Icon sx={style} />
-			)}
+				{batteryLevel < 0 ? (
+					<BatteryUnknownIcon sx={style} />
+				) : batteryLevel < 20 ? (
+					<Battery0Icon sx={style} />
+				) : batteryLevel < 30 ? (
+					<Battery20Icon sx={style} />
+				) : batteryLevel < 50 ? (
+					<Battery30Icon sx={style} />
+				) : batteryLevel < 60 ? (
+					<Battery50Icon sx={style} />
+				) : batteryLevel < 80 ? (
+					<Battery60Icon sx={style} />
+				) : batteryLevel < 90 ? (
+					<Battery80Icon sx={style} />
+				) : batteryLevel < 100 ? (
+					<Battery90Icon sx={style} />
+				) : (
+					<Battery100Icon sx={style} />
+				)}
 			</span>
 		</Tooltip>
 	);

@@ -72,13 +72,21 @@ function getSmartTrainerWarns(smartTrainerStatus: null | TrainerMeasurements): N
 
 	const { calStatus } = smartTrainerStatus;
 	if (calStatus.powerCalRequired) {
-		warns.push({ severity: 'warning', permanent: true, text: 'Your trainer needs power calibration before riding' });
+		warns.push({
+			severity: 'warning',
+			permanent: true,
+			text: 'Your trainer needs power calibration before riding',
+		});
 	}
 	if (calStatus.resistanceCalRequired) {
 		warns.push({ severity: 'warning', permanent: true, text: 'Your trainer needs resistance calibration' });
 	}
 	if (calStatus.userConfigRequired) {
-		warns.push({ severity: 'warning', permanent: true, text: 'Trainer needs rider settings \u2014 update weight and bike info in Setup' });
+		warns.push({
+			severity: 'warning',
+			permanent: true,
+			text: 'Trainer needs rider settings \u2014 update weight and bike info in Setup',
+		});
 	}
 
 	return warns;
@@ -178,7 +186,11 @@ function Notifications({
 		<Box>
 			<IconButton
 				size="large"
-				aria-label={notifications.length > 0 ? `${notifications.length} notification${notifications.length !== 1 ? 's' : ''}` : 'No notifications'}
+				aria-label={
+					notifications.length > 0
+						? `${notifications.length} notification${notifications.length !== 1 ? 's' : ''}`
+						: 'No notifications'
+				}
 				color="inherit"
 				onClick={handleClick}
 			>

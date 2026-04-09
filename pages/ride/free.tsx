@@ -64,14 +64,15 @@ export default function RideFree() {
 	}, [resistanceMode]);
 
 	useEffect(() => {
-		saveSession(SESSION_KEY,
+		saveSession(
+			SESSION_KEY,
 			JSON.stringify({
 				resistanceMode,
 				rollingResistance: isNaN(rollingResistance) ? null : rollingResistance,
 				powerLimits,
 				autoSplitMode,
 				autoSplit,
-			}),
+			})
 		);
 	}, [resistanceMode, rollingResistance, powerLimits, autoSplitMode, autoSplit]);
 
@@ -80,7 +81,7 @@ export default function RideFree() {
 			<MyHead title="Free Ride" />
 			<Box>
 				<Title href="/ride">Free Ride</Title>
-				<Typography variant="body1" color="text.primary" sx={{ mt:2, mb: 2 }}>
+				<Typography variant="body1" color="text.primary" sx={{ mt: 2, mb: 2 }}>
 					Start a free ride exercise.
 				</Typography>
 

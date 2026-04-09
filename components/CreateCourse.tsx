@@ -57,7 +57,13 @@ export default function CreateCourseDialog({ newCourse }: { newCourse: (name: st
 							inputProps={{ maxLength: 200 }}
 						/>
 						<InputLabel htmlFor="import-file" hidden>
-							<input ref={uploadInputRef} id="import-file" name="import-file" type="file" accept=".gpx,.GPX" />
+							<input
+								ref={uploadInputRef}
+								id="import-file"
+								name="import-file"
+								type="file"
+								accept=".gpx,.GPX"
+							/>
 							GPX
 						</InputLabel>
 					</Stack>
@@ -66,7 +72,9 @@ export default function CreateCourseDialog({ newCourse }: { newCourse: (name: st
 					<Button color="secondary" onClick={handleCancel}>
 						Cancel
 					</Button>
-					<Button onClick={handleCreate} disabled={creating}>Create</Button>
+					<Button onClick={handleCreate} disabled={creating}>
+						Create
+					</Button>
 				</DialogActions>
 			</Dialog>
 		</>

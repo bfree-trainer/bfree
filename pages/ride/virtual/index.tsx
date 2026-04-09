@@ -44,15 +44,7 @@ function makeStartUrl(clip: VideoClip): string {
 	return `/ride/record?${params.toString()}`;
 }
 
-function VideoClipCard({
-	clip,
-	selected,
-	onSelect,
-}: {
-	clip: VideoClip;
-	selected: boolean;
-	onSelect: () => void;
-}) {
+function VideoClipCard({ clip, selected, onSelect }: { clip: VideoClip; selected: boolean; onSelect: () => void }) {
 	return (
 		<Grid item xs={12} sm={6}>
 			<Card variant="outlined" sx={selected ? { borderColor: 'primary.main', borderWidth: 2 } : {}}>
@@ -160,4 +152,3 @@ export default function RideVirtual() {
 		</Container>
 	);
 }
-

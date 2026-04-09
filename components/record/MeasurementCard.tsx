@@ -196,19 +196,25 @@ export default function MeasurementCard({ type, ribbonColor }: { type: Measureme
 						<table className={classes.valuesTable}>
 							<tbody>
 								<tr>
-								<th className={classes.header} scope="row">Current:</th>
+									<th className={classes.header} scope="row">
+										Current:
+									</th>
 									<td className={classes.value}>
 										{Number.isNaN(value) ? '--' : value.toFixed(digits)}
 									</td>
 									<td className={classes.unit}>{unit}</td>
 								</tr>
 								<tr>
-									<th className={classes.header} scope="row">Avg:</th>
+									<th className={classes.header} scope="row">
+										Avg:
+									</th>
 									<td className={classes.value}>{avg.toFixed(digits)}</td>
 									<td className={classes.unit}></td>
 								</tr>
 								<tr>
-									<th className={classes.header} scope="row">Max:</th>
+									<th className={classes.header} scope="row">
+										Max:
+									</th>
 									<td className={classes.value}>{Number.isNaN(max) ? '--' : max.toFixed(digits)}</td>
 									<td className={classes.unit}></td>
 								</tr>

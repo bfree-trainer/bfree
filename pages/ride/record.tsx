@@ -203,7 +203,7 @@ function VirtualRideDashboard() {
 	const rollingResistanceValue = getRollingResistanceCoeff(typeof roadSurface === 'string' ? roadSurface : undefined);
 	const windResistanceCoeff = useMemo(
 		() => calcWindResistanceCoeff(stdBikeFrontalArea[bike.type], stdBikeDragCoefficient[bike.type], 0),
-		[bike],
+		[bike]
 	);
 
 	// Low-pass filter for slope: smoothed value stored in a ref to persist across ticks.

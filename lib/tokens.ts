@@ -23,11 +23,7 @@ export const metricColors = {
  * Ordered array matching the DataGraph series order:
  * [heart_rate, power, speed]
  */
-export const metricColorList = [
-	metricColors.heartRate,
-	metricColors.power,
-	metricColors.speed,
-] as const;
+export const metricColorList = [metricColors.heartRate, metricColors.power, metricColors.speed] as const;
 
 // ---------------------------------------------------------------------------
 // Modal styling

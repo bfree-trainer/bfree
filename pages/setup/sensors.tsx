@@ -69,11 +69,7 @@ function TrainerEmulatorSetup() {
 	}, []); // eslint-disable-line react-hooks/exhaustive-deps
 
 	return (
-		<SensorCard
-			icon={<IconBike sx={iconStyle} />}
-			title="Smart Trainer"
-			batteryLevel={-1}
-		>
+		<SensorCard icon={<IconBike sx={iconStyle} />} title="Smart Trainer" batteryLevel={-1}>
 			<SensorValue sensorType="smart_trainer" sensorValue={sensorValue} className={classes.sensorValue} />
 			<CardContent>
 				<Alert severity={smartTrainerControl ? 'success' : 'info'}>

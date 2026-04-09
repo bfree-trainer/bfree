@@ -74,20 +74,20 @@ export default function CourseList({
 					No courses yet. Create one to get started.
 				</Typography>
 			) : (
-			<AutoSizer>
-				{(size: Size) => (
-					<FixedSizeList
-						height={size.height}
-						width={size.width}
-						itemSize={46}
-						itemCount={courses.length}
-						overscanCount={5}
-						itemData={{ courses, setLastDel, onSelectCourse }}
-					>
-						{renderRow}
-					</FixedSizeList>
-				)}
-			</AutoSizer>
+				<AutoSizer>
+					{(size: Size) => (
+						<FixedSizeList
+							height={size.height}
+							width={size.width}
+							itemSize={46}
+							itemCount={courses.length}
+							overscanCount={5}
+							itemData={{ courses, setLastDel, onSelectCourse }}
+						>
+							{renderRow}
+						</FixedSizeList>
+					)}
+				</AutoSizer>
 			)}
 		</Box>
 	);
