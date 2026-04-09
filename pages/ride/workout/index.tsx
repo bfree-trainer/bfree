@@ -49,7 +49,7 @@ const classes = {
 
 const StyledContainer = styled(Container)(({ theme }) => ({
 	[`& .${classes.cardRoot}`]: {
-		minWidth: 345,
+		width: '100%',
 		maxWidth: 345,
 	},
 

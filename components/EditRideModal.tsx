@@ -10,8 +10,11 @@ import EditActionButtons from 'components/EditActionButtons';
 import MyModal from 'components/MyModal';
 
 const editModalStyle = {
-	width: '40em',
-	height: '30em',
+	width: '90vw',
+	maxWidth: '40em',
+	height: 'auto',
+	maxHeight: '90vh',
+	overflowY: 'auto' as const,
 };
 
 export default function EditModal({
@@ -58,8 +61,9 @@ export default function EditModal({
 							label="Activity Name"
 							defaultValue={logger.getName()}
 							onChange={handleNameChange}
+							fullWidth
 							sx={{
-								width: '40ch',
+								maxWidth: '40ch',
 								pb: '2.5em',
 							}}
 						/>

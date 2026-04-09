@@ -18,7 +18,7 @@ const classes = {
 
 const StyledGrid = styled(Grid)(({ theme }) => ({
 	[`& .${classes.dummyCard}`]: {
-		height: '10em',
+		minHeight: '10em',
 	},
 
 	[`& .${classes.inlineIcon}`]: {
@@ -28,7 +28,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 
 export default function DummyCard() {
 	return (
-		<StyledGrid item xs={4}>
+		<StyledGrid item xs={12} sm={6} md={4}>
 			<Card variant="outlined">
 				<CardContent className={classes.dummyCard}>
 					<Typography id="resistance-control" gutterBottom variant="h5" component="h2">

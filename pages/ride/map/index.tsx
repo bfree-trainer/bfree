@@ -155,15 +155,15 @@ export default function RideMap() {
 				<Title href="/ride">Map Ride</Title>
 				<p>Plan your ride.</p>
 
-				<Grid container spacing={2} sx={{ ml: '-20vw', width: '70vw' }}>
-					<Grid item xs={4}>
+				<Grid container spacing={2}>
+					<Grid item xs={12} sm={4}>
 						<Typography variant="h6">Courses</Typography>
 					</Grid>
-					<Grid item xs={2}>
+					<Grid item xs={12} sm={2}>
 						<Typography variant="h6">{courseName}</Typography>
 					</Grid>
-					<Grid item xs={6}>
-						<ButtonGroup variant="contained">
+					<Grid item xs={12} sm={6}>
+						<ButtonGroup variant="contained" sx={{ flexWrap: 'wrap' }}>
 							<CreateCourse newCourse={newCourse} />
 							<MyLocationButton map={map} setPosition={setHomeCoord} />
 							<Button
@@ -187,7 +187,7 @@ export default function RideMap() {
 						</ButtonGroup>
 					</Grid>
 
-					<Grid item xs={4}>
+					<Grid item xs={12} md={4}>
 						<CourseList height={'50%'} changeId={changeCount} onSelectCourse={selectCourse} />
 						<Paper elevation={0} sx={{ height: '49%', mt: 1 }}>
 							<Ele
@@ -198,8 +198,8 @@ export default function RideMap() {
 						</Paper>
 					</Grid>
 
-					<Grid item xs={8}>
-						<DynamicMap center={homeCoord} width={mapSize.width} height={mapSize.height} setMap={setMap}>
+					<Grid item xs={12} md={8}>
+						<DynamicMap center={homeCoord} width={'100%'} height={mapSize.height} setMap={setMap}>
 							<DynamicMapMarker icon={<IconHome />} position={homeCoord}>
 								You are here.
 							</DynamicMapMarker>

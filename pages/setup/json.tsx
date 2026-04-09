@@ -51,7 +51,7 @@ function handleImport(event: ChangeEvent<HTMLInputElement>) {
 
 function ImportJsonCard() {
 	return (
-		<Grid item xs={4}>
+		<Grid item xs={12} sm={6} md={4}>
 			<Card variant="outlined">
 				<CardContent>
 					<Typography gutterBottom variant="h5" component="h2">
@@ -77,7 +77,7 @@ function handleExport() {
 
 function ExportJsonCard() {
 	return (
-		<Grid item xs={4}>
+		<Grid item xs={12} sm={6} md={4}>
 			<Card variant="outlined">
 				<CardContent>
 					<Typography gutterBottom variant="h5" component="h2">

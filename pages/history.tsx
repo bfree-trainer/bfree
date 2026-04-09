@@ -24,8 +24,8 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme, styled } from '@mui/material/styles';
 import { red } from '@mui/material/colors';
-import { styled } from '@mui/material/styles';
 import { useState, useEffect, useRef } from 'react';
 import BottomNavi from 'components/BottomNavi';
 import MyHead from 'components/MyHead';
@@ -56,7 +56,7 @@ const classes = {
 
 const StyledContainer = styled(Container)(({ theme }) => ({
 	[`& .${classes.cardRoot}`]: {
-		minWidth: 345,
+		width: '100%',
 		maxWidth: 345,
 	},
 
@@ -297,7 +297,8 @@ function RideCard({ log, onSelect }: { log: Log; onSelect: (v: boolean) => void 
 }
 
 export default function History() {
-	const isBreakpoint = useMediaQuery('(min-width:800px)');
+	const theme = useTheme();
+	const isBreakpoint = useMediaQuery(theme.breakpoints.up('md'));
 	const [logs, setLogs] = useState<ReturnType<typeof getActivityLogs>>([]);
 	const selectionRef = useRef(new WeakMap<Log, boolean>());
 	const [selectionCount, setSelectionCount] = useState(0);

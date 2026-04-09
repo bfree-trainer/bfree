@@ -21,9 +21,9 @@ export default function Distance() {
 
 	// TODO meters & km based on length
 	return (
-		<Grid item xs={4}>
+		<Grid item xs={12} sm={6} md={4}>
 			<Card variant="outlined">
-				<CardContent sx={{ height: '10em' }}>
+				<CardContent sx={{ minHeight: '10em' }}>
 					<Typography gutterBottom variant="h5" component="h2">
 						Distance
 					</Typography>
