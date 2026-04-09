@@ -21,7 +21,6 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 	[`& .${classes.dummyCard}`]: {
 		minHeight: recordCardMinHeight,
 	},
-
 	[`& .${classes.inlineIcon}`]: {
 		fontSize: inlineIconFontSize,
 	},
