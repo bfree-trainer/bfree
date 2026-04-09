@@ -27,7 +27,12 @@ export default function RideMiniMap({ logger }: { logger: ReturnType<typeof crea
 	const positions: [number, number][] = logger
 		.getLaps()
 		.flatMap((lap) => lap.trackPoints)
-		.filter((tp) => tp.position)
+		.filter(
+			(tp) =>
+				tp.position &&
+				typeof tp.position.lat === 'number' &&
+				typeof tp.position.lon === 'number'
+		)
 		.map((tp) => [tp.position.lat, tp.position.lon]);
 
 	if (positions.length === 0) {
