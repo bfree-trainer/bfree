@@ -7,7 +7,7 @@ import Container from '@mui/material/Container';
 import DefaultErrorPage from 'next/error';
 import Grid from '@mui/material/Grid';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { styled } from '@mui/material/styles';
+import { useTheme, styled } from '@mui/material/styles';
 import { useRouter } from 'next/router';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import FlightRecorder from 'components/record/FlightRecorder';
@@ -91,7 +91,8 @@ function DataGraphCard() {
 
 function FreeRideDashboard() {
 	const router = useRouter();
-	const isBreakpoint = useMediaQuery('(min-width:800px)');
+	const theme = useTheme();
+	const isBreakpoint = useMediaQuery(theme.breakpoints.up('md'));
 	const [logger] = useGlobalState('currentActivityLog');
 	const { resistance } = router.query;
 	const rollingResistance = Number(router.query.rollingResistance);

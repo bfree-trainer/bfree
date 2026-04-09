@@ -43,7 +43,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 	},
 
 	[`& .${classes.stopwatchCard}`]: {
-		height: '10em',
+		minHeight: '10em',
 	},
 
 	[`& .${classes.value}`]: {
@@ -228,7 +228,7 @@ export default function WorkoutController({
 
 	/* TODO Show the actual workout stats */
 	return (
-		<StyledGrid item xs={4}>
+		<StyledGrid item xs={12} sm={6} md={4}>
 			<Card variant="outlined">
 				<CardContent className={classes.stopwatchCard}>
 					<Typography gutterBottom variant="h5" component="h2">

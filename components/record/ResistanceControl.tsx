@@ -14,7 +14,7 @@ import Slider from '@mui/material/Slider';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { styled } from '@mui/material/styles';
+import { useTheme, styled } from '@mui/material/styles';
 import { useEffect, useState, useMemo } from 'react';
 import { useGlobalState, ControlParams } from 'lib/global';
 import {
@@ -128,7 +128,8 @@ export default function ResistanceControl({
 			defaultResistance: 5,
 		},
 	};
-	const isBreakpoint = useMediaQuery('(min-width:800px)');
+	const theme = useTheme();
+	const isBreakpoint = useMediaQuery(theme.breakpoints.up('md'));
 	const { resistanceControlName, resistanceStep, minResistance, maxResistance, resistanceUnit, defaultResistance } =
 		params[resistance];
 	const marks = isBreakpoint ? r2marks(params)[resistance] : null;
@@ -199,7 +200,7 @@ export default function ResistanceControl({
 	};
 
 	return (
-		<StyledGrid item xs={isBreakpoint ? 4 : 8}>
+		<StyledGrid item xs={isBreakpoint ? 4 : 8} md={4}>
 			<Card variant="outlined">
 				<CardContent className={classes.resistanceControlCard}>
 					<Typography id="resistance-control" gutterBottom variant="h5" component="h2">

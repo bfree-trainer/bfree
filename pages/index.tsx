@@ -15,7 +15,7 @@ export default function Home() {
 	return (
 		<Container maxWidth="md">
 			<MyHead title="Cycling App" />
-			<Box sx={{ width: '100%', height: '764px', left: '0px', top: '0px' }} overflow="hidden" position="absolute">
+			<Box sx={{ width: '100%', height: { xs: '100vh', md: '764px' }, left: '0px', top: '0px' }} overflow="hidden" position="absolute">
 				<Image
 					src={bfreeImg}
 					alt="Bfree forever"

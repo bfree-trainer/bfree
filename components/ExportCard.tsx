@@ -25,7 +25,7 @@ export default function ExportCard({
 	onClickTCX: () => void;
 }) {
 	return (
-		<Grid item xs={4}>
+		<Grid item xs={12} sm={6} md={4}>
 			<Card variant="outlined">
 				<CardContent>
 					<Typography gutterBottom variant="h5" component="h2">
