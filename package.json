@@ -8,10 +8,10 @@
   },
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "NEXT_TELEMETRY_DISABLED=${NEXT_TELEMETRY_DISABLED:-1} next dev",
+    "build": "NEXT_TELEMETRY_DISABLED=${NEXT_TELEMETRY_DISABLED:-1} next build",
     "clean": "rm -rf .next",
-    "start": "next start",
+    "start": "NEXT_TELEMETRY_DISABLED=${NEXT_TELEMETRY_DISABLED:-1} next start",
     "prettier": "prettier --write './{pages,components,lib}/**/*.{ts,tsx}'",
     "lint": "eslint ."
   },
