@@ -24,6 +24,7 @@ import {
 	calcWindResistanceCoeff,
 } from 'lib/virtual_params';
 import { PowerLimits } from 'components/ride/PowerResistance';
+import { recordCardMinHeight, inlineIconFontSize } from 'lib/tokens';
 
 const PREFIX = 'ResistanceControl';
 const classes = {
@@ -44,13 +45,13 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 		marginTop: '1.5ex',
 	},
 	[`& .${classes.resistanceControlCard}`]: {
-		minHeight: '10em',
+		minHeight: recordCardMinHeight,
 	},
 	[`& .${classes.resistanceControlSlider}`]: {
 		paddingTop: '3em',
 	},
 	[`& .${classes.inlineIcon}`]: {
-		fontSize: '18px !important',
+		fontSize: inlineIconFontSize,
 	},
 }));
 
@@ -148,7 +149,7 @@ export default function ResistanceControl({
 	const sendResistance = useMemo((): SendResistanceFunc => {
 		if (!smartTrainerControl) {
 			return async (_value: number) => {
-				console.log('sendResistance failed: No smart trainer connected');
+				console.warn('sendResistance failed: No smart trainer connected');
 			};
 		}
 		switch (resistance) {

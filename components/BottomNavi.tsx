@@ -9,7 +9,7 @@ import { ReactNode } from 'react';
 export default function StartButton({ children }: { children?: ReactNode }) {
 	return (
 		<Box>
-			<BottomNavigation showLabels sx={{ position: 'fixed', left: 0, bottom: 0, width: '100vw' }}>
+			<BottomNavigation showLabels sx={{ position: 'fixed', left: 0, bottom: 0, width: '100%' }}>
 				{children}
 			</BottomNavigation>
 		</Box>

@@ -13,6 +13,7 @@ import { useState, useEffect } from 'react';
 import { useGlobalState } from 'lib/global';
 import { speedUnitConv } from 'lib/units';
 import SensorValue from './SensorValue';
+import { modalBorder } from 'lib/tokens';
 
 const PREFIX = 'TrainerControl';
 const classes = {
@@ -31,7 +32,7 @@ const makeStyles = ({ theme }: { theme: Theme }) => ({
 		width: '90vw',
 		maxWidth: 400,
 		backgroundColor: theme.palette.background.paper,
-		border: '2px solid #000',
+		border: modalBorder,
 		boxShadow: theme.shadows[5],
 		padding: theme.spacing(2, 4, 3),
 	},
@@ -102,7 +103,7 @@ export function TrainerTestModal({ open, onClose }) {
 		<div style={modalStyle} className={classes.paper}>
 			<h2 id="trainer-test-modal-title">Test {(btDevice && btDevice.device.name) || 'trainer'}</h2>
 			<TrainerControlBasicResistance className={classes.trainerControl} />
-			<p id="trainer-test-modal-description">Adjust the basic resistance by using the slider above.</p>
+			<p id="trainer-test-modal-description">Drag the slider to adjust resistance.</p>
 		</div>
 	);
 
@@ -123,19 +124,19 @@ function TemperatureCondition({ tempCond }: { tempCond: number }) {
 		case 1:
 			return (
 				<p>
-					<b>Temperature:</b> 'too low'
+					<b>Temperature:</b> Too low
 				</p>
 			);
 		case 2:
 			return (
 				<p>
-					<b>Temperature:</b> 'ok'
+					<b>Temperature:</b> OK
 				</p>
 			);
 		case 3:
 			return (
 				<p>
-					<b>Temperature:</b> 'too high'
+					<b>Temperature:</b> Too high
 				</p>
 			);
 		default:
@@ -186,8 +187,6 @@ export function TrainerCalibrationModal({ open, onClose }) {
 		() => {
 			let tim: ReturnType<typeof setTimeout>;
 			const statusListener = (data) => {
-				console.log('cal', data);
-
 				if (data.targetSpeed) {
 					if (data.targetSpeed == -1) {
 						setTargetSpeed('slowly');
@@ -207,7 +206,6 @@ export function TrainerCalibrationModal({ open, onClose }) {
 			};
 
 			if (open && smartTrainerControl) {
-				console.log(`Sending a calibration request to the trainer`);
 				setCalResult('PENDING');
 				const cal = async () => {
 					//await smartTrainerControl.sendCalibrationReset();
@@ -221,7 +219,6 @@ export function TrainerCalibrationModal({ open, onClose }) {
 					// Timeout if we never receive anything conclusive.
 					tim = setTimeout(() => {
 						setCalResult('FAILED');
-						console.log('Cancelling the calibration due to timeout');
 						smartTrainerControl.sendCalibrationCancel().catch(console.error);
 					}, 30000); // TODO const for this
 				};
@@ -233,7 +230,6 @@ export function TrainerCalibrationModal({ open, onClose }) {
 					if (tim) {
 						clearTimeout(tim);
 						if (calResult === 'PENDING') {
-							console.log('Cancelling the calibration');
 							smartTrainerControl.sendCalibrationCancel().catch(console.error);
 						}
 						smartTrainerControl.removePageListener(1, statusListener);
@@ -252,7 +248,7 @@ export function TrainerCalibrationModal({ open, onClose }) {
 		<div style={modalStyle} className={classes.paper}>
 			<h2 id="calibration-modal-title">Calibrate {(btDevice && btDevice.device.name) || 'trainer'}</h2>
 			<p id="calibration-modal-description">
-				{targetSpeed !== '' ? `Start the calibration by pedaling ${targetSpeed}.` : ''}
+				{targetSpeed !== '' ? `Pedal ${targetSpeed} to start calibration.` : ''}
 			</p>
 			<TemperatureCondition tempCond={tempCond} />
 			<p>

@@ -43,9 +43,17 @@ const Offset = styled('div')(({ theme }) => theme.mixins.toolbar);
 
 function BackButton({ disable, onClick }: { disable: boolean; onClick?: (e?: React.MouseEvent<HTMLElement>) => void }) {
 	return (
-		<Typography sx={disable ? sxArrowDisabled : sxArrowEnabled} onClick={onClick}>
-			&larr; &nbsp;
-		</Typography>
+		<IconButton
+			aria-label="Go back"
+			disabled={disable}
+			onClick={onClick}
+			sx={disable ? sxArrowDisabled : { color: 'inherit', ...sxArrowEnabled }}
+			size="small"
+		>
+			<Typography component="span" aria-hidden>
+				&larr;
+			</Typography>
+		</IconButton>
 	);
 }
 
@@ -57,20 +65,28 @@ function getSmartTrainerWarns(smartTrainerStatus: null | TrainerMeasurements): N
 			{
 				severity: 'error',
 				permanent: true,
-				text: 'Smart trainer not connected',
+				text: 'Smart trainer not connected \u2014 go to Setup > Sensors to connect',
 			},
 		];
 	}
 
 	const { calStatus } = smartTrainerStatus;
 	if (calStatus.powerCalRequired) {
-		warns.push({ severity: 'warning', permanent: true, text: 'Trainer power calibration required' });
+		warns.push({
+			severity: 'warning',
+			permanent: true,
+			text: 'Your trainer needs power calibration before riding',
+		});
 	}
 	if (calStatus.resistanceCalRequired) {
-		warns.push({ severity: 'warning', permanent: true, text: 'Trainer resistance calibration required' });
+		warns.push({ severity: 'warning', permanent: true, text: 'Your trainer needs resistance calibration' });
 	}
 	if (calStatus.userConfigRequired) {
-		warns.push({ severity: 'warning', permanent: true, text: 'Trainer user configuration required' });
+		warns.push({
+			severity: 'warning',
+			permanent: true,
+			text: 'Trainer needs rider settings \u2014 update weight and bike info in Setup',
+		});
 	}
 
 	return warns;
@@ -115,14 +131,14 @@ function useHeartRateAlerts() {
 			alerts.push({
 				severity: 'error',
 				icon: <IconHeart />,
-				text: 'No contact detected',
+				text: 'Heart rate sensor: no skin contact detected',
 			});
 		}
 		if (meas.heartRate > maxHeartRate) {
 			alerts.push({
 				severity: 'warning',
 				icon: <IconHeart />,
-				text: 'Set max heart rate exceeded',
+				text: `Heart rate is above your ${maxHeartRate} BPM limit`,
 			});
 		}
 	}
@@ -170,7 +186,11 @@ function Notifications({
 		<Box>
 			<IconButton
 				size="large"
-				aria-label={`show ${notifications.length} new notifications`}
+				aria-label={
+					notifications.length > 0
+						? `${notifications.length} notification${notifications.length !== 1 ? 's' : ''}`
+						: 'No notifications'
+				}
 				color="inherit"
 				onClick={handleClick}
 			>
@@ -235,7 +255,7 @@ export default function Title({
 
 	return (
 		<Box sx={{ flexGrow: 1 }}>
-			<AppBar position="fixed" elevation={0} sx={{ left: 0, width: '100vw' }}>
+			<AppBar position="fixed" elevation={0} sx={{ left: 0, width: '100%' }}>
 				<Toolbar>
 					<BackButton disable={disableBack} onClick={goBack} />
 					<Typography variant="h6" noWrap component="div">

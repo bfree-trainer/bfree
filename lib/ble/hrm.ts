@@ -8,7 +8,7 @@ export async function startHRMNotifications(server: BluetoothRemoteGATTServer, c
 	const service = await server.getPrimaryService('heart_rate');
 	const characteristic = await service.getCharacteristic('heart_rate_measurement');
 
-	characteristic.addEventListener('characteristicvaluechanged', (event) => {
+	const listener = (event: Event) => {
 		// @ts-ignore
 		const value = event.target.value;
 		const flags = value.getUint8(0);
@@ -46,9 +46,17 @@ export async function startHRMNotifications(server: BluetoothRemoteGATTServer, c
 		}
 
 		cb(result);
-	});
+	};
+
+	characteristic.addEventListener('characteristicvaluechanged', listener);
 
 	characteristic.startNotifications();
 
-	return characteristic;
+	return {
+		characteristic,
+		cleanup: () => {
+			characteristic.removeEventListener('characteristicvaluechanged', listener);
+			characteristic.stopNotifications().catch(() => {});
+		},
+	};
 }

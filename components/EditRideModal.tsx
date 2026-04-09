@@ -48,7 +48,7 @@ export default function EditModal({
 	return (
 		<MyModal
 			title="Edit Ride"
-			description="Here you can edit the activity metadata."
+			description="Edit the name and notes for this ride."
 			modalStyle={editModalStyle}
 			open={open}
 			onClose={onClose}
@@ -58,7 +58,7 @@ export default function EditModal({
 					<form onSubmit={onClickSave}>
 						<TextField
 							id="act-name"
-							label="Activity Name"
+							label="Ride Name"
 							defaultValue={logger.getName()}
 							onChange={handleNameChange}
 							fullWidth

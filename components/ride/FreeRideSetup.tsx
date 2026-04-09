@@ -50,11 +50,10 @@ export default function ResistanceMode({
 					label="Resistance Mode"
 					labelId="select-resistance-mode"
 					id="resistance-mode-select"
-					notched={true}
 					value={resistanceMode}
 					onChange={handleResistanceModeChange}
 				>
-					<MenuItem value={'basic'}>Basic resistance</MenuItem>
+					<MenuItem value={'basic'}>Basic Resistance</MenuItem>
 					<MenuItem value={'power'}>Power</MenuItem>
 					<MenuItem value={'slope'}>Slope</MenuItem>
 				</Select>
@@ -69,7 +68,6 @@ export default function ResistanceMode({
 					label="Auto Split"
 					labelId="auto-split-select-label"
 					id="auto-slit-select"
-					notched={true}
 					value={autoSplitMode}
 					onChange={handleAutoSplitChange}
 				>

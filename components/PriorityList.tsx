@@ -108,8 +108,16 @@ export default function PriorityList({
 	);
 
 	return (
-		<Grid container spacing={2} sx={{ marginTop: '1ex' }} direction={{ xs: 'column', sm: 'row' }} alignItems={{ xs: 'stretch', sm: 'flex-start' }}>
-			<Grid item xs>{customList(leftList)}</Grid>
+		<Grid
+			container
+			spacing={2}
+			sx={{ marginTop: '1ex' }}
+			direction={{ xs: 'column', sm: 'row' }}
+			alignItems={{ xs: 'stretch', sm: 'flex-start' }}
+		>
+			<Grid item xs>
+				{customList(leftList)}
+			</Grid>
 			<Grid item>
 				<Grid container direction={{ xs: 'row', sm: 'column' }} alignItems="center" justifyContent="center">
 					<Button
@@ -154,7 +162,9 @@ export default function PriorityList({
 					</Button>
 				</Grid>
 			</Grid>
-			<Grid item xs>{customList(rightList)}</Grid>
+			<Grid item xs>
+				{customList(rightList)}
+			</Grid>
 		</Grid>
 	);
 }

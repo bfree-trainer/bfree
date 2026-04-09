@@ -8,6 +8,7 @@ import Grid from '@mui/material/Grid';
 import MenuCard from 'components/MenuCard';
 import MyHead from 'components/MyHead';
 import Title from 'components/Title';
+import Typography from '@mui/material/Typography';
 
 export default function Ride() {
 	return (
@@ -15,7 +16,9 @@ export default function Ride() {
 			<MyHead title="Ride" />
 			<Box>
 				<Title href="/">Ride</Title>
-				<p>Select the ride type.</p>
+				<Typography variant="body1" color="text.primary" sx={{ mt: 2, mb: 2 }}>
+					Choose how you want to ride.
+				</Typography>
 
 				<Grid container direction="row" alignItems="center" spacing={2}>
 					<MenuCard title="Free Ride" href="/ride/free">

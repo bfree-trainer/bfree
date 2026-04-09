@@ -18,6 +18,7 @@ import useUserConfigUpdater from 'lib/useUserConfigUpdater';
 import { classes, StyledParam } from 'components/SetupComponents';
 import { isValidUnsigned } from 'lib/validation';
 import { useGlobalState } from 'lib/global';
+import Typography from '@mui/material/Typography';
 
 const bikeInfo = `Bike type is used to estimate the drag coefficient which is needed to calculate a realistic wind resistance.
 Wheel diameter is used for distance calculation.
@@ -48,7 +49,7 @@ function WheelCircumference() {
 				value={tmp}
 				error={!isValidUnsigned(Number(tmp))}
 				onChange={handleChange}
-				id="outlined-basic"
+				id="bike-wheel-circumference"
 				label="Wheel Circumference"
 				variant="outlined"
 				InputProps={{
@@ -84,7 +85,7 @@ function BikeWeight() {
 				value={tmp}
 				error={!isValidUnsigned(Number(tmp))}
 				onChange={handleChange}
-				id="outlined-basic"
+				id="bike-weight"
 				label="Bike Weight"
 				variant="outlined"
 				InputProps={{
@@ -133,7 +134,9 @@ export default function SetupBike() {
 			<MyHead title="Bike" />
 			<Box>
 				<Title href="/setup">Bike</Title>
-				<p>Setup the bike measurements.</p>
+				<Typography variant="body1" color="text.primary" sx={{ mt: 2, mb: 2 }}>
+					Set up your bike profile for accurate data.
+				</Typography>
 
 				<Grid container direction="row" alignItems="center" spacing={2}>
 					<StyledParam title="Bike Parameters" info={bikeInfo} image="/images/cards/patent.jpg">

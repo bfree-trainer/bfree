@@ -60,9 +60,11 @@ class MyDocument extends Document {
 				<Head>
 					<link rel="manifest" href="/manifest.json" />
 					<meta name="theme-color" content="#1976D2" />
+					<link rel="preconnect" href="https://fonts.googleapis.com" />
+					<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
 					<link
 						rel="stylesheet"
-						href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
+						href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
 					/>
 				</Head>
 				<body>

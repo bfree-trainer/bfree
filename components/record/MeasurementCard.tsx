@@ -19,6 +19,8 @@ import SxPropsTheme from 'lib/SxPropsTheme';
 import { ReactElement, useState, useEffect, useMemo } from 'react';
 import { UnitConv, speedUnitConv } from 'lib/units';
 import { useGlobalState } from 'lib/global';
+import { metricColors, inlineIconFontSize, recordCardMinHeight } from 'lib/tokens';
+import { visuallyHidden } from '@mui/utils';
 
 const PREFIX = 'MeasurementCard';
 
@@ -37,7 +39,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 	},
 
 	[`& .${classes.card}`]: {
-		minHeight: '10em',
+		minHeight: recordCardMinHeight,
 	},
 
 	[`& .${classes.valuesTable}`]: {
@@ -55,7 +57,11 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 
 	[`& .${classes.value}`]: {
 		width: '10em',
+		maxWidth: '10em',
 		textAlign: 'right',
+		overflow: 'hidden',
+		textOverflow: 'ellipsis',
+		whiteSpace: 'nowrap',
 	},
 
 	[`& .${classes.unit}`]: {
@@ -71,7 +77,7 @@ type DisplayValue = {
 export {};
 
 const iconStyle: SxPropsTheme = {
-	fontSize: '18px !important',
+	fontSize: inlineIconFontSize,
 };
 
 function getContentByType(classes, minimal: boolean, speedUnit: UnitConv[''], type: Measurement) {
@@ -79,28 +85,28 @@ function getContentByType(classes, minimal: boolean, speedUnit: UnitConv[''], ty
 	const contentByType: { [K in Measurement]: [ReactElement, (m: any) => DisplayValue, number] } = {
 		cycling_cadence: [
 			<span>
-				<IconCadence sx={iconStyle} /> {minimal ? '' : 'Cadence'}
+				<IconCadence sx={iconStyle} /> {minimal ? <span style={visuallyHidden}>Cadence</span> : 'Cadence'}
 			</span>,
 			(m: CscMeasurements) => ({ value: m ? m.cadence : NaN, unit: 'RPM' }),
 			0,
 		],
 		cycling_power: [
 			<span>
-				<IconPower sx={iconStyle} /> {minimal ? '' : 'Power'}
+				<IconPower sx={iconStyle} /> {minimal ? <span style={visuallyHidden}>Power</span> : 'Power'}
 			</span>,
 			(m: any) => ({ value: m ? m.power : NaN, unit: 'W' }),
 			0,
 		],
 		cycling_speed: [
 			<span>
-				<IconSpeed sx={iconStyle} /> {minimal ? '' : 'Speed'}
+				<IconSpeed sx={iconStyle} /> {minimal ? <span style={visuallyHidden}>Speed</span> : 'Speed'}
 			</span>,
 			(m: CscMeasurements) => ({ value: m && m.speed ? speedUnit.convTo(m.speed) : NaN, unit: speedUnit.name }),
 			1,
 		],
 		heart_rate: [
 			<span>
-				<IconHeart sx={iconStyle} /> {minimal ? '' : 'Heart Rate'}
+				<IconHeart sx={iconStyle} /> {minimal ? <span style={visuallyHidden}>Heart Rate</span> : 'Heart Rate'}
 			</span>,
 			(m: HrmMeasurements) => ({ value: m ? m.heartRate : NaN, unit: 'BPM' }),
 			1,
@@ -170,8 +176,12 @@ export default function MeasurementCard({ type, ribbonColor }: { type: Measureme
 								animation: 'blinker 1s linear infinite',
 								'@keyframes blinker': {
 									'50%': {
-										backgroundColor: '#ffaeae', // TODO ribbonColor should be passed as a string
+										backgroundColor: metricColors.heartRate,
 									},
+								},
+								'@media (prefers-reduced-motion: reduce)': {
+									animation: 'none',
+									backgroundColor: metricColors.heartRate,
 								},
 							}
 						: undefined
@@ -186,19 +196,25 @@ export default function MeasurementCard({ type, ribbonColor }: { type: Measureme
 						<table className={classes.valuesTable}>
 							<tbody>
 								<tr>
-									<th className={classes.header}>Current:</th>
+									<th className={classes.header} scope="row">
+										Current:
+									</th>
 									<td className={classes.value}>
 										{Number.isNaN(value) ? '--' : value.toFixed(digits)}
 									</td>
 									<td className={classes.unit}>{unit}</td>
 								</tr>
 								<tr>
-									<th className={classes.header}>Avg:</th>
+									<th className={classes.header} scope="row">
+										Avg:
+									</th>
 									<td className={classes.value}>{avg.toFixed(digits)}</td>
 									<td className={classes.unit}></td>
 								</tr>
 								<tr>
-									<th className={classes.header}>Max:</th>
+									<th className={classes.header} scope="row">
+										Max:
+									</th>
 									<td className={classes.value}>{Number.isNaN(max) ? '--' : max.toFixed(digits)}</td>
 									<td className={classes.unit}></td>
 								</tr>

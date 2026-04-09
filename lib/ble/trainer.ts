@@ -366,7 +366,7 @@ export async function createSmartTrainerController(
 		return await deferredResponse;
 	};
 
-	rxCharacteristic.addEventListener('characteristicvaluechanged', (event) => {
+	const rxListener = (event: Event) => {
 		// @ts-ignore
 		const value = event.target.value;
 
@@ -719,12 +719,18 @@ export async function createSmartTrainerController(
 		prevResult = JSON.parse(JSON.stringify(result));
 
 		measurementsCb(result);
-	});
+	};
+
+	rxCharacteristic.addEventListener('characteristicvaluechanged', rxListener);
 
 	return {
 		txCharacteristic,
 		rxCharacteristic,
 		startNotifications: () => rxCharacteristic.startNotifications(),
+		cleanup: () => {
+			rxCharacteristic.removeEventListener('characteristicvaluechanged', rxListener);
+			rxCharacteristic.stopNotifications().catch(() => {});
+		},
 		sendBasicResistance,
 		sendTargetPower,
 		sendWindResistance,

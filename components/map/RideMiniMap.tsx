@@ -4,6 +4,7 @@
 
 'use client';
 import { useEffect } from 'react';
+import { useTheme } from '@mui/material/styles';
 import { Polyline, useMap } from 'react-leaflet';
 import { createActivityLog } from 'lib/activity_log';
 import OpenStreetMap from 'components/map/OpenStreetMap';
@@ -24,15 +25,11 @@ function FitBounds({ positions }: { positions: [number, number][] }) {
 }
 
 export default function RideMiniMap({ logger }: { logger: ReturnType<typeof createActivityLog> }) {
+	const theme = useTheme();
 	const positions: [number, number][] = logger
 		.getLaps()
 		.flatMap((lap) => lap.trackPoints)
-		.filter(
-			(tp) =>
-				tp.position &&
-				typeof tp.position.lat === 'number' &&
-				typeof tp.position.lon === 'number'
-		)
+		.filter((tp) => tp.position && typeof tp.position.lat === 'number' && typeof tp.position.lon === 'number')
 		.map((tp) => [tp.position.lat, tp.position.lon]);
 
 	if (positions.length === 0) {
@@ -44,7 +41,7 @@ export default function RideMiniMap({ logger }: { logger: ReturnType<typeof crea
 	return (
 		<OpenStreetMap center={center} width="100%" height="200px" setMap={null}>
 			<FitBounds positions={positions} />
-			<Polyline positions={positions} pathOptions={{ color: '#1976d2', weight: 3 }} />
+			<Polyline positions={positions} pathOptions={{ color: theme.palette.primary.main, weight: 3 }} />
 		</OpenStreetMap>
 	);
 }

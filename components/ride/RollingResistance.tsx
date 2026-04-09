@@ -57,7 +57,7 @@ export default function RollingResistance({
 					variant="standard"
 					labelId="resistance-mode-select-label"
 					id="resistance-mode-select"
-					value={rollingResistance || 0}
+					value={Number.isFinite(rollingResistance) ? rollingResistance : ''}
 					onChange={handleChange}
 				>
 					{predefinedRollingResistances.map((r) => (
@@ -76,7 +76,7 @@ export default function RollingResistance({
 						// @ts-ignore
 						(e) => handleChange(e)
 					}
-					id="outlined-basic"
+					id="rolling-resistance-coefficient"
 					label="Coefficient"
 					variant="outlined"
 				/>

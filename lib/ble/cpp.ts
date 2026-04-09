@@ -67,7 +67,7 @@ export async function startCyclingPowerMeasurementNotifications(
 	let prevLastWheelEvent = null;
 
 	const characteristic = await service.getCharacteristic('cycling_power_measurement');
-	characteristic.addEventListener('characteristicvaluechanged', (event) => {
+	const listener = (event: Event) => {
 		// @ts-ignore
 		const value = event.target.value;
 
@@ -122,8 +122,15 @@ export async function startCyclingPowerMeasurementNotifications(
 			power: instantaneousPower, // Watts
 			speed: instantaneousSpeed, // m/s
 		});
-	});
+	};
+	characteristic.addEventListener('characteristicvaluechanged', listener);
 	characteristic.startNotifications();
 
-	return characteristic;
+	return {
+		characteristic,
+		cleanup: () => {
+			characteristic.removeEventListener('characteristicvaluechanged', listener);
+			characteristic.stopNotifications().catch(() => {});
+		},
+	};
 }

@@ -10,7 +10,7 @@ import BottomNavi from 'components/BottomNavi';
 
 const buttonStyle = {
 	'&:hover': {
-		color: 'lightgrey',
+		color: 'action.disabled',
 	},
 };
 

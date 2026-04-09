@@ -27,6 +27,7 @@ import { TrainerCalibrationModal } from 'components/TrainerControl';
 import { useGlobalState, getGlobalState } from 'lib/global';
 import Ble from 'components/setup/Ble';
 import { ActionButton, SensorCard, iconStyle } from 'components/SensorCard';
+import Typography from '@mui/material/Typography';
 
 const EMULATOR_ENABLED = process.env.NEXT_PUBLIC_TRAINER_EMULATOR === '1';
 
@@ -68,11 +69,7 @@ function TrainerEmulatorSetup() {
 	}, []); // eslint-disable-line react-hooks/exhaustive-deps
 
 	return (
-		<SensorCard
-			icon={<IconBike sx={iconStyle} />}
-			title="Smart Trainer"
-			batteryLevel={-1}
-		>
+		<SensorCard icon={<IconBike sx={iconStyle} />} title="Smart Trainer" batteryLevel={-1}>
 			<SensorValue sensorType="smart_trainer" sensorValue={sensorValue} className={classes.sensorValue} />
 			<CardContent>
 				<Alert severity={smartTrainerControl ? 'success' : 'info'}>
@@ -269,7 +266,7 @@ function HRM() {
 	return (
 		<Ble
 			icon={<IconHeart sx={iconStyle} />}
-			title="HRM"
+			title="Heart Rate Monitor"
 			globalBtDeviceName={sensorName}
 			filter={filters}
 			connectCb={connectCb}
@@ -283,10 +280,12 @@ function HRM() {
 export default function SetupSensors() {
 	return (
 		<StyledContainer maxWidth="md">
-			<MyHead title="Senors" />
+			<MyHead title="Sensors" />
 			<Box>
 				<Title href="/setup">Sensors</Title>
-				<p>Connect your smart trainer, HRM, and other sensors using BLE.</p>
+				<Typography variant="body1" color="text.primary" sx={{ mt: 2, mb: 2 }}>
+					Connect your smart trainer, heart rate monitor, and other sensors.
+				</Typography>
 
 				<Grid container direction="row" alignItems="center" spacing={2}>
 					{EMULATOR_ENABLED ? <TrainerEmulatorSetup /> : <Trainer />}

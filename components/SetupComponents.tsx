@@ -110,7 +110,7 @@ export function UnsignedField({
 			value={tmp}
 			error={!isValidUnsigned(Number(tmp))}
 			onChange={handleChange}
-			id="outlined-basic"
+			id={label ? `setup-${label.toLowerCase().replace(/\s+/g, '-')}` : undefined}
 			label={label}
 			InputProps={{
 				endAdornment: unit ? <InputAdornment position="end">{unit}</InputAdornment> : undefined,

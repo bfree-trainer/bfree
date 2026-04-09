@@ -103,7 +103,6 @@ export default function FlightRecorder({ startTime }: { startTime: number }) {
 
 							distDiff = calculatedDistance - prevCalculatedDistance;
 						} else {
-							console.log('No distance source');
 							distDiff = 0;
 						}
 

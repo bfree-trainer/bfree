@@ -36,13 +36,13 @@ import { deleteActivityLog, getActivityLogs } from 'lib/activity_log';
 import { getElapsedTimeStr } from 'lib/format';
 import { smartDistanceUnitFormat } from 'lib/units';
 import { useGlobalState } from 'lib/global';
-import DataGraph from 'components/DataGraph';
 import type RideMiniMapType from 'components/map/RideMiniMap';
 
 type RideMiniMapArgs = Parameters<typeof RideMiniMapType>[0];
 const DynamicRideMiniMap = dynamic<RideMiniMapArgs>(() => import('components/map/RideMiniMap'), {
 	ssr: false,
 });
+const DataGraph = dynamic(() => import('components/DataGraph'), { ssr: false });
 
 const PREFIX = 'history';
 const classes = {
@@ -116,15 +116,15 @@ const RideStatsUl = styled('ul')({
 	marginTop: 0,
 });
 
-const RideStatsLi = styled('li')({
+const RideStatsLi = styled('li')(({ theme }) => ({
 	listStyle: 'none',
 	margin: 0,
 	padding: 5,
 	display: 'flex',
 	flexDirection: 'column',
 	justifyContent: 'flex-end',
-	borderRight: '1px solid #f2f2f0',
-});
+	borderRight: `1px solid ${theme.palette.divider}`,
+}));
 
 const RideStatsLiLast = styled('li')({
 	listStyle: 'none',
@@ -227,17 +227,17 @@ function RideCard({ log, onSelect }: { log: Log; onSelect: (v: boolean) => void 
 	};
 
 	return (
-		<Grid item xs={10}>
+		<Grid item xs={12}>
 			<Card variant="outlined" className={classes.cardRoot}>
 				<CardHeader
 					avatar={
-						<Avatar aria-label="recipe" className={classes.avatar}>
+						<Avatar aria-label="ride" className={classes.avatar}>
 							{log.logger.getAvatar()}
 						</Avatar>
 					}
 					action={
 						<div>
-							<IconButton aria-label="settings" onClick={handleMenuClick} size="large">
+							<IconButton aria-label="ride options" onClick={handleMenuClick} size="large">
 								<IconMoreVert />
 							</IconButton>
 							<Menu
@@ -285,7 +285,7 @@ function RideCard({ log, onSelect }: { log: Log; onSelect: (v: boolean) => void 
 						expand={expanded}
 						onClick={handleExpandClick}
 						aria-expanded={expanded}
-						aria-label="show more"
+						aria-label={expanded ? 'Hide ride details' : 'Show ride details'}
 					>
 						<IconExpandMore />
 					</ExpandMore>
@@ -323,7 +323,9 @@ export default function History() {
 			<MyHead title="Previous Rides" />
 			<Box>
 				<Title href="/">{isBreakpoint ? 'Previous Rides' : 'Rides'}</Title>
-				<p>Manage and export previous rides.</p>
+				<Typography variant="body1" color="text.primary" sx={{ mt: 2, mb: 2 }}>
+					Manage and export previous rides.
+				</Typography>
 
 				<Grid container direction="column" alignItems="center" spacing={2}>
 					{logs.map((log) => (
@@ -347,10 +349,10 @@ export default function History() {
 				<BottomNavigationAction
 					sx={
 						selectionCount === 0
-							? { color: 'lightgrey', cursor: 'not-allowed' }
+							? { color: 'action.disabled', cursor: 'not-allowed' }
 							: {
 									'&:hover': {
-										color: 'lightgrey',
+										color: 'action.disabled',
 									},
 								}
 					}

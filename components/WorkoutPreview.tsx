@@ -9,9 +9,10 @@ import createWorkoutRunner, { RunnerResponse } from 'lib/workout_runner';
 import Graph, { Series } from 'components/Graph';
 import { useGlobalState } from 'lib/global';
 import MyModal from './MyModal';
+import { metricColors } from 'lib/tokens';
 
 const graphColors = [
-	'#b1e67b', // load resistance
+	metricColors.power, // load resistance
 ];
 
 function PreviewParams({
@@ -79,7 +80,7 @@ function PreviewParams({
 				value={endTime.toFixed(2)}
 				onChange={handleEndTimeChange}
 				onBlur={() => setPrev('time')}
-				id="outlined-basic"
+				id="preview-end-time"
 				label="End Time [min]"
 				variant="outlined"
 			/>
@@ -87,7 +88,7 @@ function PreviewParams({
 				value={endDistance.toFixed(2)}
 				onChange={handleEndDistanceChange}
 				onBlur={() => setPrev('distance')}
-				id="outlined-basic"
+				id="preview-end-distance"
 				label={`End Distance [${distanceUnit.name}]`}
 				variant="outlined"
 			/>
@@ -95,7 +96,7 @@ function PreviewParams({
 				value={speed.toFixed(2)}
 				onChange={handleSpeedChange}
 				onBlur={() => setPrev('speed')}
-				id="outlined-basic"
+				id="preview-speed"
 				label={`Speed [${speedUnit.name}]`}
 				variant="outlined"
 			/>
@@ -115,7 +116,6 @@ export default function WorkoutPreviewModal({ code, open, onClose }) {
 		let runner: ReturnType<typeof createWorkoutRunner>;
 
 		if (open && typeof code === 'string') {
-			console.log('Creating a worker');
 			const newSeries: Series = [
 				{
 					id: 'load',
@@ -178,7 +178,6 @@ export default function WorkoutPreviewModal({ code, open, onClose }) {
 						runner.terminate();
 						runner = null;
 					}
-					console.log('Simulation completed');
 					setSeries(newSeries);
 				})
 				.catch(console.error);
@@ -186,7 +185,6 @@ export default function WorkoutPreviewModal({ code, open, onClose }) {
 
 		return () => {
 			if (runner) {
-				console.log('Terminating the worker');
 				runner.terminate();
 			}
 		};

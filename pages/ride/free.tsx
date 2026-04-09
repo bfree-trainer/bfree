@@ -13,20 +13,11 @@ import RideSetup, { AutoSplitMode, TrainerResistanceMode } from 'components/ride
 import PowerResistance, { PowerLimits } from 'components/ride/PowerResistance';
 import RollingResistance from 'components/ride/RollingResistance';
 import Title from 'components/Title';
-
-const StyledContainer = styled(Container)(({ theme }) => ({}));
+import Typography from '@mui/material/Typography';
+import { saveSession, loadSession } from 'lib/session_settings';
 
 const SESSION_KEY = 'freeRideSettings';
-
-function loadSavedSettings() {
-	if (typeof window === 'undefined') return null;
-	try {
-		const stored = sessionStorage.getItem(SESSION_KEY);
-		return stored ? JSON.parse(stored) : null;
-	} catch {
-		return null;
-	}
-}
+const StyledContainer = styled(Container)(({ theme }) => ({}));
 
 function getInitialAutoSplitValue(autoSplitMode: AutoSplitMode, autoSplit: string): number {
 	switch (autoSplitMode) {
@@ -59,12 +50,24 @@ function makeStartUrl(resistanceMode: string, rollingResistance: number, powerLi
 }
 
 export default function RideFree() {
-	const [savedSettings] = useState(() => loadSavedSettings() ?? {});
-	const [resistanceMode, setResistanceMode] = useState<TrainerResistanceMode>(savedSettings.resistanceMode || '');
-	const [rollingResistance, setRollingResistance] = useState<number>(savedSettings.rollingResistance ?? NaN);
-	const [powerLimits, setPowerLimits] = useState<PowerLimits>(savedSettings.powerLimits || { min: 100, max: 300 });
-	const [autoSplitMode, setAutoSplitMode] = useState<AutoSplitMode>(savedSettings.autoSplitMode || 'disabled');
-	const [autoSplit, setAutoSplit] = useState<string>(savedSettings.autoSplit || '');
+	const [resistanceMode, setResistanceMode] = useState<TrainerResistanceMode>('');
+	const [rollingResistance, setRollingResistance] = useState<number>(NaN);
+	const [powerLimits, setPowerLimits] = useState<PowerLimits>({ min: 100, max: 300 });
+	const [autoSplitMode, setAutoSplitMode] = useState<AutoSplitMode>('disabled');
+	const [autoSplit, setAutoSplit] = useState<string>('');
+	const [hydrated, setHydrated] = useState(false);
+
+	useEffect(() => {
+		const saved = loadSession(SESSION_KEY);
+		if (saved) {
+			if (saved.resistanceMode) setResistanceMode(saved.resistanceMode);
+			if (saved.rollingResistance != null) setRollingResistance(saved.rollingResistance);
+			if (saved.powerLimits) setPowerLimits(saved.powerLimits);
+			if (saved.autoSplitMode) setAutoSplitMode(saved.autoSplitMode);
+			if (saved.autoSplit) setAutoSplit(saved.autoSplit);
+		}
+		setHydrated(true);
+	}, []);
 
 	useEffect(() => {
 		if (resistanceMode !== 'slope') {
@@ -73,28 +76,24 @@ export default function RideFree() {
 	}, [resistanceMode]);
 
 	useEffect(() => {
-		try {
-			sessionStorage.setItem(
-				SESSION_KEY,
-				JSON.stringify({
-					resistanceMode,
-					rollingResistance: isNaN(rollingResistance) ? null : rollingResistance,
-					powerLimits,
-					autoSplitMode,
-					autoSplit,
-				}),
-			);
-		} catch {
-			// sessionStorage may be unavailable (e.g. private browsing restrictions)
-		}
-	}, [resistanceMode, rollingResistance, powerLimits, autoSplitMode, autoSplit]);
+		if (!hydrated) return;
+		saveSession(SESSION_KEY, {
+			resistanceMode,
+			rollingResistance: isNaN(rollingResistance) ? null : rollingResistance,
+			powerLimits,
+			autoSplitMode,
+			autoSplit,
+		});
+	}, [hydrated, resistanceMode, rollingResistance, powerLimits, autoSplitMode, autoSplit]);
 
 	return (
 		<StyledContainer maxWidth="md">
 			<MyHead title="Free Ride" />
 			<Box>
 				<Title href="/ride">Free Ride</Title>
-				<p>Start a free ride exercise.</p>
+				<Typography variant="body1" color="text.primary" sx={{ mt: 2, mb: 2 }}>
+					Start a free ride exercise.
+				</Typography>
 
 				<Grid container direction="row" alignItems="center" spacing={2}>
 					<RideSetup

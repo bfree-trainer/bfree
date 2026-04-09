@@ -28,6 +28,7 @@ import {
 	getHeartRateMeasurement,
 } from 'lib/measurements';
 import { getDayPeriod } from 'lib/locale';
+import { recordCardMinHeight, inlineIconFontSize } from 'lib/tokens';
 
 const PREFIX = 'WorkoutController';
 
@@ -39,11 +40,11 @@ const classes = {
 
 const StyledGrid = styled(Grid)(({ theme }) => ({
 	[`& .${classes.inlineIcon}`]: {
-		fontSize: '18px !important',
+		fontSize: inlineIconFontSize,
 	},
 
 	[`& .${classes.stopwatchCard}`]: {
-		minHeight: '10em',
+		minHeight: recordCardMinHeight,
 	},
 
 	[`& .${classes.value}`]: {

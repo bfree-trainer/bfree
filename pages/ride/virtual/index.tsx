@@ -44,15 +44,7 @@ function makeStartUrl(clip: VideoClip): string {
 	return `/ride/record?${params.toString()}`;
 }
 
-function VideoClipCard({
-	clip,
-	selected,
-	onSelect,
-}: {
-	clip: VideoClip;
-	selected: boolean;
-	onSelect: () => void;
-}) {
+function VideoClipCard({ clip, selected, onSelect }: { clip: VideoClip; selected: boolean; onSelect: () => void }) {
 	return (
 		<Grid item xs={12} sm={6}>
 			<Card variant="outlined" sx={selected ? { borderColor: 'primary.main', borderWidth: 2 } : {}}>
@@ -114,7 +106,9 @@ export default function RideVirtual() {
 			<MyHead title="Virtual Ride" />
 			<Box>
 				<Title href="/ride">Virtual Ride</Title>
-				<p>Select a video clip to ride along with.</p>
+				<Typography variant="body1" color="text.primary" sx={{ mt: 2, mb: 2 }}>
+					Choose a video for your ride.
+				</Typography>
 
 				{loading && (
 					<Box display="flex" justifyContent="center" mt={4}>
@@ -129,7 +123,7 @@ export default function RideVirtual() {
 				)}
 
 				{!loading && !error && clips.length === 0 && (
-					<Typography sx={{ mt: 2 }}>No video clips available.</Typography>
+					<Typography sx={{ mt: 2 }}>No videos available yet.</Typography>
 				)}
 
 				<Grid container direction="row" alignItems="stretch" spacing={2} sx={{ mt: 1 }}>
@@ -158,4 +152,3 @@ export default function RideVirtual() {
 		</Container>
 	);
 }
-
