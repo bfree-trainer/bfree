@@ -5,14 +5,16 @@
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import MyHead from 'components/MyHead';
 import Title from 'components/Title';
-import WorkoutPreviewModal from 'components/WorkoutPreview';
 import WorkoutScriptEditor from 'components/WorkoutScriptEditor';
 import { saveWorkout, readWorkout } from 'lib/workout_storage';
 import scriptExample from 'lib/workouts/workout_script_example';
+
+const WorkoutPreviewModal = dynamic(() => import('components/WorkoutPreview'), { ssr: false });
 
 const defaultName = 'My Workout';
 const defaultNotes = 'This is just an example.';

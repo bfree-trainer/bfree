@@ -36,13 +36,13 @@ import { deleteActivityLog, getActivityLogs } from 'lib/activity_log';
 import { getElapsedTimeStr } from 'lib/format';
 import { smartDistanceUnitFormat } from 'lib/units';
 import { useGlobalState } from 'lib/global';
-import DataGraph from 'components/DataGraph';
 import type RideMiniMapType from 'components/map/RideMiniMap';
 
 type RideMiniMapArgs = Parameters<typeof RideMiniMapType>[0];
 const DynamicRideMiniMap = dynamic<RideMiniMapArgs>(() => import('components/map/RideMiniMap'), {
 	ssr: false,
 });
+const DataGraph = dynamic(() => import('components/DataGraph'), { ssr: false });
 
 const PREFIX = 'history';
 const classes = {
