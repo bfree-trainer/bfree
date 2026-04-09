@@ -64,16 +64,13 @@ export default function RideFree() {
 	}, [resistanceMode]);
 
 	useEffect(() => {
-		saveSession(
-			SESSION_KEY,
-			JSON.stringify({
-				resistanceMode,
-				rollingResistance: isNaN(rollingResistance) ? null : rollingResistance,
-				powerLimits,
-				autoSplitMode,
-				autoSplit,
-			})
-		);
+		saveSession(SESSION_KEY, {
+			resistanceMode,
+			rollingResistance: isNaN(rollingResistance) ? null : rollingResistance,
+			powerLimits,
+			autoSplitMode,
+			autoSplit,
+		});
 	}, [resistanceMode, rollingResistance, powerLimits, autoSplitMode, autoSplit]);
 
 	return (
