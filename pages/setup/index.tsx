@@ -8,6 +8,7 @@ import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import MyHead from 'components/MyHead';
 import MenuCard from 'components/MenuCard';
+import Typography from '@mui/material/Typography';
 
 export default function Setup() {
 	return (
@@ -15,7 +16,9 @@ export default function Setup() {
 			<MyHead title="Setup" />
 			<Box>
 				<Title href="/">Setup</Title>
-				<p>Configure your trainer, sensors, and profile.</p>
+				<Typography variant="body1" color="text.primary" sx={{ mt: 2, mb: 2 }}>
+					Configure your trainer, sensors, and profile.
+				</Typography>
 
 				<Grid container direction="row" alignItems="center" spacing={2}>
 					<MenuCard title="General" href="/setup/general">

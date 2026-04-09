@@ -13,6 +13,7 @@ import Title from 'components/Title';
 import WorkoutScriptEditor from 'components/WorkoutScriptEditor';
 import { saveWorkout, readWorkout } from 'lib/workout_storage';
 import scriptExample from 'lib/workouts/workout_script_example';
+import Typography from '@mui/material/Typography';
 
 const WorkoutPreviewModal = dynamic(() => import('components/WorkoutPreview'), { ssr: false });
 
@@ -57,7 +58,9 @@ export default function RideWorkoutEdit() {
 			<MyHead title="Edit Workout" />
 			<Box>
 				<Title disableBack={true}>Edit Workout</Title>
-				<p>Create or edit a workout.</p>
+				<Typography variant="body1" color="text.primary" sx={{ mt: 2, mb: 2 }}>
+					Create or edit a workout.
+				</Typography>
 
 				<Grid container direction="row" spacing={2}>
 					<WorkoutScriptEditor

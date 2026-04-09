@@ -73,7 +73,7 @@ export default function Ride() {
 	// TODO lap distance
 
 	return (
-		<Grid item xs={4} md={4}>
+		<Grid item xs={4} sm={4} md={4}>
 			<Card variant="outlined">
 				<CardContent sx={{ minHeight: recordCardMinHeight }}>
 					<Typography gutterBottom variant="h5" component="h2">

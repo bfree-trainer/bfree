@@ -14,6 +14,7 @@ import { classes, StyledParam } from 'components/SetupComponents';
 import { isValidUnsigned } from 'lib/validation';
 import { useGlobalState } from 'lib/global';
 import { useState } from 'react';
+import Typography from '@mui/material/Typography';
 
 const weightInfo = 'User weight is used to calculate the gravitational resistance when the slope control is used.';
 const ftpInfo = 'FTP is used by predefined workouts to generate the optimal exercise for every rider.';
@@ -161,7 +162,9 @@ export default function SetupRider() {
 			<MyHead title="Rider" />
 			<Box>
 				<Title href="/setup">Rider</Title>
-				<p>Set your weight, FTP, and heart rate zones.</p>
+				<Typography variant="body1" color="text.primary" sx={{ mt: 2, mb: 2 }}>
+					Set your weight, FTP, and heart rate zones.
+				</Typography>
 
 				<Grid container direction="row" alignItems="flex-start" spacing={2}>
 					<Weight />

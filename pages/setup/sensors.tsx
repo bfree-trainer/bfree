@@ -27,6 +27,7 @@ import { TrainerCalibrationModal } from 'components/TrainerControl';
 import { useGlobalState, getGlobalState } from 'lib/global';
 import Ble from 'components/setup/Ble';
 import { ActionButton, SensorCard, iconStyle } from 'components/SensorCard';
+import Typography from '@mui/material/Typography';
 
 const EMULATOR_ENABLED = process.env.NEXT_PUBLIC_TRAINER_EMULATOR === '1';
 
@@ -286,7 +287,9 @@ export default function SetupSensors() {
 			<MyHead title="Sensors" />
 			<Box>
 				<Title href="/setup">Sensors</Title>
-				<p>Connect your smart trainer, heart rate monitor, and other sensors.</p>
+				<Typography variant="body1" color="text.primary" sx={{ mt: 2, mb: 2 }}>
+					Connect your smart trainer, heart rate monitor, and other sensors.
+				</Typography>
 
 				<Grid container direction="row" alignItems="center" spacing={2}>
 					{EMULATOR_ENABLED ? <TrainerEmulatorSetup /> : <Trainer />}

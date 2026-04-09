@@ -15,6 +15,7 @@ import downloadBlob from 'lib/download_blob';
 import { createActivityLog, saveActivityLog } from 'lib/activity_log';
 import { getDayPeriod } from 'lib/locale';
 import { useGlobalState, setGlobalState } from 'lib/global';
+import Typography from '@mui/material/Typography';
 
 const PREFIX = 'results';
 const classes = {
@@ -94,7 +95,9 @@ export default function RideResults() {
 			<MyHead title="Ride Results" />
 			<Box>
 				<Title href="/">Results</Title>
-				<p>Review and export your ride.</p>
+				<Typography variant="body1" color="text.primary" sx={{ mt: 2, mb: 2 }}>
+					Review and export your ride.
+				</Typography>
 
 				<Grid container direction={isBreakpoint ? 'row' : 'column'} alignItems="center" spacing={2}>
 					<ExportCard

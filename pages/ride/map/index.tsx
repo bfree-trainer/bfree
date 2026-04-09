@@ -153,7 +153,9 @@ export default function RideMap() {
 			<MyHead title="Map Ride" />
 			<Box>
 				<Title href="/ride">Map Ride</Title>
-				<p>Plan a route or import a GPX file.</p>
+				<Typography variant="body1" color="text.primary" sx={{ mt: 2, mb: 2 }}>
+					Plan a route or import a GPX file.
+				</Typography>
 
 				<Grid container spacing={2}>
 					<Grid item xs={12} sm={4}>

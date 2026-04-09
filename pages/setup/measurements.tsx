@@ -127,7 +127,9 @@ export default function SetupMeasurements() {
 			<MyHead title="Measurements" />
 			<Box>
 				<Title href="/setup">Measurements</Title>
-				<p>Select measurement sources for recording rides.</p>
+				<Typography variant="body1" color="text.primary" sx={{ mt: 2, mb: 2 }}>
+					Select measurement sources for recording rides.
+				</Typography>
 
 				<Grid container direction="row" alignItems="center" spacing={2}>
 					<DaqSourceCard

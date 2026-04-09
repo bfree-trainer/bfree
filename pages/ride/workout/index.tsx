@@ -223,7 +223,9 @@ export default function Workout() {
 			<MyHead title="Workout" />
 			<Box>
 				<Title href="/ride">Workout</Title>
-				<p>Create and run structured workouts.</p>
+				<Typography variant="body1" color="text.primary" sx={{ mt: 2, mb: 2 }}>
+					Create and run structured workouts.
+				</Typography>
 
 				<Grid container direction="column" alignItems="center" spacing={2}>
 					{workouts.map((w) => (

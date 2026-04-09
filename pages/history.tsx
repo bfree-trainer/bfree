@@ -227,7 +227,7 @@ function RideCard({ log, onSelect }: { log: Log; onSelect: (v: boolean) => void 
 	};
 
 	return (
-		<Grid item xs={10}>
+		<Grid item xs={12}>
 			<Card variant="outlined" className={classes.cardRoot}>
 				<CardHeader
 					avatar={
@@ -323,7 +323,9 @@ export default function History() {
 			<MyHead title="Previous Rides" />
 			<Box>
 				<Title href="/">{isBreakpoint ? 'Previous Rides' : 'Rides'}</Title>
-				<p>Manage and export previous rides.</p>
+				<Typography variant="body1" color="text.primary" sx={{ mt: 2, mb: 2 }}>
+					Manage and export previous rides.
+				</Typography>
 
 				<Grid container direction="column" alignItems="center" spacing={2}>
 					{logs.map((log) => (

@@ -13,6 +13,7 @@ import RideSetup, { AutoSplitMode, TrainerResistanceMode } from 'components/ride
 import PowerResistance, { PowerLimits } from 'components/ride/PowerResistance';
 import RollingResistance from 'components/ride/RollingResistance';
 import Title from 'components/Title';
+import Typography from '@mui/material/Typography';
 
 const StyledContainer = styled(Container)(({ theme }) => ({}));
 
@@ -94,7 +95,9 @@ export default function RideFree() {
 			<MyHead title="Free Ride" />
 			<Box>
 				<Title href="/ride">Free Ride</Title>
-				<p>Start a free ride exercise.</p>
+				<Typography variant="body1" color="text.primary" sx={{ mt:2, mb: 2 }}>
+					Start a free ride exercise.
+				</Typography>
 
 				<Grid container direction="row" alignItems="center" spacing={2}>
 					<RideSetup

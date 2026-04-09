@@ -114,7 +114,9 @@ export default function RideVirtual() {
 			<MyHead title="Virtual Ride" />
 			<Box>
 				<Title href="/ride">Virtual Ride</Title>
-				<p>Choose a video for your ride.</p>
+				<Typography variant="body1" color="text.primary" sx={{ mt: 2, mb: 2 }}>
+					Choose a video for your ride.
+				</Typography>
 
 				{loading && (
 					<Box display="flex" justifyContent="center" mt={4}>

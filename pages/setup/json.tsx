@@ -111,7 +111,9 @@ export default function Json() {
 			<MyHead title="General" />
 			<Box>
 				<Title href="/setup">Import/Export</Title>
-				<p>Import or export settings.</p>
+				<Typography variant="body1" color="text.primary" sx={{ mt: 2, mb: 2 }}>
+					Import or export settings.
+				</Typography>
 
 				<Grid container direction="row" alignItems="flex-start" spacing={2}>
 					<ImportJsonCard />

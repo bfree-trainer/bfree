@@ -9,6 +9,7 @@ import MyHead from 'components/MyHead';
 import Title from 'components/Title';
 import { BooleanConfigParam, EnumConfigParam, UnsignedConfigParam } from 'components/SetupComponents';
 import { UnitConv, distanceUnitConv, speedUnitConv } from 'lib/units';
+import Typography from '@mui/material/Typography';
 
 const gen = (uc: UnitConv): [string, string][] => Object.keys(uc).map((k) => [k, uc[k].name]);
 const speedUnits: [string, string][] = gen(speedUnitConv);
@@ -20,7 +21,9 @@ export default function SetupGeneral() {
 			<MyHead title="General" />
 			<Box>
 				<Title href="/setup">General</Title>
-				<p>Configure measurement units and UX settings.</p>
+				<Typography variant="body1" color="text.primary" sx={{ mt: 2, mb: 2 }}>
+					Configure measurement units and UX settings.
+				</Typography>
 
 				<Grid container direction="row" alignItems="flex-start" spacing={2}>
 					<UnsignedConfigParam
