@@ -269,7 +269,7 @@ function HRM() {
 	return (
 		<Ble
 			icon={<IconHeart sx={iconStyle} />}
-			title="HRM"
+			title="Heart Rate Monitor"
 			globalBtDeviceName={sensorName}
 			filter={filters}
 			connectCb={connectCb}
@@ -283,10 +283,10 @@ function HRM() {
 export default function SetupSensors() {
 	return (
 		<StyledContainer maxWidth="md">
-			<MyHead title="Senors" />
+			<MyHead title="Sensors" />
 			<Box>
 				<Title href="/setup">Sensors</Title>
-				<p>Connect your smart trainer, HRM, and other sensors using BLE.</p>
+				<p>Connect your smart trainer, heart rate monitor, and other sensors.</p>
 
 				<Grid container direction="row" alignItems="center" spacing={2}>
 					{EMULATOR_ENABLED ? <TrainerEmulatorSetup /> : <Trainer />}

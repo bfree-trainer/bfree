@@ -15,7 +15,7 @@ export default function Ride() {
 			<MyHead title="Ride" />
 			<Box>
 				<Title href="/">Ride</Title>
-				<p>Select the ride type.</p>
+				<p>Choose how you want to ride.</p>
 
 				<Grid container direction="row" alignItems="center" spacing={2}>
 					<MenuCard title="Free Ride" href="/ride/free">

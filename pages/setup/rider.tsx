@@ -161,7 +161,7 @@ export default function SetupRider() {
 			<MyHead title="Rider" />
 			<Box>
 				<Title href="/setup">Rider</Title>
-				<p>Set the rider weight and other measurements.</p>
+				<p>Set your weight, FTP, and heart rate zones.</p>
 
 				<Grid container direction="row" alignItems="flex-start" spacing={2}>
 					<Weight />

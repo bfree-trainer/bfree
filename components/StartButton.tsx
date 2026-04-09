@@ -60,8 +60,7 @@ export default function StartButton({ disabled, href }: { disabled?: boolean; hr
 				handleCancel={handleCancel}
 				handleContinue={handleContinue}
 			>
-				There is currently no connection to a smart trainer and therefore trainer control functions will not
-				function.
+				You won&apos;t be able to control resistance or track power without a trainer connected.
 			</WarningDialog>
 		</BottomNavi>
 	);

@@ -44,7 +44,7 @@ function renderRow(props: ListChildComponentProps) {
 				sx={{ overflow: 'hidden' }}
 			>
 				<ListItemText
-					primary={course?.name || '<Load error>'}
+					primary={course?.name || 'Couldn\u2019t load this course'}
 					primaryTypographyProps={{
 						noWrap: true,
 						title: course?.name || undefined,

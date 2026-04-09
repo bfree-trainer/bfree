@@ -133,7 +133,7 @@ export default function SetupBike() {
 			<MyHead title="Bike" />
 			<Box>
 				<Title href="/setup">Bike</Title>
-				<p>Setup the bike measurements.</p>
+				<p>Set up your bike profile for accurate data.</p>
 
 				<Grid container direction="row" alignItems="center" spacing={2}>
 					<StyledParam title="Bike Parameters" info={bikeInfo} image="/images/cards/patent.jpg">

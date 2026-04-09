@@ -231,13 +231,13 @@ function RideCard({ log, onSelect }: { log: Log; onSelect: (v: boolean) => void 
 			<Card variant="outlined" className={classes.cardRoot}>
 				<CardHeader
 					avatar={
-						<Avatar aria-label="recipe" className={classes.avatar}>
+						<Avatar aria-label="ride" className={classes.avatar}>
 							{log.logger.getAvatar()}
 						</Avatar>
 					}
 					action={
 						<div>
-							<IconButton aria-label="settings" onClick={handleMenuClick} size="large">
+							<IconButton aria-label="ride options" onClick={handleMenuClick} size="large">
 								<IconMoreVert />
 							</IconButton>
 							<Menu

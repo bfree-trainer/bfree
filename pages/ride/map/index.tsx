@@ -153,7 +153,7 @@ export default function RideMap() {
 			<MyHead title="Map Ride" />
 			<Box>
 				<Title href="/ride">Map Ride</Title>
-				<p>Plan your ride.</p>
+				<p>Plan a route or import a GPX file.</p>
 
 				<Grid container spacing={2}>
 					<Grid item xs={12} sm={4}>

@@ -103,7 +103,7 @@ export function TrainerTestModal({ open, onClose }) {
 		<div style={modalStyle} className={classes.paper}>
 			<h2 id="trainer-test-modal-title">Test {(btDevice && btDevice.device.name) || 'trainer'}</h2>
 			<TrainerControlBasicResistance className={classes.trainerControl} />
-			<p id="trainer-test-modal-description">Adjust the basic resistance by using the slider above.</p>
+			<p id="trainer-test-modal-description">Drag the slider to adjust resistance.</p>
 		</div>
 	);
 
@@ -124,19 +124,19 @@ function TemperatureCondition({ tempCond }: { tempCond: number }) {
 		case 1:
 			return (
 				<p>
-					<b>Temperature:</b> 'too low'
+					<b>Temperature:</b> Too low
 				</p>
 			);
 		case 2:
 			return (
 				<p>
-					<b>Temperature:</b> 'ok'
+					<b>Temperature:</b> OK
 				</p>
 			);
 		case 3:
 			return (
 				<p>
-					<b>Temperature:</b> 'too high'
+					<b>Temperature:</b> Too high
 				</p>
 			);
 		default:
@@ -253,7 +253,7 @@ export function TrainerCalibrationModal({ open, onClose }) {
 		<div style={modalStyle} className={classes.paper}>
 			<h2 id="calibration-modal-title">Calibrate {(btDevice && btDevice.device.name) || 'trainer'}</h2>
 			<p id="calibration-modal-description">
-				{targetSpeed !== '' ? `Start the calibration by pedaling ${targetSpeed}.` : ''}
+				{targetSpeed !== '' ? `Pedal ${targetSpeed} to start calibration.` : ''}
 			</p>
 			<TemperatureCondition tempCond={tempCond} />
 			<p>

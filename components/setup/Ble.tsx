@@ -48,7 +48,7 @@ export default function Ble({
 	children?: ReactNode;
 }) {
 	const pairedWithMessage = (btd: Paired): InfoMessage => ({
-		message: btd ? `Paired with\n${btd.device.name}` : 'Not configured',
+		message: btd ? `Paired with\n${btd.device.name}` : 'No sensor connected',
 		severity: 'info',
 	});
 	const [btAvailable, setBtAvailable] = useState(false);
@@ -90,7 +90,7 @@ export default function Ble({
 
 			(async () => {
 				try {
-					setInfo({ message: 'Requesting BLE Device...', severity: 'info' });
+					setInfo({ message: 'Searching for sensor\u2026', severity: 'info' });
 
 					const newBtDevice = await pairDevice(
 						filter || null,

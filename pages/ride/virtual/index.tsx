@@ -114,7 +114,7 @@ export default function RideVirtual() {
 			<MyHead title="Virtual Ride" />
 			<Box>
 				<Title href="/ride">Virtual Ride</Title>
-				<p>Select a video clip to ride along with.</p>
+				<p>Choose a video for your ride.</p>
 
 				{loading && (
 					<Box display="flex" justifyContent="center" mt={4}>
@@ -129,7 +129,7 @@ export default function RideVirtual() {
 				)}
 
 				{!loading && !error && clips.length === 0 && (
-					<Typography sx={{ mt: 2 }}>No video clips available.</Typography>
+					<Typography sx={{ mt: 2 }}>No videos available yet.</Typography>
 				)}
 
 				<Grid container direction="row" alignItems="stretch" spacing={2} sx={{ mt: 1 }}>

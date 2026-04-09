@@ -15,7 +15,7 @@ export default function Setup() {
 			<MyHead title="Setup" />
 			<Box>
 				<Title href="/">Setup</Title>
-				<p>Configure your trainer setup here.</p>
+				<p>Configure your trainer, sensors, and profile.</p>
 
 				<Grid container direction="row" alignItems="center" spacing={2}>
 					<MenuCard title="General" href="/setup/general">

@@ -95,7 +95,7 @@ export default function RideResults() {
 			<MyHead title="Ride Results" />
 			<Box>
 				<Title href="/">Results</Title>
-				<p>Training ride results.</p>
+				<p>Review and export your ride.</p>
 
 				<Grid container direction={isBreakpoint ? 'row' : 'column'} alignItems="center" spacing={2}>
 					<ExportCard

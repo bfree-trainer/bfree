@@ -140,14 +140,14 @@ function WorkoutCard({ workout, onChange }) {
 			<Card variant="outlined" className={classes.cardRoot}>
 				<CardHeader
 					avatar={
-						<Avatar aria-label="recipe" className={classes.avatar}>
+						<Avatar aria-label="workout" className={classes.avatar}>
 							{workout.avatar || 'W'}
 						</Avatar>
 					}
 					action={
 						workout.ts !== 0 ? (
 							<div>
-								<IconButton aria-label="settings" onClick={handleMenuClick} size="large">
+								<IconButton aria-label="workout options" onClick={handleMenuClick} size="large">
 									<IconMoreVert />
 								</IconButton>
 								<Menu
@@ -196,8 +196,7 @@ function WorkoutCard({ workout, onChange }) {
 					handleCancel={handleCancel}
 					handleContinue={handleContinue}
 				>
-					There is currently no connection to a smart trainer and therefore the workout script will not be
-					able to control the smart trainer.
+					Without a trainer, the workout can&apos;t adjust resistance automatically.
 				</WarningDialog>
 			</Card>
 		</Grid>
@@ -224,7 +223,7 @@ export default function Workout() {
 			<MyHead title="Workout" />
 			<Box>
 				<Title href="/ride">Workout</Title>
-				<p>Create and execute scripted workouts.</p>
+				<p>Create and run structured workouts.</p>
 
 				<Grid container direction="column" alignItems="center" spacing={2}>
 					{workouts.map((w) => (
