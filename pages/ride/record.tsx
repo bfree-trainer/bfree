@@ -483,14 +483,13 @@ export default function RideRecord() {
 			try {
 				// @ts-ignore
 				wakeLock = await navigator.wakeLock.request('screen');
-				console.log('WakeLock acquired');
 			} catch (err) {
-				console.log(`WakeLock failed: ${err.name}, ${err.message}`);
+				console.warn(`WakeLock failed: ${err.name}, ${err.message}`);
 			}
 		})();
 
 		return () => {
-			wakeLock.release().then(() => console.log('WakeLock released'));
+			wakeLock.release().catch(console.error);
 			wakeLock = null;
 		};
 	}, []);
@@ -501,7 +500,6 @@ export default function RideRecord() {
 	const continueRide = () => {
 		if (rideStartTime === 0) {
 			const now = Date.now();
-			console.log(`Set ride start time: ${now}`);
 			setRideStartTime(now);
 		}
 		setRidePaused(0);

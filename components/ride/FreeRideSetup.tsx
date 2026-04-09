@@ -54,7 +54,7 @@ export default function ResistanceMode({
 					value={resistanceMode}
 					onChange={handleResistanceModeChange}
 				>
-					<MenuItem value={'basic'}>Basic resistance</MenuItem>
+					<MenuItem value={'basic'}>Basic Resistance</MenuItem>
 					<MenuItem value={'power'}>Power</MenuItem>
 					<MenuItem value={'slope'}>Slope</MenuItem>
 				</Select>

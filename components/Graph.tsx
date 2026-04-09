@@ -21,7 +21,7 @@ const StyledCard = styled(Card)(({ theme }) => ({
 		display: 'flex',
 		height: '25vh',
 		width: '100%',
-		background: 'white',
+		background: theme.palette.background.paper,
 		transition: '0.3s',
 		'@media (prefers-reduced-motion: reduce)': {
 			transition: 'none',

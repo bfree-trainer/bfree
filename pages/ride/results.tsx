@@ -77,7 +77,6 @@ export default function RideResults() {
 	// Cleanup the logger after the user exists this page.
 	useEffect(() => {
 		return () => {
-			console.log('Discarding the active logger');
 			setLogger(() => null);
 
 			// Make sure the user won't see old time values at the beginning

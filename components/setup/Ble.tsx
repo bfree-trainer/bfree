@@ -118,7 +118,6 @@ export default function Ble({
 					);
 
 					const { device } = newBtDevice;
-					console.log(`> Name: ${device.name}\n> Id: ${device.id}\n> Connected: ${device.gatt.connected}`);
 					setInfo(pairedWithMessage(newBtDevice));
 					setBtDevice(newBtDevice);
 				} catch (err) {

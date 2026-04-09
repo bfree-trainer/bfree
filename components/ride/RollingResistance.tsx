@@ -76,7 +76,7 @@ export default function RollingResistance({
 						// @ts-ignore
 						(e) => handleChange(e)
 					}
-					id="outlined-basic"
+					id="rolling-resistance-coefficient"
 					label="Coefficient"
 					variant="outlined"
 				/>

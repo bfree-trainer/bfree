@@ -149,7 +149,7 @@ export default function ResistanceControl({
 	const sendResistance = useMemo((): SendResistanceFunc => {
 		if (!smartTrainerControl) {
 			return async (_value: number) => {
-				console.log('sendResistance failed: No smart trainer connected');
+				console.warn('sendResistance failed: No smart trainer connected');
 			};
 		}
 		switch (resistance) {

@@ -187,8 +187,6 @@ export function TrainerCalibrationModal({ open, onClose }) {
 		() => {
 			let tim: ReturnType<typeof setTimeout>;
 			const statusListener = (data) => {
-				console.log('cal', data);
-
 				if (data.targetSpeed) {
 					if (data.targetSpeed == -1) {
 						setTargetSpeed('slowly');
@@ -208,7 +206,6 @@ export function TrainerCalibrationModal({ open, onClose }) {
 			};
 
 			if (open && smartTrainerControl) {
-				console.log(`Sending a calibration request to the trainer`);
 				setCalResult('PENDING');
 				const cal = async () => {
 					//await smartTrainerControl.sendCalibrationReset();
@@ -222,7 +219,6 @@ export function TrainerCalibrationModal({ open, onClose }) {
 					// Timeout if we never receive anything conclusive.
 					tim = setTimeout(() => {
 						setCalResult('FAILED');
-						console.log('Cancelling the calibration due to timeout');
 						smartTrainerControl.sendCalibrationCancel().catch(console.error);
 					}, 30000); // TODO const for this
 				};
@@ -234,7 +230,6 @@ export function TrainerCalibrationModal({ open, onClose }) {
 					if (tim) {
 						clearTimeout(tim);
 						if (calResult === 'PENDING') {
-							console.log('Cancelling the calibration');
 							smartTrainerControl.sendCalibrationCancel().catch(console.error);
 						}
 						smartTrainerControl.removePageListener(1, statusListener);

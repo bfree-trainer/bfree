@@ -48,7 +48,7 @@ function WheelCircumference() {
 				value={tmp}
 				error={!isValidUnsigned(Number(tmp))}
 				onChange={handleChange}
-				id="outlined-basic"
+				id="bike-wheel-circumference"
 				label="Wheel Circumference"
 				variant="outlined"
 				InputProps={{
@@ -84,7 +84,7 @@ function BikeWeight() {
 				value={tmp}
 				error={!isValidUnsigned(Number(tmp))}
 				onChange={handleChange}
-				id="outlined-basic"
+				id="bike-weight"
 				label="Bike Weight"
 				variant="outlined"
 				InputProps={{

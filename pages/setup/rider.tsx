@@ -48,7 +48,7 @@ function Weight() {
 				value={tmp}
 				error={!isValidUnsigned(Number(tmp))}
 				onChange={handleChange}
-				id="outlined-basic"
+				id="rider-weight"
 				label="kg"
 				variant="outlined"
 			/>
@@ -81,7 +81,7 @@ function FTPValue() {
 				value={tmp}
 				error={!isValidUnsigned(Number(tmp))}
 				onChange={handleChange}
-				id="outlined-basic"
+				id="rider-ftp"
 				label="Watt"
 				variant="outlined"
 			/>
@@ -133,7 +133,7 @@ function HeartRate() {
 				value={tmpRest}
 				error={!isValidUnsigned(Number(tmpRest))}
 				onChange={handleRestChange}
-				id="outlined-basic"
+				id="rider-hr-rest"
 				label="Rest BPM"
 				variant="outlined"
 				sx={textFieldStyle}
@@ -144,7 +144,7 @@ function HeartRate() {
 				value={tmpMax}
 				error={!isValidUnsigned(Number(tmpMax))}
 				onChange={handleMaxChange}
-				id="outlined-basic"
+				id="rider-hr-max"
 				label="Max BPM"
 				variant="outlined"
 				sx={textFieldStyle}

@@ -14,6 +14,7 @@ import Typography from '@mui/material/Typography';
 import { green } from '@mui/material/colors';
 import SxPropsTheme from 'lib/SxPropsTheme';
 import BatteryLevel from 'components/BatteryLevel';
+import { inlineIconFontSize } from 'lib/tokens';
 
 const buttonProgressStyle: SxPropsTheme = {
 	color: green[500],
@@ -31,7 +32,7 @@ export const settingsCardStyle: SxPropsTheme = {
 };
 
 export const iconStyle: SxPropsTheme = {
-	fontSize: '18px !important',
+	fontSize: inlineIconFontSize,
 };
 
 export function ActionButton({
