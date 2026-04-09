@@ -10,6 +10,7 @@ import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import SxPropsTheme from 'lib/SxPropsTheme';
 import { useGlobalState } from 'lib/global';
+import { recordCardMinHeight } from 'lib/tokens';
 
 const distanceStyle: SxPropsTheme = {
 	float: 'right',
@@ -23,7 +24,7 @@ export default function Distance() {
 	return (
 		<Grid item xs={12} sm={6} md={4}>
 			<Card variant="outlined">
-				<CardContent sx={{ minHeight: '10em' }}>
+				<CardContent sx={{ minHeight: recordCardMinHeight }}>
 					<Typography gutterBottom variant="h5" component="h2">
 						Distance
 					</Typography>

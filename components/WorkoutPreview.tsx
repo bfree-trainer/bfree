@@ -9,9 +9,10 @@ import createWorkoutRunner, { RunnerResponse } from 'lib/workout_runner';
 import Graph, { Series } from 'components/Graph';
 import { useGlobalState } from 'lib/global';
 import MyModal from './MyModal';
+import { metricColors } from 'lib/tokens';
 
 const graphColors = [
-	'#b1e67b', // load resistance
+	metricColors.power, // load resistance
 ];
 
 function PreviewParams({

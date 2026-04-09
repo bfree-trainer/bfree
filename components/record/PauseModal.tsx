@@ -7,6 +7,7 @@ import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import { ReactNode } from 'react';
 import SxPropsTheme from 'lib/SxPropsTheme';
+import { modalBorder } from 'lib/tokens';
 
 const style: SxPropsTheme = {
 	position: 'absolute',
@@ -16,7 +17,7 @@ const style: SxPropsTheme = {
 	width: { xs: '90vw', sm: 400 },
 	maxWidth: '100%',
 	bgcolor: 'background.paper',
-	border: '2px solid #000',
+	border: modalBorder,
 	boxShadow: 24,
 	p: 4,
 	textAlign: 'center',

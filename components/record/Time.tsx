@@ -11,6 +11,7 @@ import Typography from '@mui/material/Typography';
 import { getElapsedTimeStr } from 'lib/format';
 import SxPropsTheme from 'lib/SxPropsTheme';
 import { useGlobalState } from 'lib/global';
+import { recordCardMinHeight } from 'lib/tokens';
 
 const timeStyle: SxPropsTheme = {
 	float: 'right',
@@ -23,7 +24,7 @@ export default function Time() {
 	return (
 		<Grid item xs={12} sm={6} md={4}>
 			<Card variant="outlined">
-				<CardContent sx={{ minHeight: '10em' }}>
+				<CardContent sx={{ minHeight: recordCardMinHeight }}>
 					<Typography gutterBottom variant="h5" component="h2">
 						Time
 					</Typography>

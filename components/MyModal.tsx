@@ -4,6 +4,7 @@
 
 import { styled } from '@mui/material/styles';
 import Modal, { ModalProps } from '@mui/material/Modal';
+import { modalBorder } from 'lib/tokens';
 
 const PREFIX = 'MyModal';
 const classes = {
@@ -19,7 +20,7 @@ const StyledDiv = styled('div')(({ theme }) => ({
 		left: `${paperLeft}%`,
 		transform: `translate(-${paperTop}%, -${paperLeft}%)`,
 		backgroundColor: theme.palette.background.paper,
-		border: '2px solid #000',
+		border: modalBorder,
 		boxShadow: theme.shadows[5],
 		padding: theme.spacing(2, 4, 3),
 	},

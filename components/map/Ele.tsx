@@ -6,6 +6,7 @@ import { useMemo, useRef } from 'react';
 import { LineChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area } from 'recharts';
 import { CourseData } from '../../lib/gpx_parser';
 import haversine from '../../lib/haversine';
+import { metricColors } from '../../lib/tokens';
 
 export default function Ele({
 	course,
@@ -93,14 +94,14 @@ export default function Ele({
 					<Tooltip content={<CustomTooltip />} />
 					<defs>
 						<linearGradient id="elevationGradient" x1="0" y1="0" x2="0" y2="1">
-							<stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
-							<stop offset="95%" stopColor="#8884d8" stopOpacity={0.2} />
+							<stop offset="5%" stopColor={metricColors.elevation} stopOpacity={0.8} />
+							<stop offset="95%" stopColor={metricColors.elevation} stopOpacity={0.2} />
 						</linearGradient>
 					</defs>
 					<Area
 						type="monotone"
 						dataKey="elevation"
-						stroke="#8884d8"
+						stroke={metricColors.elevation}
 						fill="url(#elevationGradient)"
 						dot={false}
 					/>

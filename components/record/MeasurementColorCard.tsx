@@ -12,6 +12,7 @@ import IconHeart from '@mui/icons-material/Favorite';
 import IconPower from '@mui/icons-material/OfflineBolt';
 import IconSpeed from '@mui/icons-material/Speed';
 import SxPropsTheme from '../../lib/SxPropsTheme';
+import { recordCardMinHeight, inlineIconFontSize } from '../../lib/tokens';
 
 const PREFIX = 'MeasurementColorCard';
 const classes = {
@@ -29,7 +30,7 @@ const classes = {
 
 const StyledGrid = styled(Grid)(({ theme }) => ({
 	[`& .${classes.resistanceControlCard}`]: {
-		height: '10em',
+		height: recordCardMinHeight,
 	},
 
 	[`& .${classes.resistanceControlSlider}`]: {
@@ -37,12 +38,12 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 	},
 
 	[`& .${classes.inlineIcon}`]: {
-		fontSize: '18px !important',
+		fontSize: inlineIconFontSize,
 	},
 }));
 
 const iconStyle: SxPropsTheme = {
-	fontSize: '18px !important',
+	fontSize: inlineIconFontSize,
 };
 
 export default function MeasurementColorCard({

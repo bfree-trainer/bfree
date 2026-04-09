@@ -19,6 +19,7 @@ import SxPropsTheme from 'lib/SxPropsTheme';
 import { ReactElement, useState, useEffect, useMemo } from 'react';
 import { UnitConv, speedUnitConv } from 'lib/units';
 import { useGlobalState } from 'lib/global';
+import { metricColors, inlineIconFontSize, recordCardMinHeight } from 'lib/tokens';
 
 const PREFIX = 'MeasurementCard';
 
@@ -37,7 +38,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 	},
 
 	[`& .${classes.card}`]: {
-		minHeight: '10em',
+		minHeight: recordCardMinHeight,
 	},
 
 	[`& .${classes.valuesTable}`]: {
@@ -75,7 +76,7 @@ type DisplayValue = {
 export {};
 
 const iconStyle: SxPropsTheme = {
-	fontSize: '18px !important',
+	fontSize: inlineIconFontSize,
 };
 
 function getContentByType(classes, minimal: boolean, speedUnit: UnitConv[''], type: Measurement) {
@@ -174,12 +175,12 @@ export default function MeasurementCard({ type, ribbonColor }: { type: Measureme
 								animation: 'blinker 1s linear infinite',
 								'@keyframes blinker': {
 									'50%': {
-										backgroundColor: '#ffaeae', // TODO ribbonColor should be passed as a string
+										backgroundColor: metricColors.heartRate,
 									},
 								},
 								'@media (prefers-reduced-motion: reduce)': {
 									animation: 'none',
-									backgroundColor: '#ffaeae',
+									backgroundColor: metricColors.heartRate,
 								},
 							}
 						: undefined

@@ -6,12 +6,10 @@ import { useGlobalState } from 'lib/global';
 import { createActivityLog, Lap } from 'lib/activity_log';
 import { speedUnitConv, UnitConv } from 'lib/units';
 import Graph, { SeriesDataPoint, Series } from 'components/Graph';
+import { metricColorList } from 'lib/tokens';
 
-export const measurementColors = [
-	'#ffaeae', // heart_rate
-	'#b1e67b', // power
-	'#57baeb', // speed
-];
+// TODO maybe this re-export is unnecessary
+export const measurementColors = [...metricColorList];
 
 function lap2Series(lap: Lap, speedUnit: UnitConv[string]): Series {
 	const { startTime } = lap;

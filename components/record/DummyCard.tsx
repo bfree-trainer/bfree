@@ -9,6 +9,7 @@ import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import IconHourglass from '@mui/icons-material/HourglassEmpty';
 import Typography from '@mui/material/Typography';
+import { recordCardMinHeight, inlineIconFontSize } from 'lib/tokens';
 
 const PREFIX = 'DummyCard';
 const classes = {
@@ -18,11 +19,11 @@ const classes = {
 
 const StyledGrid = styled(Grid)(({ theme }) => ({
 	[`& .${classes.dummyCard}`]: {
-		minHeight: '10em',
+		minHeight: recordCardMinHeight,
 	},
 
 	[`& .${classes.inlineIcon}`]: {
-		fontSize: '18px !important',
+		fontSize: inlineIconFontSize,
 	},
 }));
 

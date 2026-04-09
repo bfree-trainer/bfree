@@ -13,6 +13,7 @@ import { useState, useEffect } from 'react';
 import { useGlobalState } from 'lib/global';
 import { speedUnitConv } from 'lib/units';
 import SensorValue from './SensorValue';
+import { modalBorder } from 'lib/tokens';
 
 const PREFIX = 'TrainerControl';
 const classes = {
@@ -31,7 +32,7 @@ const makeStyles = ({ theme }: { theme: Theme }) => ({
 		width: '90vw',
 		maxWidth: 400,
 		backgroundColor: theme.palette.background.paper,
-		border: '2px solid #000',
+		border: modalBorder,
 		boxShadow: theme.shadows[5],
 		padding: theme.spacing(2, 4, 3),
 	},

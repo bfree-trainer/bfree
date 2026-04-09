@@ -15,6 +15,7 @@ import SxPropsTheme from 'lib/SxPropsTheme';
 import { getElapsedTimeStr } from 'lib/format';
 import { useGlobalState } from 'lib/global';
 import { smartDistanceUnitFormat } from 'lib/units';
+import { recordCardMinHeight, inlineIconFontSize } from 'lib/tokens';
 
 const valueStyle: SxPropsTheme = {
 	float: 'right',
@@ -74,9 +75,9 @@ export default function Ride() {
 	return (
 		<Grid item xs={4} md={4}>
 			<Card variant="outlined">
-				<CardContent sx={{ minHeight: '10em' }}>
+				<CardContent sx={{ minHeight: recordCardMinHeight }}>
 					<Typography gutterBottom variant="h5" component="h2">
-						<IconTimelapse sx={{ fontSize: '18px !important' }} /> {isBreakpoint ? 'Time & Distance' : ''}
+						<IconTimelapse sx={{ fontSize: inlineIconFontSize }} /> {isBreakpoint ? 'Time & Distance' : ''}
 					</Typography>
 					{isBreakpoint ? <InfoDesktop /> : <InfoMobile />}
 				</CardContent>
