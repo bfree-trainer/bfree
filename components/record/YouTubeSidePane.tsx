@@ -11,6 +11,7 @@ import Typography from '@mui/material/Typography';
 import CloseIcon from '@mui/icons-material/Close';
 import YouTubeIcon from '@mui/icons-material/YouTube';
 import { useState } from 'react';
+import { youtubeRed, youtubeRedHover } from 'lib/tokens';
 
 const PANE_WIDTH = 380;
 
@@ -117,12 +118,12 @@ export default function YouTubeSidePane() {
 					onClick={() => setOpen((prev) => !prev)}
 					aria-label={open ? 'Close YouTube side pane' : 'Open YouTube side pane'}
 					sx={{
-						backgroundColor: '#FF0000',
+						backgroundColor: youtubeRed,
 						color: '#fff',
 						borderRadius: '8px 0 0 8px',
 						padding: '14px 6px',
 						'&:hover': {
-							backgroundColor: '#CC0000',
+							backgroundColor: youtubeRedHover,
 						},
 					}}
 				>
@@ -158,7 +159,7 @@ export default function YouTubeSidePane() {
 						py: 1,
 						borderBottom: '1px solid',
 						borderColor: 'divider',
-						backgroundColor: '#FF0000',
+						backgroundColor: youtubeRed,
 						color: '#fff',
 						flexShrink: 0,
 					}}
@@ -208,8 +209,8 @@ export default function YouTubeSidePane() {
 						onClick={handleLoad}
 						sx={{
 							flexShrink: 0,
-							backgroundColor: '#FF0000',
-							'&:hover': { backgroundColor: '#CC0000' },
+							backgroundColor: youtubeRed,
+							'&:hover': { backgroundColor: youtubeRedHover },
 						}}
 					>
 						Load

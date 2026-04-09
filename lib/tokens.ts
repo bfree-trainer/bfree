@@ -32,7 +32,7 @@ export const metricColorList = [
 // ---------------------------------------------------------------------------
 // Modal styling
 // ---------------------------------------------------------------------------
-export const modalBorder = '2px solid #000' as const;
+export const modalBorder = '2px solid rgba(0, 0, 0, 0.23)' as const;
 
 // ---------------------------------------------------------------------------
 // Card dimensions — recording cards on the ride screen
@@ -43,3 +43,9 @@ export const recordCardMinHeight = '10em' as const;
 // Inline icon sizing — icons placed inline with card titles
 // ---------------------------------------------------------------------------
 export const inlineIconFontSize = '18px !important' as const;
+
+// ---------------------------------------------------------------------------
+// YouTube brand colors — side pane tab, header, and load button
+// ---------------------------------------------------------------------------
+export const youtubeRed = '#FF0000' as const;
+export const youtubeRedHover = '#CC0000' as const;

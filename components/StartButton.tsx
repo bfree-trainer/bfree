@@ -43,10 +43,10 @@ export default function StartButton({ disabled, href }: { disabled?: boolean; hr
 			<BottomNavigationAction
 				sx={
 					disabled
-						? { color: 'lightgrey', cursor: 'not-allowed' }
+						? { color: 'action.disabled', cursor: 'not-allowed' }
 						: {
 								'&:hover': {
-									color: 'lightgrey',
+									color: 'action.disabled',
 								},
 							}
 				}

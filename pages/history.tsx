@@ -116,15 +116,15 @@ const RideStatsUl = styled('ul')({
 	marginTop: 0,
 });
 
-const RideStatsLi = styled('li')({
+const RideStatsLi = styled('li')(({ theme }) => ({
 	listStyle: 'none',
 	margin: 0,
 	padding: 5,
 	display: 'flex',
 	flexDirection: 'column',
 	justifyContent: 'flex-end',
-	borderRight: '1px solid #f2f2f0',
-});
+	borderRight: `1px solid ${theme.palette.divider}`,
+}));
 
 const RideStatsLiLast = styled('li')({
 	listStyle: 'none',
@@ -347,10 +347,10 @@ export default function History() {
 				<BottomNavigationAction
 					sx={
 						selectionCount === 0
-							? { color: 'lightgrey', cursor: 'not-allowed' }
+							? { color: 'action.disabled', cursor: 'not-allowed' }
 							: {
 									'&:hover': {
-										color: 'lightgrey',
+										color: 'action.disabled',
 									},
 								}
 					}
