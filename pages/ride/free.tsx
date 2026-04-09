@@ -14,20 +14,10 @@ import PowerResistance, { PowerLimits } from 'components/ride/PowerResistance';
 import RollingResistance from 'components/ride/RollingResistance';
 import Title from 'components/Title';
 import Typography from '@mui/material/Typography';
-
-const StyledContainer = styled(Container)(({ theme }) => ({}));
+import { saveSession, loadSession } from 'lib/session_settings';
 
 const SESSION_KEY = 'freeRideSettings';
-
-function loadSavedSettings() {
-	if (typeof window === 'undefined') return null;
-	try {
-		const stored = sessionStorage.getItem(SESSION_KEY);
-		return stored ? JSON.parse(stored) : null;
-	} catch {
-		return null;
-	}
-}
+const StyledContainer = styled(Container)(({ theme }) => ({}));
 
 function getInitialAutoSplitValue(autoSplitMode: AutoSplitMode, autoSplit: string): number {
 	switch (autoSplitMode) {
@@ -60,7 +50,7 @@ function makeStartUrl(resistanceMode: string, rollingResistance: number, powerLi
 }
 
 export default function RideFree() {
-	const [savedSettings] = useState(() => loadSavedSettings() ?? {});
+	const [savedSettings] = useState(() => loadSession(SESSION_KEY) ?? {});
 	const [resistanceMode, setResistanceMode] = useState<TrainerResistanceMode>(savedSettings.resistanceMode || '');
 	const [rollingResistance, setRollingResistance] = useState<number>(savedSettings.rollingResistance ?? NaN);
 	const [powerLimits, setPowerLimits] = useState<PowerLimits>(savedSettings.powerLimits || { min: 100, max: 300 });
@@ -74,20 +64,15 @@ export default function RideFree() {
 	}, [resistanceMode]);
 
 	useEffect(() => {
-		try {
-			sessionStorage.setItem(
-				SESSION_KEY,
-				JSON.stringify({
-					resistanceMode,
-					rollingResistance: isNaN(rollingResistance) ? null : rollingResistance,
-					powerLimits,
-					autoSplitMode,
-					autoSplit,
-				}),
-			);
-		} catch {
-			// sessionStorage may be unavailable (e.g. private browsing restrictions)
-		}
+		saveSession(SESSION_KEY,
+			JSON.stringify({
+				resistanceMode,
+				rollingResistance: isNaN(rollingResistance) ? null : rollingResistance,
+				powerLimits,
+				autoSplitMode,
+				autoSplit,
+			}),
+		);
 	}, [resistanceMode, rollingResistance, powerLimits, autoSplitMode, autoSplit]);
 
 	return (
