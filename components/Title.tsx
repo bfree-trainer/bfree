@@ -178,7 +178,7 @@ function Notifications({
 		<Box>
 			<IconButton
 				size="large"
-				aria-label={`show ${notifications.length} new notifications`}
+				aria-label={notifications.length > 0 ? `${notifications.length} notification${notifications.length !== 1 ? 's' : ''}` : 'No notifications'}
 				color="inherit"
 				onClick={handleClick}
 			>
@@ -243,7 +243,7 @@ export default function Title({
 
 	return (
 		<Box sx={{ flexGrow: 1 }}>
-			<AppBar position="fixed" elevation={0} sx={{ left: 0, width: '100vw' }}>
+			<AppBar position="fixed" elevation={0} sx={{ left: 0, width: '100%' }}>
 				<Toolbar>
 					<BackButton disable={disableBack} onClick={goBack} />
 					<Typography variant="h6" noWrap component="div">

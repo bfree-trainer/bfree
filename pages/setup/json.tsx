@@ -12,8 +12,9 @@ import Grid from '@mui/material/Grid';
 import MyHead from 'components/MyHead';
 import Title from 'components/Title';
 import Typography from '@mui/material/Typography';
+import Alert from '@mui/material/Alert';
 import { styled } from '@mui/material/styles';
-import { ChangeEvent } from 'react';
+import { ChangeEvent, useState } from 'react';
 import { exportConfig, importConfig } from 'lib/global';
 import downloadBlob from 'lib/download_blob';
 
@@ -29,27 +30,32 @@ const VisuallyHiddenInput = styled('input')({
 	width: 1,
 });
 
-function handleImport(event: ChangeEvent<HTMLInputElement>) {
-	const file = event.target.files[0];
-
-	if (!file) {
-		// TODO notification
-		console.log('No file');
-		return;
-	}
-
-	const reader = new FileReader();
-	reader.onload = () => {
-		importConfig(reader.result as string);
-	};
-	reader.onerror = () => {
-		// TODO Show error in the notifications
-		console.log('Error reading the file');
-	};
-	reader.readAsText(file);
-}
-
 function ImportJsonCard() {
+	const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+	const handleImport = (event: ChangeEvent<HTMLInputElement>) => {
+		const file = event.target.files[0];
+
+		if (!file) {
+			setStatus({ type: 'error', message: 'No file selected.' });
+			return;
+		}
+
+		const reader = new FileReader();
+		reader.onload = () => {
+			try {
+				importConfig(reader.result as string);
+				setStatus({ type: 'success', message: 'Settings imported successfully.' });
+			} catch {
+				setStatus({ type: 'error', message: 'Invalid settings file.' });
+			}
+		};
+		reader.onerror = () => {
+			setStatus({ type: 'error', message: 'Could not read the file.' });
+		};
+		reader.readAsText(file);
+	};
+
 	return (
 		<Grid item xs={12} sm={6} md={4}>
 			<Card variant="outlined">
@@ -57,9 +63,14 @@ function ImportJsonCard() {
 					<Typography gutterBottom variant="h5" component="h2">
 						Import Settings
 					</Typography>
+					{status && (
+						<Alert severity={status.type} onClose={() => setStatus(null)}>
+							{status.message}
+						</Alert>
+					)}
 				</CardContent>
 				<CardActions sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-					<Button component="label" variant="contained" role={undefined} tabIndex={-1}>
+					<Button component="label" variant="contained">
 						Import
 						<VisuallyHiddenInput type="file" onChange={handleImport} />
 					</Button>

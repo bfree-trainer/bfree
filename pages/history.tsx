@@ -285,7 +285,7 @@ function RideCard({ log, onSelect }: { log: Log; onSelect: (v: boolean) => void 
 						expand={expanded}
 						onClick={handleExpandClick}
 						aria-expanded={expanded}
-						aria-label="show more"
+						aria-label={expanded ? 'Hide ride details' : 'Show ride details'}
 					>
 						<IconExpandMore />
 					</ExpandMore>
