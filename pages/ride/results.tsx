@@ -6,7 +6,7 @@ import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { styled } from '@mui/material/styles';
+import { useTheme, styled } from '@mui/material/styles';
 import { useEffect, useMemo } from 'react';
 import ExportCard from 'components/ExportCard';
 import MyHead from 'components/MyHead';
@@ -46,7 +46,8 @@ function maybeSetDefaults(logger: ReturnType<typeof createActivityLog>): { name?
 }
 
 export default function RideResults() {
-	const isBreakpoint = useMediaQuery('(min-width:800px)');
+	const theme = useTheme();
+	const isBreakpoint = useMediaQuery(theme.breakpoints.up('md'));
 	const [logger, setLogger] = useGlobalState('currentActivityLog');
 	const { name: defaultName, notes: defaultNotes } = useMemo(() => maybeSetDefaults(logger), [logger]);
 

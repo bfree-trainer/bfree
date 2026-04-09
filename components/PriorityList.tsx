@@ -83,7 +83,7 @@ export default function PriorityList({
 	};
 
 	const customList = (items: ListItem[]) => (
-		<Paper elevation={2} sx={{ width: '25ch', height: '15em', overflow: 'auto' }}>
+		<Paper elevation={2} sx={{ width: { xs: '100%', sm: '25ch' }, height: '15em', overflow: 'auto' }}>
 			<List dense component="div" role="list">
 				{items.map((value) => {
 					const labelId = `${value.id}-label`;
@@ -108,10 +108,10 @@ export default function PriorityList({
 	);
 
 	return (
-		<Grid container spacing={2} sx={{ marginTop: '1ex' }}>
-			<Grid item>{customList(leftList)}</Grid>
+		<Grid container spacing={2} sx={{ marginTop: '1ex' }} direction={{ xs: 'column', sm: 'row' }} alignItems={{ xs: 'stretch', sm: 'flex-start' }}>
+			<Grid item xs>{customList(leftList)}</Grid>
 			<Grid item>
-				<Grid container direction="column" alignItems="center">
+				<Grid container direction={{ xs: 'row', sm: 'column' }} alignItems="center" justifyContent="center">
 					<Button
 						variant="outlined"
 						size="small"
@@ -154,7 +154,7 @@ export default function PriorityList({
 					</Button>
 				</Grid>
 			</Grid>
-			<Grid item>{customList(rightList)}</Grid>
+			<Grid item xs>{customList(rightList)}</Grid>
 		</Grid>
 	);
 }

@@ -25,8 +25,9 @@ const buttonProgressStyle: SxPropsTheme = {
 };
 
 export const settingsCardStyle: SxPropsTheme = {
-	height: '19em',
-	width: '20em',
+	minHeight: '19em',
+	width: '100%',
+	maxWidth: '20em',
 };
 
 export const iconStyle: SxPropsTheme = {
@@ -70,7 +71,7 @@ export function SensorCard({
 	return (
 		<Grid item xs="auto">
 			<Card variant="outlined" sx={settingsCardStyle}>
-				<CardContent sx={{ height: '15em' }}>
+				<CardContent sx={{ minHeight: '15em' }}>
 					<Box sx={{ position: 'relative' }}>
 						<Box sx={{ position: 'absolute', width: '1em', right: 0.5, zIndex: 10 }}>
 							{batteryLevel >= 0 ? <BatteryLevel batteryLevel={batteryLevel} /> : ''}

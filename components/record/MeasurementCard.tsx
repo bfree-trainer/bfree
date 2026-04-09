@@ -13,7 +13,7 @@ import IconPower from '@mui/icons-material/OfflineBolt';
 import IconSpeed from '@mui/icons-material/Speed';
 import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { styled } from '@mui/material/styles';
+import { useTheme, styled } from '@mui/material/styles';
 import { Measurement, CscMeasurements, HrmMeasurements, useMeasurementByType } from 'lib/measurements';
 import SxPropsTheme from 'lib/SxPropsTheme';
 import { ReactElement, useState, useEffect, useMemo } from 'react';
@@ -37,7 +37,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 	},
 
 	[`& .${classes.card}`]: {
-		height: '10em',
+		minHeight: '10em',
 	},
 
 	[`& .${classes.valuesTable}`]: {
@@ -112,7 +112,8 @@ function getContentByType(classes, minimal: boolean, speedUnit: UnitConv[''], ty
 }
 
 export default function MeasurementCard({ type, ribbonColor }: { type: Measurement; ribbonColor?: string }) {
-	const isBreakpoint = useMediaQuery('(min-width:800px)');
+	const theme = useTheme();
+	const isBreakpoint = useMediaQuery(theme.breakpoints.up('md'));
 	const speedUnit = speedUnitConv[useGlobalState('unitSpeed')[0]];
 	const maxHr = useGlobalState('rider')[0].heartRate.max; // TODO Avoid having this for every meas
 	const [lapReset] = useGlobalState('lapResetsAgg');
@@ -160,7 +161,7 @@ export default function MeasurementCard({ type, ribbonColor }: { type: Measureme
 	}, [fn, m, lapReset && lapTime == 0, setAgg]);
 
 	return (
-		<StyledGrid item xs={4}>
+		<StyledGrid item xs={12} sm={6} md={4}>
 			<Card
 				variant="outlined"
 				sx={

@@ -10,6 +10,7 @@ import Grid from '@mui/material/Grid';
 import IconTimelapse from '@mui/icons-material/Timelapse';
 import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 import SxPropsTheme from 'lib/SxPropsTheme';
 import { getElapsedTimeStr } from 'lib/format';
 import { useGlobalState } from 'lib/global';
@@ -64,15 +65,16 @@ function InfoMobile() {
 }
 
 export default function Ride() {
-	const isBreakpoint = useMediaQuery('(min-width:800px)');
+	const theme = useTheme();
+	const isBreakpoint = useMediaQuery(theme.breakpoints.up('md'));
 
 	// TODO meters & km based on length
 	// TODO lap distance
 
 	return (
-		<Grid item xs={4}>
+		<Grid item xs={4} md={4}>
 			<Card variant="outlined">
-				<CardContent sx={{ height: '10em' }}>
+				<CardContent sx={{ minHeight: '10em' }}>
 					<Typography gutterBottom variant="h5" component="h2">
 						<IconTimelapse sx={{ fontSize: '18px !important' }} /> {isBreakpoint ? 'Time & Distance' : ''}
 					</Typography>
