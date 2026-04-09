@@ -14,18 +14,15 @@ import React, { ReactNode, useState } from 'react';
 import Stack from '@mui/material/Stack';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import { AlertColor } from '@mui/material/Alert';
 import { styled } from '@mui/material/styles';
 import { useRouter } from 'next/router';
 import BatteryLevel from './BatteryLevel';
-import { GlobalState, sensorNames, SensorType, useGlobalState } from 'lib/global';
+import { GlobalState, sensorNames, SensorType, useGlobalState, setGlobalState, AppNotification } from 'lib/global';
 import { TrainerMeasurements, useHeartRateMeasurement } from 'lib/measurements';
 
-type Notification = {
-	severity: AlertColor;
+type Notification = AppNotification & {
 	icon?: React.ReactNode;
 	permanent?: boolean; // can't be cleared with X, i.e. action is mandatory
-	text: string;
 };
 
 const sxArrowEnabled = {
@@ -149,15 +146,25 @@ function useHeartRateAlerts() {
 function useNotifications(): [Notification[], (notification: Notification) => void] {
 	const [clearedNotifications, setClearedNotifications] = useState<string[]>([]);
 	const [smartTrainerStatus] = useGlobalState('smart_trainer');
+	const [pendingNotifications] = useGlobalState('pendingNotifications');
 	const batteryLevelAlerts = useBatteryLevelAlerts();
 	const heartRateAlerts = useHeartRateAlerts();
 	const notifications: Notification[] = [
 		...getSmartTrainerWarns(smartTrainerStatus),
 		...batteryLevelAlerts,
 		...heartRateAlerts,
+		...pendingNotifications,
 	].filter(({ text }) => !clearedNotifications.includes(text));
-	const clearNotification = (notification: Notification) =>
-		setClearedNotifications([...clearedNotifications, notification.text]);
+	const clearNotification = (notification: Notification) => {
+		if ('id' in notification && pendingNotifications.some((n) => n.id === notification.id)) {
+			setGlobalState(
+				'pendingNotifications',
+				pendingNotifications.filter((n) => n.id !== notification.id),
+			);
+		} else {
+			setClearedNotifications([...clearedNotifications, notification.text]);
+		}
+	};
 
 	return [notifications, clearNotification];
 }

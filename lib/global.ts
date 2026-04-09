@@ -92,6 +92,14 @@ export const powerSourceTypes: SensorSourceType[] = [
 	},
 ];
 
+export type AppNotification = {
+	id?: number;
+	severity: 'success' | 'info' | 'warning' | 'error';
+	text: string;
+};
+
+let _notificationId = 0;
+
 export type GlobalState = {
 	// Config
 	samplingRate: number;
@@ -140,6 +148,8 @@ export type GlobalState = {
 	elapsedLapTime: number;
 	rideDistance: number;
 	lapDistance: number;
+	// Transient notifications (not persisted)
+	pendingNotifications: AppNotification[];
 };
 
 const LOCAL_STORAGE_KEY = 'settings';
@@ -197,6 +207,7 @@ const initialState: GlobalState = {
 	elapsedLapTime: 0,
 	rideDistance: 0,
 	lapDistance: 0,
+	pendingNotifications: [],
 	// Load config from local storage
 	...(typeof window === 'undefined' ? {} : JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY))),
 };
@@ -262,4 +273,9 @@ function exportConfig(): string {
 	return localStorage.getItem(LOCAL_STORAGE_KEY);
 }
 
-export { useGlobalState, getGlobalState, setGlobalState, saveConfig, importConfig, exportConfig };
+function addNotification(notification: Omit<AppNotification, 'id'>): void {
+	const current = getGlobalState('pendingNotifications');
+	setGlobalState('pendingNotifications', [...current, { ...notification, id: ++_notificationId }]);
+}
+
+export { useGlobalState, getGlobalState, setGlobalState, saveConfig, importConfig, exportConfig, addNotification };
