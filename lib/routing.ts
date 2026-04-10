@@ -5,16 +5,14 @@
 import { Coord } from './gpx_parser';
 
 /**
- * OSRM public demo server endpoint.
- * For production deployments consider hosting your own OSRM instance:
- * https://project-osrm.org/
- */
-const OSRM_BASE_URL = 'https://router.project-osrm.org/route/v1';
-
-/**
  * Get a routed path between two or more waypoints using OSRM with the bicycle
  * profile.  The bicycle profile respects one-way streets and prefers bike
  * lanes based on OpenStreetMap data.
+ *
+ * The OSRM server URL is configured via the NEXT_PUBLIC_OSRM_BASE_URL
+ * environment variable (defaults to the public OSRM demo server).
+ * For production deployments consider hosting your own OSRM instance:
+ * https://project-osrm.org/
  *
  * @param waypoints - At least two coordinates to route between.
  * @returns Array of route coordinates (including all intermediate points).
@@ -25,8 +23,9 @@ export async function getOsrmRoute(waypoints: Coord[]): Promise<Coord[]> {
 		return waypoints;
 	}
 
+	const baseUrl = process.env.NEXT_PUBLIC_OSRM_BASE_URL;
 	const coords = waypoints.map(({ lat, lon }) => `${lon},${lat}`).join(';');
-	const url = `${OSRM_BASE_URL}/bicycle/${coords}?overview=full&geometries=geojson`;
+	const url = `${baseUrl}/bicycle/${coords}?overview=full&geometries=geojson`;
 
 	const response = await fetch(url);
 	if (!response.ok) {
