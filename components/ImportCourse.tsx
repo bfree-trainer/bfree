@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import { useState, useRef } from 'react';
+import { useState, useRef, ChangeEvent } from 'react';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -13,16 +13,19 @@ import InputLabel from '@mui/material/InputLabel';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 
-export default function CreateCourseDialog({ newCourse }: { newCourse: (name: string, file: File) => void }) {
+export default function ImportCourseDialog({ newCourse }: { newCourse: (name: string, file: File) => void }) {
 	const nameRef = useRef();
-	const uploadInputRef = useRef<HTMLInputElement | null>(null);
+	const [file, setFile] = useState(null);
 	const [open, setOpen] = useState(false);
 	const [creating, setCreating] = useState(false);
 	const handleClickOpen = () => {
 		setOpen(true);
 	};
+	const handleSelectFile = (e: ChangeEvent<HTMLInputElement>) => {
+		console.log(e.target.files)
+		setFile(e?.target?.files[0] ?? null);
+	};
 	const handleCreate = () => {
-		const file = uploadInputRef.current?.files?.[0];
 		if (!file) return;
 		setCreating(true);
 		// @ts-ignore
@@ -37,10 +40,10 @@ export default function CreateCourseDialog({ newCourse }: { newCourse: (name: st
 	return (
 		<>
 			<Button variant="contained" onClick={handleClickOpen}>
-				New Course
+				Import
 			</Button>
 			<Dialog open={open} onClose={handleCancel}>
-				<DialogTitle>New Course</DialogTitle>
+				<DialogTitle>Import Course</DialogTitle>
 				<DialogContent>
 					<DialogContentText sx={{ maxWidth: '25em' }}>
 						Course name can be read from the imported file by leaving the name field blank.
@@ -58,11 +61,11 @@ export default function CreateCourseDialog({ newCourse }: { newCourse: (name: st
 						/>
 						<InputLabel htmlFor="import-file" hidden>
 							<input
-								ref={uploadInputRef}
 								id="import-file"
 								name="import-file"
 								type="file"
 								accept=".gpx,.GPX"
+								onChange={handleSelectFile}
 							/>
 							GPX
 						</InputLabel>
@@ -72,7 +75,7 @@ export default function CreateCourseDialog({ newCourse }: { newCourse: (name: st
 					<Button color="secondary" onClick={handleCancel}>
 						Cancel
 					</Button>
-					<Button onClick={handleCreate} disabled={creating}>
+					<Button onClick={handleCreate} disabled={creating || !file}>
 						Create
 					</Button>
 				</DialogActions>
