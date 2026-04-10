@@ -161,6 +161,54 @@ export default function RideMap() {
 	 */
 	const [lastSavedCourse, setLastSavedCourse] = useState<CourseData | null>(null);
 
+	// ---------------------------------------------------------------------------
+	// Preview-mode animated bike marker
+	// ---------------------------------------------------------------------------
+	/** Number of evenly-spaced frames the animation is subsampled to. */
+	const ANIM_FRAMES = 200;
+	/** Milliseconds between each animation step → ~60 s for a full loop. */
+	const ANIM_INTERVAL_MS = 300;
+	/** Monotonically increasing counter advanced by the animation interval. */
+	const [bikeAnimTick, setBikeAnimTick] = useState(0);
+
+	/**
+	 * Subsample course trackpoints to ANIM_FRAMES evenly-spaced positions used
+	 * for the looping animation. Empty when there is no course.
+	 */
+	const animFrames = useMemo<[number, number][]>(() => {
+		if (!course) return [];
+		const allPoints = course.tracks
+			.flatMap((t) => t.segments.flatMap((s) => s.trackpoints))
+			.map((tp) => [tp.lat, tp.lon] as [number, number]);
+		if (allPoints.length === 0) return [];
+		if (allPoints.length <= ANIM_FRAMES) return allPoints;
+		const step = (allPoints.length - 1) / (ANIM_FRAMES - 1);
+		return Array.from({ length: ANIM_FRAMES }, (_, i) => allPoints[Math.round(i * step)]);
+	}, [course]);
+
+	useEffect(() => {
+		if (editMode || animFrames.length === 0) return;
+
+		const timer = setInterval(() => {
+			setBikeAnimTick((t) => t + 1);
+		}, ANIM_INTERVAL_MS);
+
+		return () => clearInterval(timer);
+	}, [editMode, animFrames]);
+
+	/**
+	 * Current animated bike position derived from the tick counter.
+	 * Null when in edit mode or no course is loaded.
+	 */
+	const bikeAnimPos: [number, number] | null =
+		!editMode && animFrames.length > 0 ? animFrames[bikeAnimTick % animFrames.length] : null;
+
+	/**
+	 * Displayed bike position: elevation-chart hover takes priority; otherwise
+	 * the looping animation drives the marker.
+	 */
+	const bikeDisplayPos = showMarker && markerCoord ? markerCoord : bikeAnimPos;
+
 	const routeHasData =
 		course &&
 		(course.tracks[0]?.segments[0]?.trackpoints?.length > 0 || course.routes[0]?.routepoints?.length > 0);
@@ -333,8 +381,8 @@ export default function RideMap() {
 							</DynamicMapMarker>
 							<DynamicMapMarker
 								icon={<IconBike />}
-								position={markerCoord}
-								hidden={!showMarker}
+								position={bikeDisplayPos ?? markerCoord}
+								hidden={!bikeDisplayPos}
 							></DynamicMapMarker>
 							{editMode ? (
 							<DynamicRoutePlanner
