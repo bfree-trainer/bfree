@@ -7,7 +7,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { styled } from '@mui/material/styles'
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import ButtonGroup from '@mui/material/ButtonGroup';
 import Container from '@mui/material/Container';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormGroup from '@mui/material/FormGroup';
@@ -133,7 +132,7 @@ function MyLocationButton({ map, setPosition }) {
 	};
 
 	return (
-		<Button variant="contained" onClick={getMyLocation}>
+		<Button variant="outlined" onClick={getMyLocation}>
 			Get My Location
 		</Button>
 	);
@@ -311,7 +310,7 @@ export default function RideMap() {
 
 				<Grid container spacing={2}>
 					<Grid item xs={12} sm={4}>
-						<Typography variant="h6">Courses</Typography>
+						<Typography variant="h6" color="primary.main" sx={{ fontWeight: 700 }}>Courses</Typography>
 					</Grid>
 					<Grid item xs={12} sm={2}>
 						<TextField
@@ -322,16 +321,18 @@ export default function RideMap() {
 							label="Course name"
 							inputProps={{ maxLength: 200 }}
 							sx={{ width: '100%' }}
+							color={hasUnsavedChanges ? 'warning' : 'primary'}
 						/>
 					</Grid>
 					<Grid item xs={12} sm={6}>
-						<ButtonGroup variant="contained" sx={{ flexWrap: 'wrap', gap: '4px' }}>
+						<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, alignItems: 'center' }}>
 							<ImportCourse newCourse={newCourse} />
 							<MyLocationButton map={map} setPosition={setHomeCoord} />
 							<Button
-								variant="contained"
-								color="secondary"
+								variant="outlined"
+								color="error"
 								onClick={handleClearMap}
+								sx={{ borderColor: 'error.light' }}
 							>
 								Clear
 							</Button>
@@ -357,7 +358,7 @@ export default function RideMap() {
 							>
 								Save Route
 							</Button>
-						</ButtonGroup>
+						</Box>
 					</Grid>
 
 					<Grid item xs={12} md={4}>
@@ -372,6 +373,13 @@ export default function RideMap() {
 					</Grid>
 
 					<Grid item xs={12} md={8}>
+						<Box sx={{
+							borderRadius: 1,
+							overflow: 'hidden',
+							border: 2,
+							borderColor: editMode ? 'primary.main' : 'transparent',
+							transition: 'border-color 0.2s ease-out',
+						}}>
 						<DynamicMap center={homeCoord} width={'100%'} height={mapHeight} setMap={setMap} ariaLabel="Route planner map">
 							<DynamicMapMarker icon={<IconHome />} position={homeCoord}>
 								You are here.
@@ -390,6 +398,7 @@ export default function RideMap() {
 						) : null}
 							{course && !editMode ? <DynamicCourse course={course} /> : null}
 						</DynamicMap>
+						</Box>
 					</Grid>
 				</Grid>
 				<StartButton disabled={editMode} href={`/ride/record?type=map&mapId=todo`} />

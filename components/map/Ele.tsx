@@ -9,7 +9,7 @@ import Typography from '@mui/material/Typography';
 import { AreaChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area } from 'recharts';
 import { CourseData } from '../../lib/gpx_parser';
 import haversine from '../../lib/haversine';
-import { metricColors } from '../../lib/tokens';
+import { metricColors, chartColors } from '../../lib/tokens';
 
 export default function Ele({
 	course,
@@ -83,14 +83,14 @@ export default function Ele({
 	};
 
 	return (
-		<Box sx={{ width: '100%', height: 256 }}>
+		<Box sx={{ width: '100%', height: 256 }} role="img" aria-label="Elevation profile chart">
 			<ResponsiveContainer>
 				<AreaChart
 					data={data}
 					margin={{ top: 10, right: 10, bottom: 50, left: 45 }}
 					onMouseLeave={handleMouseLeave}
 				>
-					<CartesianGrid strokeDasharray="3 3" />
+					<CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
 					<XAxis
 						dataKey="distance"
 						tickFormatter={formatValue}
@@ -98,9 +98,12 @@ export default function Ele({
 							value: 'distance',
 							position: 'bottom',
 							offset: 25,
+							fill: chartColors.axisLabel,
 						}}
 						angle={45}
 						tickMargin={30}
+						tick={{ fill: chartColors.tickLabel, fontSize: 11 }}
+						stroke={chartColors.axis}
 					/>
 					<YAxis
 						dataKey="elevation"
@@ -110,7 +113,10 @@ export default function Ele({
 							angle: -90,
 							position: 'insideLeft',
 							offset: -35,
+							fill: chartColors.axisLabel,
 						}}
+						tick={{ fill: chartColors.tickLabel, fontSize: 11 }}
+						stroke={chartColors.axis}
 					/>
 					<Tooltip content={<CustomTooltip />} />
 					<defs>

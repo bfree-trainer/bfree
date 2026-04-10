@@ -223,8 +223,8 @@ function RoutingStatusControl({ isRouting }: { isRouting: boolean }) {
 			onAdd() {
 				const container = L.DomUtil.create('div', 'leaflet-control');
 				container.style.cssText =
-					'background:rgba(255,255,255,0.9);padding:5px 10px;border-radius:4px;' +
-					'font-size:12px;box-shadow:0 1px 5px rgba(0,0,0,0.3);pointer-events:none;';
+					`background:${routeColors.routeLine};color:#fff;padding:5px 12px;border-radius:4px;` +
+					'font-size:12px;font-weight:500;box-shadow:0 1px 5px rgba(0,0,0,0.3);pointer-events:none;';
 				container.innerHTML = 'Finding route\u2026';
 				return container;
 			},
