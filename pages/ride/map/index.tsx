@@ -23,7 +23,6 @@ import Typography from '@mui/material/Typography';
 import OpenStreetMap from '../../../components/map/OpenStreetMap';
 import MapMarker from '../../../components/map/Marker';
 import Course from '../../../components/map/Course';
-import MapEditCourse from '../../../components/map/Edit';
 import RoutePlanner from '../../../components/map/RoutePlanner';
 import CourseList from '../../../components/CourseList';
 import StartButton from '../../../components/StartButton';
@@ -35,7 +34,6 @@ import { PersistedCourse, saveCourse } from '../../../lib/course_storage';
 type OpenStreetMapArg = Parameters<typeof OpenStreetMap>[0];
 type MapMarkerArg = Parameters<typeof MapMarker>[0];
 type CourseArg = Parameters<typeof Course>[0];
-type MapEditCourseArg = Parameters<typeof MapEditCourse>[0];
 type RoutePlannerArg = Parameters<typeof RoutePlanner>[0];
 
 const DynamicMap = dynamic<OpenStreetMapArg>(() => import('../../../components/map/OpenStreetMap'), {
@@ -45,9 +43,6 @@ const DynamicMapMarker = dynamic<MapMarkerArg>(() => import('../../../components
 	ssr: false,
 });
 const DynamicCourse = dynamic<CourseArg>(() => import('../../../components/map/Course'), {
-	ssr: false,
-});
-const DynamicMapEditCourse = dynamic<MapEditCourseArg>(() => import('../../../components/map/Edit'), {
 	ssr: false,
 });
 const DynamicRoutePlanner = dynamic<RoutePlannerArg>(
@@ -159,8 +154,20 @@ export default function RideMap() {
 		height: '70vh',
 	};
 	const [changeCount, setChangeCount] = useState<number>(0);
+	/**
+	 * Reference to the last saved version of the course.
+	 * Used to detect unsaved changes by reference equality.
+	 */
+	const [lastSavedCourse, setLastSavedCourse] = useState<CourseData | null>(null);
+
+	const routeHasData =
+		course &&
+		(course.tracks[0]?.segments[0]?.trackpoints?.length > 0 || course.routes[0]?.routepoints?.length > 0);
+	const hasUnsavedChanges = Boolean(routeHasData && course !== lastSavedCourse);
 
 	useEffect(() => {
+		// Don't auto-zoom while the route planner is active — it would pan/zoom on every waypoint.
+		if (editMode) return;
 		if (
 			map &&
 			bounds &&
@@ -171,7 +178,7 @@ export default function RideMap() {
 				[bounds.maxlat, bounds.maxlon],
 			]);
 		}
-	}, [map, bounds]);
+	}, [map, bounds, editMode]);
 
 	const clearCourseName = () => setCourseName(DEFAULT_COURSE_NAME);
 	const importGpx = async (file: File) => {
@@ -181,7 +188,6 @@ export default function RideMap() {
 			const xmlDoc = await parseGpxFile2Document(file);
 
 			data = gpxDocument2obj(xmlDoc);
-			setCourse(data);
 		} catch (err) {
 			console.error('Would be nice to show this:', err);
 		}
@@ -194,6 +200,7 @@ export default function RideMap() {
 
 			if (file) {
 				data = await importGpx(file);
+				setCourse(data ?? null);
 			} else {
 				data = {
 					tracks: [],
@@ -214,16 +221,19 @@ export default function RideMap() {
 			setCourseName(name);
 
 			await saveCourse(name, '', data);
+			setLastSavedCourse(data ?? null);
 			setChangeCount(changeCount + 1);
 		})();
 	};
 	const selectCourse = (persistedCourse: PersistedCourse) => {
 		setCourse(persistedCourse.course);
+		setLastSavedCourse(persistedCourse.course);
 		setCourseName(persistedCourse.name);
 	};
 
 	const handleClearMap = () => {
 		setCourse(null);
+		setLastSavedCourse(null);
 		clearCourseName();
 		// Force RoutePlanner to remount so its internal state is cleared too.
 		setRoutePlannerKey((k) => k + 1);
@@ -237,12 +247,9 @@ export default function RideMap() {
 	const saveCurrentRoute = async () => {
 		if (!course) return;
 		await saveCourse(courseName, '', course);
+		setLastSavedCourse(course);
 		setChangeCount((c) => c + 1);
 	};
-
-	const routeHasData =
-		course &&
-		(course.tracks[0]?.segments[0]?.trackpoints?.length > 0 || course.routes[0]?.routepoints?.length > 0);
 
 	return (
 		<Container maxWidth="md">
@@ -285,16 +292,14 @@ export default function RideMap() {
 									sx={{ ml: 1, textTransform: 'uppercase' }}
 								/>
 							</FormGroup>
-							{editMode && (
-								<Button
-									variant="contained"
-									color="success"
-									onClick={saveCurrentRoute}
-									disabled={!routeHasData}
-								>
-									Save Route
-								</Button>
-							)}
+							<Button
+								variant="contained"
+								color="success"
+								onClick={saveCurrentRoute}
+								disabled={!hasUnsavedChanges}
+							>
+								Save Route
+							</Button>
 						</ButtonGroup>
 					</Grid>
 
