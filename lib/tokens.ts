@@ -37,6 +37,16 @@ export const routeColors = {
 	segmentEnd: '#f44336',
 } as const;
 
+// ---------------------------------------------------------------------------
+// Chart chrome colors — axes, gridlines, tick labels
+// ---------------------------------------------------------------------------
+export const chartColors = {
+	grid: '#e0e0e0',
+	axis: '#bdbdbd',
+	tickLabel: '#757575',
+	axisLabel: '#616161',
+} as const;
+
 /**
  * Ordered array matching the DataGraph series order:
  * [heart_rate, power, speed]
