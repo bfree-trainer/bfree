@@ -162,7 +162,7 @@ export function createActivityLog() {
 		 * Total distance in meters.
 		 */
 		getTotalDistance: (): number => {
-			return laps.reduce((t, lap) => t + lap.distanceMeters, 0);
+			return laps.reduce((t, lap) => t + (lap.distanceMeters ?? 0), 0);
 		},
 		getTotalCalories: (): number => {
 			return laps.reduce((t, lap) => t + lap.calories, 0);
