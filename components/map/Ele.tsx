@@ -30,7 +30,7 @@ export default function Ele({
 			];
 		}
 
-		return course.tracks.flatMap((track) =>
+		const points = course.tracks.flatMap((track) =>
 			track.segments
 				.map(({ trackpoints: tp }) => tp)
 				.flat(1)
@@ -39,10 +39,20 @@ export default function Ele({
 						i === 0
 							? dist.current
 							: (dist.current += haversine([arr[i - 1].lat, arr[i - 1].lon], [tp.lat, tp.lon])),
-					elevation: tp.ele,
+					elevation: tp.ele ?? 0,
 					position: [tp.lat, tp.lon] as [number, number],
 				}))
 		);
+
+		// When fewer than 2 points Recharts can't draw anything useful.
+		if (points.length < 2) {
+			return [
+				{ distance: 0, elevation: 0 },
+				{ distance: 1, elevation: 0 },
+			];
+		}
+
+		return points;
 	}, [course]);
 
 	const formatValue = (value: number) => `${value.toFixed(2)}m`;
