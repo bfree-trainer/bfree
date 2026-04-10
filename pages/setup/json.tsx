@@ -12,10 +12,9 @@ import Grid from '@mui/material/Grid';
 import MyHead from 'components/MyHead';
 import Title from 'components/Title';
 import Typography from '@mui/material/Typography';
-import Alert from '@mui/material/Alert';
 import { styled } from '@mui/material/styles';
-import { ChangeEvent, useState } from 'react';
-import { exportConfig, importConfig } from 'lib/global';
+import { ChangeEvent } from 'react';
+import { exportConfig, importConfig, addNotification } from 'lib/global';
 import downloadBlob from 'lib/download_blob';
 
 const VisuallyHiddenInput = styled('input')({
@@ -31,13 +30,11 @@ const VisuallyHiddenInput = styled('input')({
 });
 
 function ImportJsonCard() {
-	const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
-
 	const handleImport = (event: ChangeEvent<HTMLInputElement>) => {
-		const file = event.target.files[0];
+		const file = event.target.files?.[0];
 
 		if (!file) {
-			setStatus({ type: 'error', message: 'No file selected.' });
+			addNotification({ severity: 'error', text: 'No file selected.' });
 			return;
 		}
 
@@ -45,13 +42,13 @@ function ImportJsonCard() {
 		reader.onload = () => {
 			try {
 				importConfig(reader.result as string);
-				setStatus({ type: 'success', message: 'Settings imported successfully.' });
+				addNotification({ severity: 'success', text: 'Settings imported successfully.' });
 			} catch {
-				setStatus({ type: 'error', message: 'Invalid settings file.' });
+				addNotification({ severity: 'error', text: 'Invalid settings file.' });
 			}
 		};
 		reader.onerror = () => {
-			setStatus({ type: 'error', message: 'Could not read the file.' });
+			addNotification({ severity: 'error', text: 'Could not read the file.' });
 		};
 		reader.readAsText(file);
 	};
@@ -63,11 +60,6 @@ function ImportJsonCard() {
 					<Typography gutterBottom variant="h5" component="h2">
 						Import Settings
 					</Typography>
-					{status && (
-						<Alert severity={status.type} onClose={() => setStatus(null)}>
-							{status.message}
-						</Alert>
-					)}
 				</CardContent>
 				<CardActions sx={{ display: 'flex', justifyContent: 'flex-end' }}>
 					<Button component="label" variant="contained">

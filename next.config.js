@@ -7,7 +7,8 @@ module.exports = {
 		// Base URL of the OSRM routing server (bicycle profile).
 		// Override to point to a self-hosted OSRM instance:
 		// https://project-osrm.org/
-		NEXT_PUBLIC_OSRM_BASE_URL:
-			process.env.NEXT_PUBLIC_OSRM_BASE_URL || 'https://router.project-osrm.org/route/v1',
+		NEXT_PUBLIC_OSRM_BASE_URL: process.env.NEXT_PUBLIC_OSRM_BASE_URL || 'https://router.project-osrm.org/route/v1',
+		// Set to '1' to enable the trainer emulator (opt-in, build-time flag).
+		NEXT_PUBLIC_TRAINER_EMULATOR: process.env.NEXT_PUBLIC_TRAINER_EMULATOR || '',
 	},
 }

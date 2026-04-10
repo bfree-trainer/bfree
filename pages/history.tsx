@@ -31,6 +31,7 @@ import BottomNavi from 'components/BottomNavi';
 import MyHead from 'components/MyHead';
 import Title from 'components/Title';
 import EditRideModal from 'components/EditRideModal';
+import RideStatsPanel from 'components/RideStatsPanel';
 import downloadBlob from 'lib/download_blob';
 import { deleteActivityLog, getActivityLogs } from 'lib/activity_log';
 import { getElapsedTimeStr } from 'lib/format';
@@ -57,7 +58,6 @@ const classes = {
 const StyledContainer = styled(Container)(({ theme }) => ({
 	[`& .${classes.cardRoot}`]: {
 		width: '100%',
-		maxWidth: 345,
 	},
 
 	[`& .${classes.fab}`]: {
@@ -227,7 +227,7 @@ function RideCard({ log, onSelect }: { log: Log; onSelect: (v: boolean) => void 
 	};
 
 	return (
-		<Grid item xs={12}>
+		<Grid item sx={{ width: '100%', maxWidth: 400 }}>
 			<Card variant="outlined" className={classes.cardRoot}>
 				<CardHeader
 					avatar={
@@ -253,6 +253,7 @@ function RideCard({ log, onSelect }: { log: Log; onSelect: (v: boolean) => void 
 					}
 					title={name}
 					subheader={log.date}
+					titleTypographyProps={{ noWrap: true }}
 				/>
 				{/* Minimap showing ride route if GPS location data is available */}
 				<DynamicRideMiniMap logger={log.logger} />
@@ -319,7 +320,7 @@ export default function History() {
 	}, [logs]);
 
 	return (
-		<StyledContainer maxWidth="md">
+		<StyledContainer maxWidth="lg">
 			<MyHead title="Previous Rides" />
 			<Box>
 				<Title href="/">{isBreakpoint ? 'Previous Rides' : 'Rides'}</Title>
@@ -327,22 +328,37 @@ export default function History() {
 					Manage and export previous rides.
 				</Typography>
 
-				<Grid container direction="column" alignItems="center" spacing={2}>
-					{logs.map((log) => (
-						<RideCard
-							log={log}
-							onSelect={(v: boolean) => {
-								if (v) {
-									selectionRef.current.set(log, true);
-									setSelectionCount(selectionCount + 1);
-								} else {
-									selectionRef.current.delete(log);
-									setSelectionCount(selectionCount - 1);
-								}
-							}}
-							key={log.id}
-						/>
-					))}
+				<Grid container spacing={3} alignItems="flex-start">
+					<Grid item xs={12} md={8}>
+						<Grid container direction="column" alignItems="center" spacing={2}>
+							{logs.map((log) => (
+								<RideCard
+									log={log}
+									onSelect={(v: boolean) => {
+										if (v) {
+											selectionRef.current.set(log, true);
+											setSelectionCount(selectionCount + 1);
+										} else {
+											selectionRef.current.delete(log);
+											setSelectionCount(selectionCount - 1);
+										}
+									}}
+									key={log.id}
+								/>
+							))}
+						</Grid>
+					</Grid>
+					<Grid
+						item
+						xs={12}
+						md={4}
+						sx={{
+							position: { md: 'sticky' },
+							top: { md: 16 },
+						}}
+					>
+						<RideStatsPanel logs={logs} />
+					</Grid>
 				</Grid>
 			</Box>
 			<BottomNavi>
