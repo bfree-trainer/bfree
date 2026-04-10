@@ -14,15 +14,17 @@ const OpenStreetMap = ({
 	width,
 	height,
 	setMap,
+	ariaLabel,
 }: {
 	children?: ReactNode;
 	center: number[];
 	width: string;
 	height: string;
 	setMap: any;
+	ariaLabel?: string;
 }) => {
 	return (
-		<Box>
+		<Box role="region" aria-label={ariaLabel || 'Map'}>
 			<MapContainer
 				style={{
 					width,

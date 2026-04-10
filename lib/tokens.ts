@@ -19,6 +19,24 @@ export const metricColors = {
 	elevation: '#8884d8',
 } as const;
 
+// ---------------------------------------------------------------------------
+// Route / map colors — used in map markers, polylines, and route planning
+// ---------------------------------------------------------------------------
+export const routeColors = {
+	/** Start waypoint (matches MUI success.main) */
+	start: '#4CAF50',
+	/** End waypoint (matches MUI error.main) */
+	end: '#f44336',
+	/** Via / intermediate waypoint (matches MUI primary.main) */
+	via: '#1976D2',
+	/** Route polyline */
+	routeLine: '#1976D2',
+	/** Course segment start marker */
+	segmentStart: '#1976D2',
+	/** Course segment end marker */
+	segmentEnd: '#f44336',
+} as const;
+
 /**
  * Ordered array matching the DataGraph series order:
  * [heart_rate, power, speed]

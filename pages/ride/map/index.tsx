@@ -109,7 +109,7 @@ const RouteSwitch = styled((props: SwitchProps) => (
   },
   '& .MuiSwitch-track': {
     borderRadius: 36 / 2,
-    backgroundColor: theme.palette.mode === 'light' ? '#E9E9EA' : '#39393D',
+    backgroundColor: theme.palette.grey[300],
     opacity: 1,
     transition: theme.transitions.create(['background-color'], {
       duration: 500,
@@ -150,10 +150,7 @@ export default function RideMap() {
 	const [course, setCourse] = useState<CourseData | null>(null);
 	const [courseName, setCourseName] = useState<string>(DEFAULT_COURSE_NAME);
 	const bounds = useMemo(() => course && getMapBounds(course), [course]);
-	const mapSize = {
-		width: '70vw',
-		height: '70vh',
-	};
+	const mapHeight = 'clamp(300px, 55vh, 650px)';
 	const [changeCount, setChangeCount] = useState<number>(0);
 	/**
 	 * Reference to the last saved version of the course.
@@ -375,7 +372,7 @@ export default function RideMap() {
 					</Grid>
 
 					<Grid item xs={12} md={8}>
-						<DynamicMap center={homeCoord} width={'100%'} height={mapSize.height} setMap={setMap}>
+						<DynamicMap center={homeCoord} width={'100%'} height={mapHeight} setMap={setMap} ariaLabel="Route planner map">
 							<DynamicMapMarker icon={<IconHome />} position={homeCoord}>
 								You are here.
 							</DynamicMapMarker>

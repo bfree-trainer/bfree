@@ -2,8 +2,11 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import { useMemo, useRef } from 'react';
-import { LineChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area } from 'recharts';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import Box from '@mui/material/Box';
+import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
+import { AreaChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area } from 'recharts';
 import { CourseData } from '../../lib/gpx_parser';
 import haversine from '../../lib/haversine';
 import { metricColors } from '../../lib/tokens';
@@ -44,30 +47,48 @@ export default function Ele({
 
 	const formatValue = (value: number) => `${value.toFixed(2)}m`;
 
-	const CustomTooltip = ({ active, payload }: any) => {
-		if (active && payload && payload[0]) {
-			const point = payload[0].payload;
-			if (point.position) {
-				moveMarker(point.position);
-				showMarker(true);
-			}
-			return (
-				<div className="bg-white p-2 border rounded shadow">
-					<p>{`Distance: ${formatValue(point.distance)}`}</p>
-					<p>{`Elevation: ${formatValue(point.elevation)}`}</p>
-				</div>
-			);
+	// Track the latest hovered point so we can update the marker in an effect
+	// rather than during the render phase of CustomTooltip.
+	const [hoveredPoint, setHoveredPoint] = useState<{ position: [number, number] } | null>(null);
+
+	useEffect(() => {
+		if (hoveredPoint?.position) {
+			moveMarker(hoveredPoint.position);
+			showMarker(true);
 		}
-		return null;
+	}, [hoveredPoint, moveMarker, showMarker]);
+
+	const handleMouseLeave = useCallback(() => {
+		setHoveredPoint(null);
+		showMarker(false);
+	}, [showMarker]);
+
+	const CustomTooltip = ({ active, payload }: any) => {
+		const point = active && payload?.[0]?.payload;
+
+		useEffect(() => {
+			if (point?.position) {
+				setHoveredPoint(point);
+			}
+		}, [point]);
+
+		if (!point) return null;
+
+		return (
+			<Paper variant="outlined" sx={{ px: 1.5, py: 1 }}>
+				<Typography variant="body2">{`Distance: ${formatValue(point.distance)}`}</Typography>
+				<Typography variant="body2">{`Elevation: ${formatValue(point.elevation)}`}</Typography>
+			</Paper>
+		);
 	};
 
 	return (
-		<div className="w-full h-64">
+		<Box sx={{ width: '100%', height: 256 }}>
 			<ResponsiveContainer>
-				<LineChart
+				<AreaChart
 					data={data}
 					margin={{ top: 10, right: 10, bottom: 50, left: 45 }}
-					onMouseLeave={() => showMarker(false)}
+					onMouseLeave={handleMouseLeave}
 				>
 					<CartesianGrid strokeDasharray="3 3" />
 					<XAxis
@@ -105,8 +126,8 @@ export default function Ele({
 						fill="url(#elevationGradient)"
 						dot={false}
 					/>
-				</LineChart>
+				</AreaChart>
 			</ResponsiveContainer>
-		</div>
+		</Box>
 	);
 }

@@ -5,7 +5,7 @@
 'use client';
 import L from 'leaflet';
 import { Marker, Popup } from 'react-leaflet';
-import { ReactNode } from 'react';
+import { ReactNode, useMemo } from 'react';
 import { renderToString } from 'react-dom/server';
 import MarkerIcon from '../../node_modules/leaflet/dist/images/marker-icon.png';
 import MarkerShadow from '../../node_modules/leaflet/dist/images/marker-shadow.png';
@@ -40,11 +40,13 @@ export default function MapMarker({
 	hidden?: boolean;
 	children?: ReactNode;
 }) {
+	const resolvedIcon = useMemo(() => createMarkerIcon(icon), [icon]);
+
 	return (
 		<Marker
 			position={position}
 			// @ts-ignore
-			icon={createMarkerIcon(icon)}
+			icon={resolvedIcon}
 			hidden={hidden}
 		>
 			<Popup>{children}</Popup>

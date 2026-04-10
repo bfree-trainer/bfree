@@ -7,6 +7,7 @@ import { useMap, useMapEvents, Polyline, Marker, Tooltip } from 'react-leaflet';
 import L from 'leaflet';
 import { CourseData, Coord } from '../../lib/gpx_parser';
 import { getOsrmRoute } from '../../lib/routing';
+import { routeColors } from '../../lib/tokens';
 import 'leaflet/dist/leaflet.css';
 
 // ---------------------------------------------------------------------------
@@ -128,12 +129,10 @@ function courseToInitialState(course: CourseData | null | undefined): RoutePlann
 }
 
 function createWaypointIcon(type: 'start' | 'end' | 'via') {
-	// Colors intentionally match MUI default palette tokens:
-	//   success.main = #4CAF50, error.main = #f44336, primary.main = #1976D2
 	const colors: Record<typeof type, string> = {
-		start: '#4CAF50',
-		end: '#f44336',
-		via: '#1976D2',
+		start: routeColors.start,
+		end: routeColors.end,
+		via: routeColors.via,
 	};
 	const color = colors[type];
 	const size = type === 'via' ? 10 : 14;
@@ -142,7 +141,7 @@ function createWaypointIcon(type: 'start' | 'end' | 'via') {
 		html: `<div style="
 			width:${size}px;height:${size}px;
 			background:${color};
-			border:2px solid #fff;
+			border:2px solid #fafafa;
 			border-radius:50%;
 			box-shadow:0 1px 4px rgba(0,0,0,0.5);
 			cursor:grab;
@@ -405,7 +404,7 @@ export default function RoutePlanner({
 			<RoutingStatusControl isRouting={state.isRouting} />
 
 			{routedPath.length > 1 && (
-				<Polyline positions={routedPath} pathOptions={{ color: '#1976D2', weight: 4, opacity: 0.85 }} />
+				<Polyline positions={routedPath} pathOptions={{ color: routeColors.routeLine, weight: 4, opacity: 0.85 }} />
 			)}
 
 			{state.waypoints.map(({ lat, lon }, i) => {
