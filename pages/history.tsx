@@ -58,7 +58,6 @@ const classes = {
 const StyledContainer = styled(Container)(({ theme }) => ({
 	[`& .${classes.cardRoot}`]: {
 		width: '100%',
-		maxWidth: 400,
 	},
 
 	[`& .${classes.fab}`]: {
@@ -228,7 +227,7 @@ function RideCard({ log, onSelect }: { log: Log; onSelect: (v: boolean) => void 
 	};
 
 	return (
-		<Grid item xs={12}>
+		<Grid item sx={{ width: '100%', maxWidth: 400 }}>
 			<Card variant="outlined" className={classes.cardRoot}>
 				<CardHeader
 					avatar={
@@ -254,6 +253,7 @@ function RideCard({ log, onSelect }: { log: Log; onSelect: (v: boolean) => void 
 					}
 					title={name}
 					subheader={log.date}
+					titleTypographyProps={{ noWrap: true }}
 				/>
 				{/* Minimap showing ride route if GPS location data is available */}
 				<DynamicRideMiniMap logger={log.logger} />
