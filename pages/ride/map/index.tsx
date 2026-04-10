@@ -18,6 +18,7 @@ import IconRoute from '@mui/icons-material/Route';
 import MyHead from '../../../components/MyHead';
 import Paper from '@mui/material/Paper';
 import Switch, {SwitchProps} from '@mui/material/Switch';
+import TextField from '@mui/material/TextField';
 import Title from '../../../components/Title';
 import Typography from '@mui/material/Typography';
 import OpenStreetMap from '../../../components/map/OpenStreetMap';
@@ -229,6 +230,8 @@ export default function RideMap() {
 		setCourse(persistedCourse.course);
 		setLastSavedCourse(persistedCourse.course);
 		setCourseName(persistedCourse.name);
+		// Force RoutePlanner to remount so it re-initialises from the newly selected course.
+		setRoutePlannerKey((k) => k + 1);
 	};
 
 	const handleClearMap = () => {
@@ -265,7 +268,15 @@ export default function RideMap() {
 						<Typography variant="h6">Courses</Typography>
 					</Grid>
 					<Grid item xs={12} sm={2}>
-						<Typography variant="h6">{courseName}</Typography>
+						<TextField
+							value={courseName}
+							onChange={(e) => setCourseName(e.target.value)}
+							variant="standard"
+							size="small"
+							label="Course name"
+							inputProps={{ maxLength: 200 }}
+							sx={{ width: '100%' }}
+						/>
 					</Grid>
 					<Grid item xs={12} sm={6}>
 						<ButtonGroup variant="contained" sx={{ flexWrap: 'wrap', gap: '4px' }}>
@@ -325,8 +336,12 @@ export default function RideMap() {
 								hidden={!showMarker}
 							></DynamicMapMarker>
 							{editMode ? (
-								<DynamicRoutePlanner key={routePlannerKey} setCourse={setCourse} />
-							) : null}
+							<DynamicRoutePlanner
+								key={routePlannerKey}
+								setCourse={setCourse}
+								initialCourse={course}
+							/>
+						) : null}
 							{course && !editMode ? <DynamicCourse course={course} /> : null}
 						</DynamicMap>
 					</Grid>

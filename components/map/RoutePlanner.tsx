@@ -14,11 +14,11 @@ import 'leaflet/dist/leaflet.css';
 // ---------------------------------------------------------------------------
 
 type RoutePlannerState = {
-	/** User-clicked anchor points. */
+	/** User-placed or loaded anchor waypoints. */
 	waypoints: Coord[];
 	/**
 	 * Routed segments:
-	 *   segments[0] = [waypoints[0]]  (single-point seed for the first click)
+	 *   segments[0] = [waypoints[0]]  (single-point seed)
 	 *   segments[i>0] = OSRM route from waypoints[i-1] to waypoints[i],
 	 *                   with the first coordinate omitted to avoid duplication.
 	 */
@@ -28,6 +28,7 @@ type RoutePlannerState = {
 
 type RoutePlannerAction =
 	| { type: 'ADD_POINT'; waypoint: Coord; segment: Coord[] }
+	| { type: 'MOVE_WAYPOINT'; index: number; waypoint: Coord; prevSegment?: Coord[]; nextSegment?: Coord[] }
 	| { type: 'UNDO' }
 	| { type: 'CLEAR' }
 	| { type: 'SET_ROUTING'; value: boolean };
@@ -41,6 +42,24 @@ function routePlannerReducer(state: RoutePlannerState, action: RoutePlannerActio
 				segments: [...state.segments, action.segment],
 				isRouting: false,
 			};
+		case 'MOVE_WAYPOINT': {
+			const newWaypoints = [...state.waypoints];
+			const newSegments = [...state.segments];
+			newWaypoints[action.index] = action.waypoint;
+			// When the first waypoint moves, update its seed segment too.
+			if (action.index === 0) {
+				newSegments[0] = [action.waypoint];
+			}
+			// Segment coming INTO this waypoint from the previous one.
+			if (action.prevSegment !== undefined && action.index > 0) {
+				newSegments[action.index] = action.prevSegment;
+			}
+			// Segment going OUT from this waypoint to the next one.
+			if (action.nextSegment !== undefined && action.index + 1 < state.segments.length) {
+				newSegments[action.index + 1] = action.nextSegment;
+			}
+			return { ...state, waypoints: newWaypoints, segments: newSegments, isRouting: false };
+		}
 		case 'UNDO':
 			if (state.waypoints.length === 0) return state;
 			return {
@@ -61,8 +80,51 @@ function routePlannerReducer(state: RoutePlannerState, action: RoutePlannerActio
 // Helper utilities
 // ---------------------------------------------------------------------------
 
+/**
+ * Build an initial planner state from an existing course by sampling up to
+ * MAX_WAYPOINTS evenly-spaced anchor points from the first track segment.
+ */
+const MAX_INITIAL_WAYPOINTS = 15;
+
+function courseToInitialState(course: CourseData | null | undefined): RoutePlannerState {
+	const trackpoints = course?.tracks[0]?.segments[0]?.trackpoints ?? [];
+	if (trackpoints.length === 0) return { waypoints: [], segments: [], isRouting: false };
+
+	if (trackpoints.length === 1) {
+		const wp: Coord = { lat: trackpoints[0].lat, lon: trackpoints[0].lon };
+		return { waypoints: [wp], segments: [[wp]], isRouting: false };
+	}
+
+	// Sample evenly-spaced indices, always including the last trackpoint.
+	const samplingInterval = Math.max(1, Math.floor((trackpoints.length - 1) / (MAX_INITIAL_WAYPOINTS - 1)));
+	const indices: number[] = [];
+	for (let i = 0; i < trackpoints.length - 1; i += samplingInterval) {
+		indices.push(i);
+	}
+	indices.push(trackpoints.length - 1);
+	const uniqueIndices = [...new Set(indices)];
+
+	const waypoints: Coord[] = uniqueIndices.map((i) => ({
+		lat: trackpoints[i].lat,
+		lon: trackpoints[i].lon,
+	}));
+
+	// segments[0] = seed.
+	// segments[i>0] = trackpoints from (prevIdx + 1) to currIdx inclusive,
+	//   which matches the ADD_POINT convention (first coord = prevWp is omitted).
+	const segments: Coord[][] = [
+		[waypoints[0]],
+		...uniqueIndices.slice(1).map((endIdx, j) => {
+			const startIdx = uniqueIndices[j] + 1;
+			return trackpoints.slice(startIdx, endIdx + 1).map((tp) => ({ lat: tp.lat, lon: tp.lon }));
+		}),
+	];
+
+	return { waypoints, segments, isRouting: false };
+}
+
 function createWaypointIcon(type: 'start' | 'end' | 'via') {
-	// Colors intentionally match the MUI default palette tokens:
+	// Colors intentionally match MUI default palette tokens:
 	//   success.main = #4CAF50, error.main = #f44336, primary.main = #1976D2
 	const colors: Record<typeof type, string> = {
 		start: '#4CAF50',
@@ -79,6 +141,7 @@ function createWaypointIcon(type: 'start' | 'end' | 'via') {
 			border:2px solid #fff;
 			border-radius:50%;
 			box-shadow:0 1px 4px rgba(0,0,0,0.5);
+			cursor:grab;
 		"></div>`,
 		iconSize: [size, size],
 		iconAnchor: [size / 2, size / 2],
@@ -193,21 +256,41 @@ function MapCursorCrosshair() {
 // Main component
 // ---------------------------------------------------------------------------
 
-export default function RoutePlanner({ setCourse }: { setCourse: (c: CourseData) => void }) {
-	const [state, dispatch] = useReducer(routePlannerReducer, {
-		waypoints: [],
-		segments: [],
-		isRouting: false,
-	});
+export default function RoutePlanner({
+	setCourse,
+	initialCourse,
+}: {
+	setCourse: (c: CourseData) => void;
+	initialCourse?: CourseData | null;
+}) {
+	const [state, dispatch] = useReducer(
+		routePlannerReducer,
+		initialCourse,
+		courseToInitialState,
+	);
 
-	// Keep setCourse in a ref so the useEffect below never goes stale.
+	// Keep setCourse in a ref so the sync effect never goes stale.
 	const setCourseRef = useRef(setCourse);
 	useEffect(() => {
 		setCourseRef.current = setCourse;
 	});
 
+	// Keep a stable ref to state for async drag/click handlers.
+	const stateRef = useRef(state);
+	useEffect(() => {
+		stateRef.current = state;
+	});
+
+	// Track whether this is the initial mount — skip the first sync so that
+	// loading an existing course doesn't mark it as unsaved immediately.
+	const isMountedRef = useRef(false);
+
 	// Sync the parent course whenever the accumulated segments change.
 	useEffect(() => {
+		if (!isMountedRef.current) {
+			isMountedRef.current = true;
+			return;
+		}
 		if (state.segments.length === 0) return;
 
 		// Flatten segments, skipping the first point of each segment after the
@@ -236,6 +319,33 @@ export default function RoutePlanner({ setCourse }: { setCourse: (c: CourseData)
 		setCourseRef.current({ tracks: [], routes: [], waypoints: [] });
 	};
 
+	/** Re-route the segments adjacent to a dragged waypoint. */
+	const handleMoveWaypoint = async (index: number, newWp: Coord) => {
+		const { waypoints, isRouting } = stateRef.current;
+		if (isRouting) return;
+		dispatch({ type: 'SET_ROUTING', value: true });
+
+		let prevSegment: Coord[] | undefined;
+		let nextSegment: Coord[] | undefined;
+
+		try {
+			if (index > 0) {
+				const routeCoords = await getOsrmRoute([waypoints[index - 1], newWp]);
+				prevSegment = routeCoords.slice(1);
+			}
+			if (index < waypoints.length - 1) {
+				const routeCoords = await getOsrmRoute([newWp, waypoints[index + 1]]);
+				nextSegment = routeCoords.slice(1);
+			}
+		} catch (err) {
+			console.error('OSRM routing failed during waypoint drag, falling back to straight line:', err);
+			if (index > 0) prevSegment = [newWp];
+			if (index < waypoints.length - 1) nextSegment = [waypoints[index + 1]];
+		}
+
+		dispatch({ type: 'MOVE_WAYPOINT', index, waypoint: newWp, prevSegment, nextSegment });
+	};
+
 	// Keyboard shortcut: Ctrl/Cmd+Z → undo.
 	useEffect(() => {
 		const onKeyDown = (e: KeyboardEvent) => {
@@ -250,18 +360,20 @@ export default function RoutePlanner({ setCourse }: { setCourse: (c: CourseData)
 
 	useMapEvents({
 		click: async (e) => {
-			if (state.isRouting) return;
+			// Use stateRef to avoid stale-closure issues in async handlers.
+			const { isRouting, waypoints } = stateRef.current;
+			if (isRouting) return;
 
 			const newWp: Coord = { lat: e.latlng.lat, lon: e.latlng.lng };
 
-			if (state.waypoints.length === 0) {
+			if (waypoints.length === 0) {
 				// First waypoint – seed the first segment with a single point.
 				dispatch({ type: 'ADD_POINT', waypoint: newWp, segment: [newWp] });
 				return;
 			}
 
 			dispatch({ type: 'SET_ROUTING', value: true });
-			const prevWp = state.waypoints[state.waypoints.length - 1];
+			const prevWp = waypoints[waypoints.length - 1];
 
 			try {
 				const routeCoords = await getOsrmRoute([prevWp, newWp]);
@@ -289,20 +401,33 @@ export default function RoutePlanner({ setCourse }: { setCourse: (c: CourseData)
 				<Polyline positions={routedPath} pathOptions={{ color: '#1976D2', weight: 4, opacity: 0.85 }} />
 			)}
 
-			{state.waypoints.map(({ lat, lon }, i) => (
-				<Marker
-					key={i}
-					position={[lat, lon]}
-					// @ts-expect-error icon prop not in react-leaflet type defs
-					icon={createWaypointIcon(
-						i === 0 ? 'start' : i === state.waypoints.length - 1 ? 'end' : 'via',
-					)}
-				>
-					<Tooltip>
-						{i === 0 ? 'Start' : i === state.waypoints.length - 1 ? `End (${i + 1} points)` : `Via point ${i}`}
-					</Tooltip>
-				</Marker>
-			))}
+			{state.waypoints.map(({ lat, lon }, i) => {
+				const isStart = i === 0;
+				const isEnd = i === state.waypoints.length - 1;
+				const type = isStart ? 'start' : isEnd ? 'end' : 'via';
+				const label = isStart
+					? 'Start'
+					: isEnd
+						? 'End'
+						: `Waypoint ${i + 1}`;
+				// draggable and icon are not in react-leaflet's MarkerProps typings.
+				const markerProps = {
+					position: [lat, lon] as [number, number],
+					draggable: true,
+					icon: createWaypointIcon(type),
+					eventHandlers: {
+						dragend: (e: { target: L.Marker }) => {
+							const latlng = e.target.getLatLng();
+							handleMoveWaypoint(i, { lat: latlng.lat, lon: latlng.lng });
+						},
+					},
+				};
+				return (
+					<Marker key={i} {...markerProps}>
+						<Tooltip>{label}</Tooltip>
+					</Marker>
+				);
+			})}
 		</>
 	);
 }
