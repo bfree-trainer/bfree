@@ -230,6 +230,7 @@ export default function RideMap() {
 		setCourse(persistedCourse.course);
 		setLastSavedCourse(persistedCourse.course);
 		setCourseName(persistedCourse.name);
+		setEditMode(false);
 		// Force RoutePlanner to remount so it re-initialises from the newly selected course.
 		setRoutePlannerKey((k) => k + 1);
 	};
