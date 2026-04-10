@@ -7,6 +7,7 @@ import { useMap, CircleMarker } from 'react-leaflet';
 import AntPath from '../../components/map/AntPath';
 import MapWaypoint from './Waypoint';
 import { CourseData, Segment as SegmentType } from '../../lib/gpx_parser';
+import { routeColors } from '../../lib/tokens';
 
 function trackSegmentsToPolylines(segments: SegmentType[]) {
 	return segments.map((seg) => seg.trackpoints.map(({ lat, lon }) => [lat, lon]));
@@ -23,9 +24,9 @@ function Segment({ polyline }) {
 	return (
 		<>
 			{/* @ts-ignore*/}
-			<CircleMarker center={first} radius={20} pathOptions={{ color: 'blue' }} />
+			<CircleMarker center={first} radius={20} pathOptions={{ color: routeColors.segmentStart }} />
 			{/* @ts-ignore*/}
-			<CircleMarker center={last} radius={20} pathOptions={{ color: 'red' }} />
+			<CircleMarker center={last} radius={20} pathOptions={{ color: routeColors.segmentEnd }} />
 			<AntPath positions={polyline} options={{ hardwareAccelerated: true, delay: 2000 }} />
 		</>
 	);
