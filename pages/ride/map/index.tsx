@@ -4,6 +4,7 @@
 
 import dynamic from 'next/dynamic';
 import { useEffect, useMemo, useState } from 'react';
+import { styled } from '@mui/material/styles'
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
@@ -16,7 +17,7 @@ import IconBike from '@mui/icons-material/DirectionsBike';
 import IconRoute from '@mui/icons-material/Route';
 import MyHead from '../../../components/MyHead';
 import Paper from '@mui/material/Paper';
-import Switch from '@mui/material/Switch';
+import Switch, {SwitchProps} from '@mui/material/Switch';
 import Title from '../../../components/Title';
 import Typography from '@mui/material/Typography';
 import OpenStreetMap from '../../../components/map/OpenStreetMap';
@@ -26,7 +27,7 @@ import MapEditCourse from '../../../components/map/Edit';
 import RoutePlanner from '../../../components/map/RoutePlanner';
 import CourseList from '../../../components/CourseList';
 import StartButton from '../../../components/StartButton';
-import CreateCourse from '../../../components/CreateCourse';
+import ImportCourse from '../../../components/ImportCourse';
 import Ele from '../../../components/map/Ele';
 import { CourseData, getMapBounds, gpxDocument2obj, parseGpxFile2Document } from '../../../lib/gpx_parser';
 import { PersistedCourse, saveCourse } from '../../../lib/course_storage';
@@ -56,6 +57,70 @@ const DynamicRoutePlanner = dynamic<RoutePlannerArg>(
 
 const DEFAULT_COURSE_NAME = 'Untitled';
 
+const RouteSwitch = styled((props: SwitchProps) => (
+  <Switch
+    focusVisibleClassName=".Mui-focusVisible"
+    disableRipple
+    {...props}
+    icon={
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          width: 32,
+          height: 32,
+          borderRadius: '50%',
+          backgroundColor: 'background.paper',
+          boxShadow: '0 2px 4px 0 rgba(0,0,0,0.2)',
+        }}
+      >
+        <IconRoute sx={{ fontSize: 20, color: 'text.secondary' }} />
+      </Box>
+    }
+    checkedIcon={
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          width: 32,
+          height: 32,
+          borderRadius: '50%',
+          backgroundColor: 'primary.main',
+          boxShadow: '0 2px 4px 0 rgba(0,0,0,0.2)',
+        }}
+      >
+        <IconRoute sx={{ fontSize: 20, color: 'common.white' }} />
+      </Box>
+    }
+  />
+))(({ theme }) => ({
+  width: 64,
+  height: 36,
+  padding: 0,
+  margin: 8,
+  '& .MuiSwitch-switchBase': {
+    padding: 2,
+    '&.Mui-checked': {
+      transform: 'translateX(28px)',
+      '& + .MuiSwitch-track': {
+        backgroundColor: theme.palette.primary.light,
+        opacity: 1,
+        border: 0,
+      },
+    },
+  },
+  '& .MuiSwitch-track': {
+    borderRadius: 36 / 2,
+    backgroundColor: theme.palette.mode === 'light' ? '#E9E9EA' : '#39393D',
+    opacity: 1,
+    transition: theme.transitions.create(['background-color'], {
+      duration: 500,
+    }),
+  },
+}))
+
 function MyLocationButton({ map, setPosition }) {
 	const getMyLocation = () => {
 		if (navigator.geolocation) {
@@ -81,7 +146,6 @@ function MyLocationButton({ map, setPosition }) {
 export default function RideMap() {
 	const [map, setMap] = useState(null);
 	const [editMode, setEditMode] = useState(false);
-	const [routePlannerMode, setRoutePlannerMode] = useState(false);
 	/** Increment to force-remount the RoutePlanner (e.g. on "Clear Map"). */
 	const [routePlannerKey, setRoutePlannerKey] = useState(0);
 	const [showMarker, setShowMarker] = useState<boolean>(false);
@@ -167,14 +231,6 @@ export default function RideMap() {
 
 	const handleEditModeChange = (checked: boolean) => {
 		setEditMode(checked);
-		if (checked) setRoutePlannerMode(false);
-	};
-
-	const handleRoutePlannerToggle = () => {
-		setRoutePlannerMode((prev) => {
-			if (!prev) setEditMode(false);
-			return !prev;
-		});
 	};
 
 	/** Persist the current in-memory route to localStorage. */
@@ -206,41 +262,30 @@ export default function RideMap() {
 					</Grid>
 					<Grid item xs={12} sm={6}>
 						<ButtonGroup variant="contained" sx={{ flexWrap: 'wrap', gap: '4px' }}>
-							<CreateCourse newCourse={newCourse} />
+							<ImportCourse newCourse={newCourse} />
 							<MyLocationButton map={map} setPosition={setHomeCoord} />
 							<Button
 								variant="contained"
 								color="secondary"
 								onClick={handleClearMap}
-								disabled={editMode || routePlannerMode}
 							>
-								Clear Map
+								Clear
 							</Button>
 							<FormGroup>
 								<FormControlLabel
 									control={
-										<Switch
+										<RouteSwitch
+											name="edit"
 											size="medium"
 											checked={editMode}
 											onChange={(e) => handleEditModeChange(e.target.checked)}
-											disabled={routePlannerMode}
 										/>
 									}
 									label="Edit"
 									sx={{ ml: 1, textTransform: 'uppercase' }}
 								/>
 							</FormGroup>
-							<Button
-								variant={routePlannerMode ? 'contained' : 'outlined'}
-								color={routePlannerMode ? 'primary' : 'inherit'}
-								onClick={handleRoutePlannerToggle}
-								disabled={editMode}
-								startIcon={<IconRoute />}
-								sx={{ ml: 1 }}
-							>
-								Route Planner
-							</Button>
-							{routePlannerMode && (
+							{editMode && (
 								<Button
 									variant="contained"
 									color="success"
@@ -265,11 +310,6 @@ export default function RideMap() {
 					</Grid>
 
 					<Grid item xs={12} md={8}>
-						{routePlannerMode && (
-							<Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-								Click on the map to add waypoints. The route snaps to roads using bicycle routing.
-							</Typography>
-						)}
 						<DynamicMap center={homeCoord} width={'100%'} height={mapSize.height} setMap={setMap}>
 							<DynamicMapMarker icon={<IconHome />} position={homeCoord}>
 								You are here.
@@ -279,15 +319,14 @@ export default function RideMap() {
 								position={markerCoord}
 								hidden={!showMarker}
 							></DynamicMapMarker>
-							{editMode ? <DynamicMapEditCourse initialCourse={course} setCourse={setCourse} /> : null}
-							{routePlannerMode ? (
+							{editMode ? (
 								<DynamicRoutePlanner key={routePlannerKey} setCourse={setCourse} />
 							) : null}
-							{course && !editMode && !routePlannerMode ? <DynamicCourse course={course} /> : null}
+							{course && !editMode ? <DynamicCourse course={course} /> : null}
 						</DynamicMap>
 					</Grid>
 				</Grid>
-				<StartButton disabled={editMode || routePlannerMode} href={`/ride/record?type=map&mapId=todo`} />
+				<StartButton disabled={editMode} href={`/ride/record?type=map&mapId=todo`} />
 			</Box>
 		</Container>
 	);
