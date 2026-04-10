@@ -6,6 +6,7 @@ import { useReducer, useEffect, useRef } from 'react';
 import { useMap, useMapEvents, Polyline, Marker, Tooltip } from 'react-leaflet';
 import L from 'leaflet';
 import { CourseData, Coord } from '../../lib/gpx_parser';
+import { getElevations } from '../../lib/elevation';
 import { getOsrmRoute } from '../../lib/routing';
 import { routeColors } from '../../lib/tokens';
 import 'leaflet/dist/leaflet.css';
@@ -13,6 +14,10 @@ import 'leaflet/dist/leaflet.css';
 // ---------------------------------------------------------------------------
 // State management
 // ---------------------------------------------------------------------------
+
+/** Coordinate with optional elevation — flows through the reducer so
+ *  existing ele data (e.g. from a GPX import) is preserved. */
+type EleCoord = Coord & { ele?: number };
 
 type RoutePlannerState = {
 	/** User-placed or loaded anchor waypoints. */
@@ -23,13 +28,13 @@ type RoutePlannerState = {
 	 *   segments[i>0] = OSRM route from waypoints[i-1] to waypoints[i],
 	 *                   with the first coordinate omitted to avoid duplication.
 	 */
-	segments: Coord[][];
+	segments: EleCoord[][];
 	isRouting: boolean;
 };
 
 type RoutePlannerAction =
-	| { type: 'ADD_POINT'; waypoint: Coord; segment: Coord[] }
-	| { type: 'MOVE_WAYPOINT'; index: number; waypoint: Coord; prevSegment?: Coord[]; nextSegment?: Coord[] }
+	| { type: 'ADD_POINT'; waypoint: Coord; segment: EleCoord[] }
+	| { type: 'MOVE_WAYPOINT'; index: number; waypoint: Coord; prevSegment?: EleCoord[]; nextSegment?: EleCoord[] }
 	| { type: 'UNDO' }
 	| { type: 'CLEAR' }
 	| { type: 'SET_ROUTING'; value: boolean };
@@ -117,11 +122,12 @@ function courseToInitialState(course: CourseData | null | undefined): RoutePlann
 	// segments[0] = seed.
 	// segments[i>0] = trackpoints from (prevIdx + 1) to currIdx inclusive,
 	//   which matches the ADD_POINT convention (first coord = prevWp is omitted).
-	const segments: Coord[][] = [
-		[waypoints[0]],
+	// Preserve ele when available so we don't re-fetch known elevation data.
+	const segments: EleCoord[][] = [
+		[{ ...waypoints[0], ele: trackpoints[uniqueIndices[0]].ele }],
 		...uniqueIndices.slice(1).map((endIdx, j) => {
 			const startIdx = uniqueIndices[j] + 1;
-			return trackpoints.slice(startIdx, endIdx + 1).map((tp) => ({ lat: tp.lat, lon: tp.lon }));
+			return trackpoints.slice(startIdx, endIdx + 1).map((tp) => ({ lat: tp.lat, lon: tp.lon, ele: tp.ele }));
 		}),
 	];
 
@@ -289,6 +295,9 @@ export default function RoutePlanner({
 	const isMountedRef = useRef(false);
 
 	// Sync the parent course whenever the accumulated segments change.
+	// Elevation is fetched asynchronously and patched in once available.
+	const elevationRequestRef = useRef(0);
+
 	useEffect(() => {
 		if (!isMountedRef.current) {
 			isMountedRef.current = true;
@@ -301,19 +310,95 @@ export default function RoutePlanner({
 		// so a plain flat() produces the complete, non-duplicated path.
 		const fullPath = state.segments.flat();
 
-		setCourseRef.current({
-			tracks: [
-				{
-					segments: [
-						{
-							trackpoints: fullPath.map(({ lat, lon }) => ({ lat, lon })),
-						},
-					],
-				},
-			],
-			routes: [],
-			waypoints: [],
-		});
+		// Emit immediately with whatever elevation data we already have.
+		const emitCourse = (path: EleCoord[]) => {
+			setCourseRef.current({
+				tracks: [
+					{
+						segments: [
+							{
+								trackpoints: path.map(({ lat, lon, ele }) => ({
+									lat,
+									lon,
+									...(ele != null ? { ele } : {}),
+								})),
+							},
+						],
+					},
+				],
+				routes: [],
+				waypoints: [],
+			});
+		};
+
+		emitCourse(fullPath);
+
+		// Identify points that are missing elevation data.
+		const missingIndices = fullPath
+			.map((pt, i) => (pt.ele == null ? i : -1))
+			.filter((i) => i !== -1);
+
+		// If all points already have elevation, nothing to fetch.
+		if (missingIndices.length === 0) return;
+
+		// Subsample the missing-elevation points to avoid excessive API calls.
+		// We query at most ~200 evenly-spaced missing points and interpolate
+		// between them for the remaining gaps.
+		const requestId = ++elevationRequestRef.current;
+		const MAX_QUERY = 200;
+		let sampledMissingIndices: number[];
+		if (missingIndices.length <= MAX_QUERY) {
+			sampledMissingIndices = missingIndices;
+		} else {
+			const stride = Math.max(1, Math.floor(missingIndices.length / MAX_QUERY));
+			sampledMissingIndices = [];
+			for (let i = 0; i < missingIndices.length; i += stride) {
+				sampledMissingIndices.push(missingIndices[i]);
+			}
+			if (sampledMissingIndices[sampledMissingIndices.length - 1] !== missingIndices[missingIndices.length - 1]) {
+				sampledMissingIndices.push(missingIndices[missingIndices.length - 1]);
+			}
+		}
+
+		const sampledCoords = sampledMissingIndices.map((i) => fullPath[i]);
+
+		getElevations(sampledCoords)
+			.then((elevations) => {
+				if (requestId !== elevationRequestRef.current) return;
+
+				// Map sampled results back: index in fullPath → fetched ele.
+				const fetchedEle = new Map<number, number>();
+				sampledMissingIndices.forEach((idx, j) => fetchedEle.set(idx, elevations[j]));
+
+				// Build full elevation array: keep existing ele, fill gaps
+				// by interpolating between the nearest fetched samples.
+				const enrichedPath: EleCoord[] = fullPath.map((pt) => ({ ...pt }));
+
+				// First, stamp fetched values.
+				for (const [idx, ele] of fetchedEle) {
+					enrichedPath[idx].ele = ele;
+				}
+
+				// Linearly interpolate the remaining missing points that sit
+				// between two fetched samples.
+				for (let s = 0; s < sampledMissingIndices.length - 1; s++) {
+					const startIdx = sampledMissingIndices[s];
+					const endIdx = sampledMissingIndices[s + 1];
+					const startEle = elevations[s];
+					const endEle = elevations[s + 1];
+					const span = endIdx - startIdx;
+					for (let j = startIdx + 1; j < endIdx; j++) {
+						if (enrichedPath[j].ele != null) continue; // already known
+						const t = (j - startIdx) / span;
+						enrichedPath[j].ele = startEle + t * (endEle - startEle);
+					}
+				}
+
+				emitCourse(enrichedPath);
+			})
+			.catch((err) => {
+				console.warn('Elevation lookup failed, continuing without elevation:', err);
+			});
 	}, [state.segments]);
 
 	const handleUndo = () => dispatch({ type: 'UNDO' });
