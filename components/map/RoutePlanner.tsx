@@ -82,12 +82,16 @@ function routePlannerReducer(state: RoutePlannerState, action: RoutePlannerActio
 
 /**
  * Build an initial planner state from an existing course by sampling up to
- * MAX_WAYPOINTS evenly-spaced anchor points from the first track segment.
+ * MAX_WAYPOINTS evenly-spaced anchor points from the course's trackpoints.
+ * All segments of the first track are combined so that a GPX activity with
+ * pause/resume gaps (multiple `<trkseg>` elements) is handled correctly.
  */
 const MAX_INITIAL_WAYPOINTS = 15;
 
 function courseToInitialState(course: CourseData | null | undefined): RoutePlannerState {
-	const trackpoints = course?.tracks[0]?.segments[0]?.trackpoints ?? [];
+	// Collect all trackpoints across every segment of the first track so that
+	// multi-segment activities (GPS paused/resumed) are fully represented.
+	const trackpoints = course?.tracks[0]?.segments.flatMap((s) => s.trackpoints) ?? [];
 	if (trackpoints.length === 0) return { waypoints: [], segments: [], isRouting: false };
 
 	if (trackpoints.length === 1) {
@@ -293,9 +297,10 @@ export default function RoutePlanner({
 		}
 		if (state.segments.length === 0) return;
 
-		// Flatten segments, skipping the first point of each segment after the
-		// first to avoid duplicating boundary coordinates.
-		const fullPath = state.segments.flatMap((seg, i) => (i === 0 ? seg : seg.slice(1)));
+		// Flatten all segments. Each segment[i>0] already excludes the
+		// preceding waypoint (stored via routeCoords.slice(1) in ADD_POINT),
+		// so a plain flat() produces the complete, non-duplicated path.
+		const fullPath = state.segments.flat();
 
 		setCourseRef.current({
 			tracks: [
@@ -387,8 +392,10 @@ export default function RoutePlanner({
 	});
 
 	// Flatten segments into a single [lat, lon][] array for the polyline.
+	// Each segment[i>0] already excludes its preceding waypoint, so .flat()
+	// produces the complete path without duplicating boundary coordinates.
 	const routedPath: [number, number][] = state.segments
-		.flatMap((seg, i) => (i === 0 ? seg : seg.slice(1)))
+		.flat()
 		.map(({ lat, lon }) => [lat, lon]);
 
 	return (
