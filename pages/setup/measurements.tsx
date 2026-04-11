@@ -24,8 +24,8 @@ import {
 	powerSourceTypes,
 	speedSourceTypes,
 	useGlobalState,
-} from '../../lib/global';
-import SensorValue from '../../components/SensorValue';
+} from 'lib/global';
+import SensorValue from 'components/SensorValue';
 
 // Config name mapping to plain sensor types.
 // This allows us to show just the expected value using <SensorValue>.

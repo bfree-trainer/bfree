@@ -7,7 +7,7 @@ import L from 'leaflet';
 import { FeatureGroup, Polyline } from 'react-leaflet';
 import { EditControl } from 'react-leaflet-draw';
 import { createMarkerIcon } from './Marker';
-import { CourseData, Segment, Trackpoint } from '../../lib/gpx_parser';
+import { CourseData, Segment, Trackpoint } from 'lib/gpx_parser';
 import MapWaypoint from './Waypoint';
 import 'leaflet/leaflet.css';
 import 'leaflet-draw/leaflet.draw.css';

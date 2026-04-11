@@ -7,10 +7,10 @@ import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import { AreaChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area } from 'recharts';
-import { CourseData } from '../../lib/gpx_parser';
-import haversine from '../../lib/haversine';
-import { metricColors, chartColors } from '../../lib/tokens';
-import { smartDistanceUnitFormat } from '../../lib/units';
+import { CourseData } from 'lib/gpx_parser';
+import haversine from 'lib/haversine';
+import { metricColors, chartColors } from 'lib/tokens';
+import { smartDistanceUnitFormat } from 'lib/units';
 
 type ChartPoint = {
 	distance: number;

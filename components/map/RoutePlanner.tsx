@@ -5,10 +5,10 @@
 import { useReducer, useEffect, useRef } from 'react';
 import { useMap, useMapEvents, Polyline, Marker, Tooltip, Popup } from 'react-leaflet';
 import L from 'leaflet';
-import { CourseData, Coord } from '../../lib/gpx_parser';
-import { getElevations } from '../../lib/elevation';
-import { getOsrmRoute } from '../../lib/routing';
-import { routeColors } from '../../lib/tokens';
+import { CourseData, Coord } from 'lib/gpx_parser';
+import { getElevations } from 'lib/elevation';
+import { getOsrmRoute } from 'lib/routing';
+import { routeColors } from 'lib/tokens';
 import 'leaflet/dist/leaflet.css';
 
 // ---------------------------------------------------------------------------
