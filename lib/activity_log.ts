@@ -351,7 +351,10 @@ export function fitToActivityLog(fitData: ParsedFit, name?: string): ReturnType<
 	// Derive a sensible name: prefer explicit arg, then session sport, then fallback
 	const session = fitData.sessions?.[0];
 	const sport = session?.sport;
-	const defaultName = sport && sport !== 'generic' ? `Imported ${sport.charAt(0).toUpperCase()}${sport.slice(1)} Ride` : 'Imported Ride';
+	const defaultName =
+		sport && sport !== 'generic'
+			? `Imported ${sport.charAt(0).toUpperCase()}${sport.slice(1)} Ride`
+			: 'Imported Ride';
 	const logName = name || defaultName;
 
 	const firstTs = new Date(records[0].timestamp).getTime();
