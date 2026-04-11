@@ -60,7 +60,7 @@ const OpenStreetMap = ({
 	ariaLabel?: string;
 }) => {
 	return (
-		<Box role="region" aria-label={ariaLabel || 'Map'}>
+		<Box role="region" aria-label={ariaLabel || 'Map'} sx={{ isolation: 'isolate' }}>
 			<MapContainer
 				style={{
 					width,
