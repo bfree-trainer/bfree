@@ -12,19 +12,19 @@ import RoutePlannerPanel from 'components/RoutePlannerPanel';
 import StartButton from 'components/StartButton';
 
 export default function RideMap() {
-const [editMode, setEditMode] = useState(false);
+	const [editMode, setEditMode] = useState(false);
 
-return (
-<Container maxWidth="md">
-<MyHead title="Map Ride" />
-<Box>
-<Title href="/ride/trainer">Map Ride</Title>
-<Typography variant="body1" color="text.primary" sx={{ mt: 2, mb: 2 }}>
-Plan a route or import a GPX file.
-</Typography>
-<RoutePlannerPanel onEditModeChange={setEditMode} />
-</Box>
-<StartButton disabled={editMode} href={`/ride/trainer/record?type=map&mapId=todo`} />
-</Container>
-);
+	return (
+		<Container maxWidth="md">
+			<MyHead title="Map Ride" />
+			<Box>
+				<Title href="/ride/trainer">Map Ride</Title>
+				<Typography variant="body1" color="text.primary" sx={{ mt: 2, mb: 2 }}>
+					Plan a route or import a GPX file.
+				</Typography>
+				<RoutePlannerPanel onEditModeChange={setEditMode} />
+			</Box>
+			<StartButton disabled={editMode} href={`/ride/trainer/record?type=map&mapId=todo`} />
+		</Container>
+	);
 }
