@@ -3,10 +3,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import dynamic from 'next/dynamic';
+import type L from 'leaflet';
 import { useEffect, useMemo, useState } from 'react';
 import { styled } from '@mui/material/styles'
+import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import CircularProgress from '@mui/material/CircularProgress';
 import Container from '@mui/material/Container';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormGroup from '@mui/material/FormGroup';
@@ -16,10 +19,12 @@ import IconBike from '@mui/icons-material/DirectionsBike';
 import IconRoute from '@mui/icons-material/Route';
 import MyHead from '../../../components/MyHead';
 import Paper from '@mui/material/Paper';
+import Snackbar from '@mui/material/Snackbar';
 import Switch, {SwitchProps} from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
 import Title from '../../../components/Title';
 import Typography from '@mui/material/Typography';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import OpenStreetMap from '../../../components/map/OpenStreetMap';
 import MapMarker from '../../../components/map/Marker';
 import Course from '../../../components/map/Course';
@@ -121,24 +126,51 @@ const RouteSwitch = styled((props: SwitchProps) => (
   },
 }))
 
-function MyLocationButton({ map, setPosition }) {
+function MyLocationButton({ map, setPosition, onError }: {
+	map: L.Map | null;
+	setPosition: (pos: [number, number]) => void;
+	onError: (msg: string) => void;
+}) {
+	const [loading, setLoading] = useState(false);
+
 	const getMyLocation = () => {
-		if (navigator.geolocation) {
-			navigator.geolocation.getCurrentPosition((position) => {
-				const pos = [position.coords.latitude, position.coords.longitude];
+		if (!navigator.geolocation) {
+			onError('Geolocation is not supported by this browser.');
+			return;
+		}
+		setLoading(true);
+		navigator.geolocation.getCurrentPosition(
+			(position) => {
+				setLoading(false);
+				const pos: [number, number] = [position.coords.latitude, position.coords.longitude];
 				setPosition(pos);
 				if (map) {
 					map.flyTo(pos, map.getZoom());
 				}
-			});
-		} else {
-			console.warn('Geolocation is not supported by this browser.');
-		}
+			},
+			(err) => {
+				setLoading(false);
+				switch (err.code) {
+					case err.PERMISSION_DENIED:
+						onError('Location access was denied. Please enable location permissions.');
+						break;
+					case err.POSITION_UNAVAILABLE:
+						onError('Location information is unavailable.');
+						break;
+					case err.TIMEOUT:
+						onError('Location request timed out.');
+						break;
+					default:
+						onError('An unknown error occurred while getting your location.');
+				}
+			},
+			{ timeout: 10000 },
+		);
 	};
 
 	return (
-		<Button variant="outlined" onClick={getMyLocation}>
-			Get My Location
+		<Button variant="outlined" onClick={getMyLocation} disabled={loading}>
+			{loading ? <CircularProgress size={20} /> : 'Get My Location'}
 		</Button>
 	);
 }
@@ -161,6 +193,9 @@ export default function RideMap() {
 	 * Used to detect unsaved changes by reference equality.
 	 */
 	const [lastSavedCourse, setLastSavedCourse] = useState<CourseData | null>(null);
+	const [isSaving, setIsSaving] = useState(false);
+	const [snackMsg, setSnackMsg] = useState<string | null>(null);
+	const prefersReducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
 
 	// ---------------------------------------------------------------------------
 	// Preview-mode animated bike marker
@@ -188,14 +223,14 @@ export default function RideMap() {
 	}, [course]);
 
 	useEffect(() => {
-		if (editMode || animFrames.length === 0) return;
+		if (editMode || animFrames.length === 0 || prefersReducedMotion) return;
 
 		const timer = setInterval(() => {
 			setBikeAnimTick((t) => t + 1);
 		}, ANIM_INTERVAL_MS);
 
 		return () => clearInterval(timer);
-	}, [editMode, animFrames]);
+	}, [editMode, animFrames, prefersReducedMotion]);
 
 	/**
 	 * Current animated bike position derived from the tick counter.
@@ -231,18 +266,15 @@ export default function RideMap() {
 	}, [map, bounds, editMode]);
 
 	const clearCourseName = () => setCourseName(DEFAULT_COURSE_NAME);
-	const importGpx = async (file: File) => {
-		let data: CourseData | null;
-
+	const importGpx = async (file: File): Promise<CourseData | null> => {
 		try {
 			const xmlDoc = await parseGpxFile2Document(file);
-
-			data = gpxDocument2obj(xmlDoc);
+			return gpxDocument2obj(xmlDoc);
 		} catch (err) {
-			console.error('Would be nice to show this:', err);
+			const message = err instanceof Error ? err.message : 'Unknown error';
+			setSnackMsg(`Failed to import GPX file: ${message}`);
+			return null;
 		}
-
-		return data;
 	};
 	const newCourse = (name: string, file: File) => {
 		(async () => {
@@ -298,10 +330,26 @@ export default function RideMap() {
 
 	/** Persist the current in-memory route to localStorage. */
 	const saveCurrentRoute = async () => {
-		if (!course) return;
-		await saveCourse(courseName, '', course);
-		setLastSavedCourse(course);
-		setChangeCount((c) => c + 1);
+		if (!course || isSaving) return;
+
+		const trimmedName = courseName.trim();
+		if (!trimmedName) {
+			setSnackMsg('Please enter a course name before saving.');
+			return;
+		}
+
+		setIsSaving(true);
+		try {
+			await saveCourse(trimmedName, '', course);
+			setCourseName(trimmedName);
+			setLastSavedCourse(course);
+			setChangeCount((c) => c + 1);
+		} catch (err) {
+			const message = err instanceof Error ? err.message : 'Unknown error';
+			setSnackMsg(`Failed to save course: ${message}`);
+		} finally {
+			setIsSaving(false);
+		}
 	};
 
 	return (
@@ -315,9 +363,15 @@ export default function RideMap() {
 
 				<Grid container spacing={2}>
 					<Grid item xs={12} sm={4}>
-						<Typography variant="h6" color="primary.main" sx={{ fontWeight: 700 }}>Courses</Typography>
+						<Typography
+							variant="h6"
+							color="primary.main"
+							sx={{ fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+						>
+							Courses
+						</Typography>
 					</Grid>
-					<Grid item xs={12} sm={2}>
+					<Grid item xs={12} sm={2} sx={{ minWidth: 0 }}>
 						<TextField
 							value={courseName}
 							onChange={(e) => setCourseName(e.target.value)}
@@ -329,10 +383,10 @@ export default function RideMap() {
 							color={hasUnsavedChanges ? 'warning' : 'primary'}
 						/>
 					</Grid>
-					<Grid item xs={12} sm={6}>
+					<Grid item xs={12} sm={6} sx={{ minWidth: 0 }}>
 						<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, alignItems: 'center' }}>
 							<ImportCourse newCourse={newCourse} />
-							<MyLocationButton map={map} setPosition={setHomeCoord} />
+							<MyLocationButton map={map} setPosition={setHomeCoord} onError={setSnackMsg} />
 							<Button
 								variant="outlined"
 								color="error"
@@ -359,14 +413,14 @@ export default function RideMap() {
 								variant="contained"
 								color="success"
 								onClick={saveCurrentRoute}
-								disabled={!hasUnsavedChanges}
+								disabled={!hasUnsavedChanges || isSaving}
 							>
-								Save Route
+								{isSaving ? <CircularProgress size={20} color="inherit" /> : 'Save Route'}
 							</Button>
 						</Box>
 					</Grid>
 
-					<Grid item xs={12} md={4}>
+					<Grid item xs={12} md={4} sx={{ minWidth: 0 }}>
 						<CourseList height={'50%'} changeId={changeCount} onSelectCourse={selectCourse} />
 						<Paper elevation={0} sx={{ height: '49%', mt: 1 }}>
 							<DynamicEle
@@ -408,6 +462,16 @@ export default function RideMap() {
 				</Grid>
 				<StartButton disabled={editMode} href={`/ride/record?type=map&mapId=todo`} />
 			</Box>
+			<Snackbar
+				open={snackMsg !== null}
+				autoHideDuration={6000}
+				onClose={() => setSnackMsg(null)}
+				anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+			>
+				<Alert onClose={() => setSnackMsg(null)} severity="error" variant="filled" sx={{ width: '100%' }}>
+					{snackMsg}
+				</Alert>
+			</Snackbar>
 		</Container>
 	);
 }
