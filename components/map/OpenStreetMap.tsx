@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 'use client';
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, useMap } from 'react-leaflet';
 import Box from '@mui/material/Box';
 import 'leaflet/dist/leaflet.css';
@@ -12,18 +12,30 @@ import 'leaflet/dist/leaflet.css';
 // zoom the page viewport.  On macOS/Edge/Chrome a two-finger pinch is delivered
 // as a wheel event with ctrlKey=true; touch-action:none only covers pointer/touch
 // events, so we need a separate non-passive wheel handler.
-const PINCH_ZOOM_SENSITIVITY = 0.01;
+//
+// Leaflet's default wheelPxPerZoomLevel is 60: accumulate that many pixels of
+// delta before stepping one zoom level.  Using a ref accumulator (rather than
+// adding a tiny fraction each event) means we never lose progress to integer
+// snapping — map.getZoom() always returns a snapped integer, so tiny per-event
+// deltas would never accumulate if we re-read it every time.
+const WHEEL_PX_PER_ZOOM_LEVEL = 60;
 
 function PinchZoomHandler() {
 	const map = useMap();
+	const accRef = useRef(0);
 	useEffect(() => {
 		const container = map.getContainer();
 		const onWheel = (e: WheelEvent) => {
 			if (e.ctrlKey) {
 				e.preventDefault();
 				e.stopPropagation();
-				const newZoom = map.getZoom() + e.deltaY * -PINCH_ZOOM_SENSITIVITY;
-				map.setZoom(Math.max(map.getMinZoom(), Math.min(map.getMaxZoom(), newZoom)));
+				accRef.current -= e.deltaY; // negative deltaY = zoom in
+				const steps = Math.trunc(accRef.current / WHEEL_PX_PER_ZOOM_LEVEL);
+				if (steps !== 0) {
+					accRef.current -= steps * WHEEL_PX_PER_ZOOM_LEVEL;
+					const newZoom = map.getZoom() + steps;
+					map.setZoom(Math.max(map.getMinZoom(), Math.min(map.getMaxZoom(), newZoom)));
+				}
 			}
 		};
 		container.addEventListener('wheel', onWheel, { passive: false });
