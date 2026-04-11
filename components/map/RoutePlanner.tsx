@@ -627,3 +627,5 @@ export default function RoutePlanner({
 		</>
 	);
 }
+
+export type RoutePlannerArg = Parameters<typeof RoutePlanner>[0];

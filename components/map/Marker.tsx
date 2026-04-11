@@ -53,3 +53,5 @@ export default function MapMarker({
 		</Marker>
 	);
 }
+
+export type MapMarkerArg = Parameters<typeof MapMarker>[0];

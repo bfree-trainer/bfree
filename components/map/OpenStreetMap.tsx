@@ -47,4 +47,5 @@ const OpenStreetMap = ({
 	);
 };
 
+export type OpenStreetMapArg = Parameters<typeof OpenStreetMap>[0];
 export default OpenStreetMap;

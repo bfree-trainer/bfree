@@ -169,3 +169,5 @@ export default function Ele({
 		</Box>
 	);
 }
+
+export type EleArg = Parameters<typeof Ele>[0];
