@@ -412,12 +412,7 @@ export default function History() {
 					</Grid>
 				</Grid>
 			</Box>
-			<Snackbar
-				open={!!snackMsg}
-				autoHideDuration={4000}
-				onClose={() => setSnackMsg(null)}
-				message={snackMsg}
-			/>
+			<Snackbar open={!!snackMsg} autoHideDuration={4000} onClose={() => setSnackMsg(null)} message={snackMsg} />
 			<BottomNavi>
 				<BottomNavigationAction
 					sx={

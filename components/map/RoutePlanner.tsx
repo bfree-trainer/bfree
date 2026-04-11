@@ -76,10 +76,7 @@ function routePlannerReducer(state: RoutePlannerState, action: RoutePlannerActio
 			let newSegments: EleCoord[][];
 			if (index === 0) {
 				// Deleting the first waypoint: make the next waypoint the new seed.
-				newSegments = [
-					[{ lat: newWaypoints[0].lat, lon: newWaypoints[0].lon }],
-					...state.segments.slice(2),
-				];
+				newSegments = [[{ lat: newWaypoints[0].lat, lon: newWaypoints[0].lon }], ...state.segments.slice(2)];
 			} else if (index === state.waypoints.length - 1) {
 				// Deleting the last waypoint: drop its incoming segment.
 				newSegments = state.segments.slice(0, -1);
