@@ -69,6 +69,16 @@ export const recordCardMinHeight = '10em' as const;
 export const inlineIconFontSize = '18px !important' as const;
 
 // ---------------------------------------------------------------------------
+// Explorer tiles — Veloviewer-style visited tiles and max-square highlight
+// ---------------------------------------------------------------------------
+export const explorerColors = {
+	/** Visited tile fill and border (matches MUI primary.main). */
+	tile: '#1976D2',
+	/** Max-square outline — Veloviewer orange. */
+	maxSquare: '#ff7700',
+} as const;
+
+// ---------------------------------------------------------------------------
 // YouTube brand colors — side pane tab, header, and load button
 // ---------------------------------------------------------------------------
 export const youtubeRed = '#FF0000' as const;

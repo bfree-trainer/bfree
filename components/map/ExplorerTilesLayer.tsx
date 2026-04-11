@@ -6,7 +6,9 @@
 import { useEffect } from 'react';
 import L from 'leaflet';
 import { useMap } from 'react-leaflet';
+import { useTheme } from '@mui/material/styles';
 import { EXPLORER_ZOOM, collectVisitedTiles, findMaxSquare, tileToBounds } from 'lib/explorer_tiles';
+import { explorerColors } from 'lib/tokens';
 
 /**
  * Renders Veloviewer-style explorer tiles on a Leaflet map:
@@ -20,6 +22,8 @@ import { EXPLORER_ZOOM, collectVisitedTiles, findMaxSquare, tileToBounds } from 
  */
 export default function ExplorerTilesLayer({ tracks }: { tracks: [number, number][][] }) {
 	const map = useMap();
+	const theme = useTheme();
+	const tileColor = theme.palette.primary.main;
 
 	useEffect(() => {
 		if (!map) return;
@@ -30,7 +34,7 @@ export default function ExplorerTilesLayer({ tracks }: { tracks: [number, number
 		const maxSquare = findMaxSquare(visitedTiles);
 		const layerGroup = L.layerGroup().addTo(map);
 
-		// Draw all visited tiles as semi-transparent blue rectangles.
+		// Draw all visited tiles as semi-transparent rectangles.
 		for (const key of visitedTiles) {
 			const parts = key.split(',');
 			const tx = Number(parts[0]);
@@ -42,8 +46,8 @@ export default function ExplorerTilesLayer({ tracks }: { tracks: [number, number
 					[b.north, b.east],
 				],
 				{
-					color: '#1976D2',
-					fillColor: '#1976D2',
+					color: tileColor,
+					fillColor: tileColor,
 					fillOpacity: 0.3,
 					weight: 0.5,
 					opacity: 0.6,
@@ -65,7 +69,7 @@ export default function ExplorerTilesLayer({ tracks }: { tracks: [number, number
 					[nwBounds.north, seBounds.east],
 				],
 				{
-					color: '#ff7700',
+					color: explorerColors.maxSquare,
 					fill: false,
 					weight: 3,
 					opacity: 0.9,
@@ -95,7 +99,7 @@ export default function ExplorerTilesLayer({ tracks }: { tracks: [number, number
 		return () => {
 			layerGroup.remove();
 		};
-	}, [map, tracks]);
+	}, [map, tracks, tileColor]);
 
 	return null;
 }

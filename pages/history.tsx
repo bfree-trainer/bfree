@@ -43,6 +43,7 @@ import { getElapsedTimeStr } from 'lib/format';
 import { smartDistanceUnitFormat } from 'lib/units';
 import { useGlobalState } from 'lib/global';
 import { collectVisitedTiles, findMaxSquare } from 'lib/explorer_tiles';
+import { explorerColors } from 'lib/tokens';
 import type RideMiniMapType from 'components/map/RideMiniMap';
 import type { OpenStreetMapArg } from 'components/map/OpenStreetMap';
 import type { ExplorerTilesLayerArgs } from 'components/map/ExplorerTilesLayer';
@@ -477,7 +478,7 @@ export default function History() {
 							</Box>
 							{maxSquare && (
 								<Box>
-									<Typography variant="h4" fontWeight={700} sx={{ color: '#ff7700' }}>
+									<Typography variant="h4" fontWeight={700} sx={{ color: explorerColors.maxSquare }}>
 										{maxSquare.size}×{maxSquare.size}
 									</Typography>
 									<Typography variant="caption" color="text.secondary">
