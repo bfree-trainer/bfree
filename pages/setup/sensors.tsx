@@ -23,7 +23,7 @@ import { startCyclingSpeedAndCadenceMeasurementNotifications } from 'lib/ble/csc
 import { startHRMNotifications } from 'lib/ble/hrm';
 import { createSmartTrainerController } from 'lib/ble/trainer';
 import SensorValue from 'components/SensorValue';
-import { TrainerCalibrationModal } from 'components/TrainerControl';
+import { TrainerCalibrationModal } from 'components/trainer/TrainerControl';
 import { useGlobalState, getGlobalState } from 'lib/global';
 import Ble from 'components/setup/Ble';
 import { ActionButton, SensorCard, iconStyle } from 'components/SensorCard';

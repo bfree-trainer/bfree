@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardActionArea from '@mui/material/CardActionArea';
@@ -11,10 +12,9 @@ import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import MyHead from 'components/MyHead';
-import StartButton from 'components/StartButton';
+import StartButton from 'components/trainer/StartButton';
 import Title from 'components/Title';
 import { VideoClip, SyncMethod } from 'lib/virtual_video';
-import { useEffect, useState } from 'react';
 
 const VIDEOS_URL = process.env.NEXT_PUBLIC_VIRTUAL_VIDEOS_URL;
 

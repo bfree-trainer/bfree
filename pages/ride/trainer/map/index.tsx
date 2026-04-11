@@ -9,7 +9,7 @@ import MyHead from 'components/MyHead';
 import Title from 'components/Title';
 import Typography from '@mui/material/Typography';
 import RoutePlannerPanel from 'components/RoutePlannerPanel';
-import StartButton from 'components/StartButton';
+import StartButton from 'components/trainer/StartButton';
 
 export default function RideMap() {
 	const [editMode, setEditMode] = useState(false);

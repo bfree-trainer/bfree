@@ -8,8 +8,8 @@ import IconStartDisabled from '@mui/icons-material/PlayDisabled';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { useGlobalState } from 'lib/global';
-import WarningDialog from './WarningDialog';
-import BottomNavi from './BottomNavi';
+import WarningDialog from 'components/WarningDialog';
+import BottomNavi from 'components/BottomNavi';
 
 export default function StartButton({ disabled, href }: { disabled?: boolean; href: string }) {
 	const router = useRouter();

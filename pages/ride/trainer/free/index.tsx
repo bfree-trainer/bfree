@@ -8,7 +8,7 @@ import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import { useState, useEffect } from 'react';
 import MyHead from 'components/MyHead';
-import StartButton from 'components/StartButton';
+import StartButton from 'components/trainer/StartButton';
 import RideSetup, { AutoSplitMode, TrainerResistanceMode } from 'components/ride/FreeRideSetup';
 import PowerResistance, { PowerLimits } from 'components/ride/PowerResistance';
 import RollingResistance from 'components/ride/RollingResistance';
