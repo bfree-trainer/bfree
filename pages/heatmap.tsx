@@ -5,7 +5,6 @@
 import dynamic from 'next/dynamic';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
-import Divider from '@mui/material/Divider';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import MyHead from 'components/MyHead';
@@ -64,6 +63,29 @@ export default function Heatmap() {
 					: 'No rides with GPS data found. Record a ride with GPS enabled to see it here.'}
 			</Typography>
 			<Box sx={{ borderRadius: 2, overflow: 'hidden', boxShadow: 1 }}>
+				<Typography variant="h6" fontWeight={700} gutterBottom>
+					Explorer Tiles
+				</Typography>
+				<Paper variant="outlined" sx={{ p: 2, mb: 2, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+					<Box>
+						<Typography variant="h4" fontWeight={700} color="primary">
+							{explorerTiles.size}
+						</Typography>
+						<Typography variant="caption" color="text.secondary">
+							tiles visited
+						</Typography>
+					</Box>
+					{maxSquare && (
+						<Box>
+							<Typography variant="h4" fontWeight={700} sx={{ color: explorerColors.maxSquare }}>
+								{maxSquare.size}×{maxSquare.size}
+							</Typography>
+							<Typography variant="caption" color="text.secondary">
+								max square
+							</Typography>
+						</Box>
+					)}
+				</Paper>
 				<DynamicMap
 					center={center}
 					width="100%"
@@ -72,49 +94,9 @@ export default function Heatmap() {
 					ariaLabel="Interactive map showing heatmap of all recorded rides with GPS data"
 				>
 					{hasData && <DynamicHeatmapLayer tracks={tracks} />}
+					{hasData && <DynamicExplorerTilesLayer tracks={tracks} />}
 				</DynamicMap>
 			</Box>
-
-			{/* Explorer Tiles section — shown only when there are GPS tracks */}
-			{explorerTiles.size > 0 && (
-				<Box sx={{ mt: 4 }}>
-					<Divider sx={{ mb: 3 }} />
-					<Typography variant="h6" fontWeight={700} gutterBottom>
-						Explorer Tiles
-					</Typography>
-					<Paper variant="outlined" sx={{ p: 2, mb: 2, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-						<Box>
-							<Typography variant="h4" fontWeight={700} color="primary">
-								{explorerTiles.size}
-							</Typography>
-							<Typography variant="caption" color="text.secondary">
-								tiles visited
-							</Typography>
-						</Box>
-						{maxSquare && (
-							<Box>
-								<Typography variant="h4" fontWeight={700} sx={{ color: explorerColors.maxSquare }}>
-									{maxSquare.size}×{maxSquare.size}
-								</Typography>
-								<Typography variant="caption" color="text.secondary">
-									max square
-								</Typography>
-							</Box>
-						)}
-					</Paper>
-					<Box sx={{ borderRadius: 2, overflow: 'hidden', boxShadow: 1 }}>
-						<DynamicMap
-							center={center}
-							width="100%"
-							height="clamp(300px, 55vh, 600px)"
-							setMap={null}
-							ariaLabel="Map showing visited explorer tiles and max square"
-						>
-							<DynamicExplorerTilesLayer tracks={tracks} />
-						</DynamicMap>
-					</Box>
-				</Box>
-			)}
 		</Container>
 	);
 }
