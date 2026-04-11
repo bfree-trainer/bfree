@@ -57,7 +57,7 @@ class LocalStorageRideRepository implements RideRepository {
 
 		for (const key in localStorage) {
 			if (key.startsWith(this.KEY_PREFIX)) {
-				const logger = createActivityLog();
+				const logger = createActivityLog('trainerFreeRide');
 				logger.importJson(localStorage[key]);
 
 				const ts = logger.getStartTime();
