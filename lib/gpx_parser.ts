@@ -2,6 +2,8 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import haversine from './haversine';
+
 export type Coord = {
 	lat: number;
 	lon: number;
@@ -216,4 +218,31 @@ export function getMapBounds(obj: CourseData) {
 		minlon: Math.min(...lons),
 		maxlon: Math.max(...lons),
 	};
+}
+
+/**
+ * Calculate the total distance of a course in meters.
+ * Sums haversine distances between consecutive trackpoints in all tracks
+ * and between consecutive routepoints in all routes.
+ */
+export function courseDistanceM(data: CourseData): number {
+	let total = 0;
+
+	for (const track of data.tracks) {
+		for (const seg of track.segments) {
+			const pts = seg.trackpoints;
+			for (let i = 1; i < pts.length; i++) {
+				total += haversine([pts[i - 1].lat, pts[i - 1].lon], [pts[i].lat, pts[i].lon]);
+			}
+		}
+	}
+
+	for (const route of data.routes) {
+		const pts = route.routepoints;
+		for (let i = 1; i < pts.length; i++) {
+			total += haversine([pts[i - 1].lat, pts[i - 1].lon], [pts[i].lat, pts[i].lon]);
+		}
+	}
+
+	return total;
 }
