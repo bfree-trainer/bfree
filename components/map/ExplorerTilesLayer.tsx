@@ -51,7 +51,7 @@ export default function ExplorerTilesLayer({ tracks }: { tracks: [number, number
 					fillOpacity: 0.3,
 					weight: 0.5,
 					opacity: 0.6,
-				},
+				}
 			).addTo(layerGroup);
 		}
 
@@ -61,7 +61,7 @@ export default function ExplorerTilesLayer({ tracks }: { tracks: [number, number
 			const seBounds = tileToBounds(
 				maxSquare.minX + maxSquare.size - 1,
 				maxSquare.minY + maxSquare.size - 1,
-				EXPLORER_ZOOM,
+				EXPLORER_ZOOM
 			);
 			L.rectangle(
 				[
@@ -73,7 +73,7 @@ export default function ExplorerTilesLayer({ tracks }: { tracks: [number, number
 					fill: false,
 					weight: 3,
 					opacity: 0.9,
-				},
+				}
 			).addTo(layerGroup);
 		}
 
@@ -93,7 +93,7 @@ export default function ExplorerTilesLayer({ tracks }: { tracks: [number, number
 				[swFit.south, swFit.west],
 				[neFit.north, neFit.east],
 			],
-			{ padding: [24, 24] },
+			{ padding: [24, 24] }
 		);
 
 		return () => {
