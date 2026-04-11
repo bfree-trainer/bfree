@@ -15,6 +15,7 @@ import CardHeader from '@mui/material/CardHeader';
 import Checkbox from '@mui/material/Checkbox';
 import Collapse from '@mui/material/Collapse';
 import Container from '@mui/material/Container';
+import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Grid';
 import IconButton, { IconButtonProps } from '@mui/material/IconButton';
 import IconDelete from '@mui/icons-material/Delete';
@@ -23,12 +24,13 @@ import IconExpandMore from '@mui/icons-material/ExpandMore';
 import IconMoreVert from '@mui/icons-material/MoreVert';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import Paper from '@mui/material/Paper';
 import Snackbar from '@mui/material/Snackbar';
 import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme, styled } from '@mui/material/styles';
 import { red } from '@mui/material/colors';
-import { useState, useEffect, useRef, ChangeEvent } from 'react';
+import { useState, useEffect, useRef, useMemo, ChangeEvent } from 'react';
 import BottomNavi from 'components/BottomNavi';
 import MyHead from 'components/MyHead';
 import Title from 'components/Title';
@@ -40,13 +42,21 @@ import { gpxDocument2obj, parseGpxFile2Document } from 'lib/gpx_parser';
 import { getElapsedTimeStr } from 'lib/format';
 import { smartDistanceUnitFormat } from 'lib/units';
 import { useGlobalState } from 'lib/global';
+import { collectVisitedTiles, findMaxSquare } from 'lib/explorer_tiles';
 import type RideMiniMapType from 'components/map/RideMiniMap';
+import type { OpenStreetMapArg } from 'components/map/OpenStreetMap';
+import type { ExplorerTilesLayerArgs } from 'components/map/ExplorerTilesLayer';
 
 type RideMiniMapArgs = Parameters<typeof RideMiniMapType>[0];
 const DynamicRideMiniMap = dynamic<RideMiniMapArgs>(() => import('components/map/RideMiniMap'), {
 	ssr: false,
 });
 const DataGraph = dynamic(() => import('components/DataGraph'), { ssr: false });
+const DynamicMap = dynamic<OpenStreetMapArg>(() => import('components/map/OpenStreetMap'), { ssr: false });
+const DynamicExplorerTilesLayer = dynamic<ExplorerTilesLayerArgs>(
+	() => import('components/map/ExplorerTilesLayer'),
+	{ ssr: false },
+);
 
 const VisuallyHiddenInput = styled('input')({
 	clip: 'rect(0 0 0 0)',
@@ -366,6 +376,28 @@ export default function History() {
 		});
 	};
 
+	// Extract GPS tracks from all logs for explorer tiles computation.
+	const tracks = useMemo<[number, number][][]>(() => {
+		return logs
+			.map((log) =>
+				log.logger
+					.getLaps()
+					.flatMap((lap) => lap.trackPoints)
+					.filter(
+						(tp) =>
+							tp.position && typeof tp.position.lat === 'number' && typeof tp.position.lon === 'number',
+					)
+					.map((tp) => [tp.position.lat, tp.position.lon] as [number, number]),
+			)
+			.filter((positions) => positions.length > 0);
+	}, [logs]);
+
+	const explorerTiles = useMemo(() => collectVisitedTiles(tracks), [tracks]);
+	const maxSquare = useMemo(() => findMaxSquare(explorerTiles), [explorerTiles]);
+
+	const explorerCenter: [number, number] =
+		tracks.length > 0 && tracks[0].length > 0 ? tracks[0][0] : [51.505, -0.09];
+
 	useEffect(() => {
 		setLogs(getActivityLogs());
 	}, []);
@@ -426,6 +458,47 @@ export default function History() {
 						<RideStatsPanel logs={logs} />
 					</Grid>
 				</Grid>
+
+				{/* Explorer Tiles section — shown only when there are GPS tracks */}
+				{explorerTiles.size > 0 && (
+					<Box sx={{ mt: 4 }}>
+						<Divider sx={{ mb: 3 }} />
+						<Typography variant="h6" fontWeight={700} gutterBottom>
+							Explorer Tiles
+						</Typography>
+						<Paper variant="outlined" sx={{ p: 2, mb: 2, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+							<Box>
+								<Typography variant="h4" fontWeight={700} color="primary">
+									{explorerTiles.size}
+								</Typography>
+								<Typography variant="caption" color="text.secondary">
+									tiles visited
+								</Typography>
+							</Box>
+							{maxSquare && (
+								<Box>
+									<Typography variant="h4" fontWeight={700} sx={{ color: '#ff7700' }}>
+										{maxSquare.size}×{maxSquare.size}
+									</Typography>
+									<Typography variant="caption" color="text.secondary">
+										max square
+									</Typography>
+								</Box>
+							)}
+						</Paper>
+						<Box sx={{ borderRadius: 2, overflow: 'hidden', boxShadow: 1 }}>
+							<DynamicMap
+								center={explorerCenter}
+								width="100%"
+								height="clamp(300px, 55vh, 600px)"
+								setMap={null}
+								ariaLabel="Map showing visited explorer tiles and max square"
+							>
+								<DynamicExplorerTilesLayer tracks={tracks} />
+							</DynamicMap>
+						</Box>
+					</Box>
+				)}
 			</Box>
 			<Snackbar open={!!snackMsg} autoHideDuration={4000} onClose={() => setSnackMsg(null)} message={snackMsg} />
 			<BottomNavi>
