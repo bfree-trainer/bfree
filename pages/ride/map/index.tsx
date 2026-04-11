@@ -4,7 +4,7 @@
 
 import dynamic from 'next/dynamic';
 import type L from 'leaflet';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { styled } from '@mui/material/styles'
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
@@ -197,6 +197,9 @@ export default function RideMap() {
 	const [snackMsg, setSnackMsg] = useState<string | null>(null);
 	const prefersReducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
 
+	const handleShowMarker = useCallback((en: boolean) => setShowMarker(en), []);
+	const handleCloseSnack = useCallback(() => setSnackMsg(null), []);
+
 	// ---------------------------------------------------------------------------
 	// Preview-mode animated bike marker
 	// ---------------------------------------------------------------------------
@@ -352,6 +355,14 @@ export default function RideMap() {
 		}
 	};
 
+	const mapContainerSx = useMemo(() => ({
+		borderRadius: 1,
+		overflow: 'hidden',
+		border: 2,
+		borderColor: editMode ? 'primary.main' : 'transparent',
+		transition: 'border-color 0.2s ease-out',
+	}), [editMode]);
+
 	return (
 		<Container maxWidth="md">
 			<MyHead title="Map Ride" />
@@ -422,23 +433,17 @@ export default function RideMap() {
 
 					<Grid item xs={12} md={4} sx={{ minWidth: 0 }}>
 						<CourseList height={'50%'} changeId={changeCount} onSelectCourse={selectCourse} />
-						<Paper elevation={0} sx={{ height: '49%', mt: 1 }}>
+						<Paper elevation={0} sx={{ height: 256, mt: 1 }}>
 							<DynamicEle
 								course={course}
-								showMarker={(en: boolean) => setShowMarker(en)}
+								showMarker={handleShowMarker}
 								moveMarker={setMarkerCoord}
 							/>
 						</Paper>
 					</Grid>
 
 					<Grid item xs={12} md={8}>
-						<Box sx={{
-							borderRadius: 1,
-							overflow: 'hidden',
-							border: 2,
-							borderColor: editMode ? 'primary.main' : 'transparent',
-							transition: 'border-color 0.2s ease-out',
-						}}>
+						<Box sx={mapContainerSx}>
 						<DynamicMap center={homeCoord} width={'100%'} height={mapHeight} setMap={setMap} ariaLabel="Route planner map">
 							<DynamicMapMarker icon={<IconHome />} position={homeCoord}>
 								You are here.
@@ -465,10 +470,10 @@ export default function RideMap() {
 			<Snackbar
 				open={snackMsg !== null}
 				autoHideDuration={6000}
-				onClose={() => setSnackMsg(null)}
+				onClose={handleCloseSnack}
 				anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
 			>
-				<Alert onClose={() => setSnackMsg(null)} severity="error" variant="filled" sx={{ width: '100%' }}>
+				<Alert onClose={handleCloseSnack} severity="error" variant="filled" sx={{ width: '100%' }}>
 					{snackMsg}
 				</Alert>
 			</Snackbar>
