@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import { useReducer, useEffect, useRef } from 'react';
-import { useMap, useMapEvents, Polyline, Marker, Tooltip } from 'react-leaflet';
+import { useMap, useMapEvents, Polyline, Marker, Tooltip, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import { CourseData, Coord } from '../../lib/gpx_parser';
 import { getElevations } from '../../lib/elevation';
@@ -35,6 +35,7 @@ type RoutePlannerState = {
 type RoutePlannerAction =
 	| { type: 'ADD_POINT'; waypoint: Coord; segment: EleCoord[] }
 	| { type: 'MOVE_WAYPOINT'; index: number; waypoint: Coord; prevSegment?: EleCoord[]; nextSegment?: EleCoord[] }
+	| { type: 'DELETE_WAYPOINT'; index: number; newSegment?: EleCoord[] }
 	| { type: 'UNDO' }
 	| { type: 'CLEAR' }
 	| { type: 'SET_ROUTING'; value: boolean };
@@ -63,6 +64,33 @@ function routePlannerReducer(state: RoutePlannerState, action: RoutePlannerActio
 			// Segment going OUT from this waypoint to the next one.
 			if (action.nextSegment !== undefined && action.index + 1 < state.segments.length) {
 				newSegments[action.index + 1] = action.nextSegment;
+			}
+			return { ...state, waypoints: newWaypoints, segments: newSegments, isRouting: false };
+		}
+		case 'DELETE_WAYPOINT': {
+			const { index } = action;
+			const newWaypoints = [...state.waypoints.slice(0, index), ...state.waypoints.slice(index + 1)];
+			if (newWaypoints.length === 0) {
+				return { waypoints: [], segments: [], isRouting: false };
+			}
+			let newSegments: EleCoord[][];
+			if (index === 0) {
+				// Deleting the first waypoint: make the next waypoint the new seed.
+				newSegments = [
+					[{ lat: newWaypoints[0].lat, lon: newWaypoints[0].lon }],
+					...state.segments.slice(2),
+				];
+			} else if (index === state.waypoints.length - 1) {
+				// Deleting the last waypoint: drop its incoming segment.
+				newSegments = state.segments.slice(0, -1);
+			} else {
+				// Middle waypoint: replace segments[index] and segments[index+1]
+				// with the newly-routed segment bridging the gap.
+				newSegments = [
+					...state.segments.slice(0, index),
+					action.newSegment ?? [{ lat: newWaypoints[index].lat, lon: newWaypoints[index].lon }],
+					...state.segments.slice(index + 2),
+				];
 			}
 			return { ...state, waypoints: newWaypoints, segments: newSegments, isRouting: false };
 		}
@@ -440,6 +468,33 @@ export default function RoutePlanner({
 		setCourseRef.current({ tracks: [], routes: [], waypoints: [] });
 	};
 
+	/** Re-route the segment bridging the gap left by a deleted waypoint. */
+	const handleDeleteWaypoint = async (index: number) => {
+		const { waypoints, isRouting } = stateRef.current;
+		if (isRouting) return;
+
+		const n = waypoints.length;
+
+		// First, last, or only waypoint: no re-routing needed.
+		if (n <= 1 || index === 0 || index === n - 1) {
+			dispatch({ type: 'DELETE_WAYPOINT', index });
+			return;
+		}
+
+		// Middle waypoint: re-route from the previous waypoint to the next one.
+		dispatch({ type: 'SET_ROUTING', value: true });
+		let newSegment: EleCoord[];
+		try {
+			const routeCoords = await getOsrmRoute([waypoints[index - 1], waypoints[index + 1]]);
+			newSegment = routeCoords.slice(1);
+		} catch (err) {
+			console.error('OSRM routing failed during waypoint deletion, falling back to straight line:', err);
+			newSegment = [{ lat: waypoints[index + 1].lat, lon: waypoints[index + 1].lon }];
+		}
+
+		dispatch({ type: 'DELETE_WAYPOINT', index, newSegment });
+	};
+
 	/** Re-route the segments adjacent to a dragged waypoint. */
 	const handleMoveWaypoint = async (index: number, newWp: Coord) => {
 		const { waypoints, isRouting } = stateRef.current;
@@ -545,6 +600,27 @@ export default function RoutePlanner({
 				return (
 					<Marker key={i} {...markerProps}>
 						<Tooltip>{label}</Tooltip>
+						<Popup>
+							<div style={{ textAlign: 'center', minWidth: 100 }}>
+								<div style={{ marginBottom: 8, fontWeight: 500, fontSize: 13 }}>{label}</div>
+								{/* red.A400 (#ff1744) — matches the project's error accent token */}
+								<button
+									onClick={() => handleDeleteWaypoint(i)}
+									style={{
+										background: '#ff1744',
+										color: '#fff',
+										border: 'none',
+										borderRadius: 4,
+										padding: '4px 12px',
+										cursor: 'pointer',
+										fontWeight: 500,
+										fontSize: 12,
+									}}
+								>
+									Delete waypoint
+								</button>
+							</div>
+						</Popup>
 					</Marker>
 				);
 			})}
