@@ -13,14 +13,12 @@ import { useMemo } from 'react';
 import { OpenStreetMapArg } from 'components/map/OpenStreetMap';
 import { RideHeatmapLayerArgs } from 'components/map/RideHeatmapLayer';
 
-
 const DynamicMap = dynamic<OpenStreetMapArg>(() => import('components/map/OpenStreetMap'), {
 	ssr: false,
 });
-const DynamicHeatmapLayer = dynamic<RideHeatmapLayerArgs>(
-	() => import('components/map/RideHeatmapLayer'),
-	{ ssr: false }
-);
+const DynamicHeatmapLayer = dynamic<RideHeatmapLayerArgs>(() => import('components/map/RideHeatmapLayer'), {
+	ssr: false,
+});
 
 export default function Heatmap() {
 	const tracks = useMemo<[number, number][][]>(() => {
@@ -31,9 +29,7 @@ export default function Heatmap() {
 					.flatMap((lap) => lap.trackPoints)
 					.filter(
 						(tp) =>
-							tp.position &&
-							typeof tp.position.lat === 'number' &&
-							typeof tp.position.lon === 'number'
+							tp.position && typeof tp.position.lat === 'number' && typeof tp.position.lon === 'number'
 					)
 					.map((tp) => [tp.position.lat, tp.position.lon] as [number, number])
 			)
@@ -44,8 +40,7 @@ export default function Heatmap() {
 	const hasData = tracks.length > 0;
 
 	// Use the first point of the first track as initial map center, fallback to London
-	const center: [number, number] =
-		hasData && tracks[0].length > 0 ? tracks[0][0] : [51.505, -0.09];
+	const center: [number, number] = hasData && tracks[0].length > 0 ? tracks[0][0] : [51.505, -0.09];
 
 	return (
 		<Container maxWidth="md">
@@ -57,7 +52,13 @@ export default function Heatmap() {
 					: 'No rides with GPS data found. Record a ride with GPS enabled to see it here.'}
 			</Typography>
 			<Box sx={{ borderRadius: 2, overflow: 'hidden', boxShadow: 1 }}>
-				<DynamicMap center={center} width="100%" height={mapHeight} setMap={null} ariaLabel="Interactive map showing heatmap of all recorded rides with GPS data">
+				<DynamicMap
+					center={center}
+					width="100%"
+					height={mapHeight}
+					setMap={null}
+					ariaLabel="Interactive map showing heatmap of all recorded rides with GPS data"
+				>
 					{hasData && <DynamicHeatmapLayer tracks={tracks} />}
 				</DynamicMap>
 			</Box>
