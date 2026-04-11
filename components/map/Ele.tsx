@@ -65,11 +65,9 @@ export default function Ele({
 	showMarker(en: boolean): void;
 	moveMarker(pos: [number, number]): void;
 }) {
-	// Compute chart points from course data. Also track whether the incoming
-	// trackpoints have real elevation populated (vs. the `?? 0` fallback).
-	const computed = useMemo(() => {
+	const data = useMemo(() => {
 		if (!course || !course.tracks || course.tracks.length === 0) {
-			return { points: EMPTY_DATA, eleReady: false };
+			return EMPTY_DATA;
 		}
 
 		const allTp = course.tracks.flatMap((track) =>
@@ -77,11 +75,8 @@ export default function Ele({
 		);
 
 		if (allTp.length < 2) {
-			return { points: EMPTY_DATA, eleReady: false };
+			return EMPTY_DATA;
 		}
-
-		const withEle = allTp.filter((tp) => tp.ele != null).length;
-		const eleReady = withEle > allTp.length * 0.5;
 
 		const points = allTp.reduce<ChartPoint[]>((acc, tp, i) => {
 			const prevDist = i === 0 ? 0 : acc[i - 1].distance;
@@ -97,42 +92,13 @@ export default function Ele({
 			return acc;
 		}, []);
 
-		let finalPoints = points;
 		if (points.length > MAX_CHART_POINTS) {
 			const step = (points.length - 1) / (MAX_CHART_POINTS - 1);
-			finalPoints = Array.from({ length: MAX_CHART_POINTS }, (_, i) => points[Math.round(i * step)]);
+			return Array.from({ length: MAX_CHART_POINTS }, (_, i) => points[Math.round(i * step)]);
 		}
 
-		return { points: finalPoints, eleReady };
+		return points;
 	}, [course]);
-
-	// Only update the displayed chart data when the new data actually has
-	// elevation populated.  This prevents the chart from flashing to zero
-	// during the window between an immediate RoutePlanner emit (no ele) and
-	// the async elevation API response.
-	//
-	// Uses the "adjusting state during rendering" pattern recommended by React:
-	// https://react.dev/reference/react/useState#storing-information-from-previous-renders
-	const [chartState, setChartState] = useState<{ data: ChartPoint[]; hadEle: boolean }>({
-		data: computed.points,
-		hadEle: false,
-	});
-	const [prevComputed, setPrevComputed] = useState(computed);
-
-	if (computed !== prevComputed) {
-		setPrevComputed(computed);
-		const isPlaceholder = computed.points === EMPTY_DATA;
-
-		if (isPlaceholder) {
-			setChartState({ data: EMPTY_DATA, hadEle: false });
-		} else if (computed.eleReady || !chartState.hadEle) {
-			setChartState({ data: computed.points, hadEle: computed.eleReady });
-		}
-		// Otherwise: had good elevation before but new data doesn't → skip,
-		// keep showing the previous profile until enriched data arrives.
-	}
-
-	const data = chartState.data;
 
 	// Track the latest hovered point so we can update the marker in an effect
 	// rather than during the render phase of CustomTooltip.
