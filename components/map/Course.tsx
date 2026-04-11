@@ -60,3 +60,5 @@ export default function MapCourse({ course }: { course: CourseData }) {
 		</>
 	);
 }
+
+export type MapCourseArg = Parameters<typeof MapCourse>[0];

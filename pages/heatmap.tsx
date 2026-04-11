@@ -11,12 +11,11 @@ import Title from 'components/Title';
 import { getActivityLogs } from 'lib/activity_log';
 import { useMemo } from 'react';
 import type RideHeatmapLayerType from 'components/map/RideHeatmapLayer';
-import type OpenStreetMapType from 'components/map/OpenStreetMap';
+import { OpenStreetMapArg } from 'components/map/OpenStreetMap';
 
-type OpenStreetMapArgs = Parameters<typeof OpenStreetMapType>[0];
 type RideHeatmapLayerArgs = Parameters<typeof RideHeatmapLayerType>[0];
 
-const DynamicMap = dynamic<OpenStreetMapArgs>(() => import('components/map/OpenStreetMap'), {
+const DynamicMap = dynamic<OpenStreetMapArg>(() => import('components/map/OpenStreetMap'), {
 	ssr: false,
 });
 

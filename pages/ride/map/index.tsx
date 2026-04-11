@@ -25,22 +25,16 @@ import TextField from '@mui/material/TextField';
 import Title from '../../../components/Title';
 import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import OpenStreetMap from '../../../components/map/OpenStreetMap';
-import MapMarker from '../../../components/map/Marker';
-import Course from '../../../components/map/Course';
-import RoutePlanner from '../../../components/map/RoutePlanner';
+import { OpenStreetMapArg } from '../../../components/map/OpenStreetMap';
+import { MapMarkerArg } from '../../../components/map/Marker';
+import { MapCourseArg as CourseArg } from '../../../components/map/Course';
+import { RoutePlannerArg } from '../../../components/map/RoutePlanner';
 import CourseList from '../../../components/CourseList';
 import StartButton from '../../../components/StartButton';
 import ImportCourse from '../../../components/ImportCourse';
-import Ele from '../../../components/map/Ele';
+import { EleArg } from '../../../components/map/Ele';
 import { CourseData, getMapBounds, gpxDocument2obj, parseGpxFile2Document } from '../../../lib/gpx_parser';
 import { PersistedCourse, saveCourse } from '../../../lib/course_storage';
-
-type OpenStreetMapArg = Parameters<typeof OpenStreetMap>[0];
-type MapMarkerArg = Parameters<typeof MapMarker>[0];
-type CourseArg = Parameters<typeof Course>[0];
-type RoutePlannerArg = Parameters<typeof RoutePlanner>[0];
-type EleArg = Parameters<typeof Ele>[0];
 
 const DynamicMap = dynamic<OpenStreetMapArg>(() => import('../../../components/map/OpenStreetMap'), {
 	ssr: false,
