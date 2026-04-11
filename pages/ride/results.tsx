@@ -12,7 +12,8 @@ import ExportCard from 'components/ExportCard';
 import MyHead from 'components/MyHead';
 import Title from 'components/Title';
 import downloadBlob from 'lib/download_blob';
-import { createActivityLog, saveActivityLog } from 'lib/activity_log';
+import { createActivityLog } from 'lib/activity_log';
+import { rideRepository } from 'lib/orm';
 import { getDayPeriod } from 'lib/locale';
 import { useGlobalState, setGlobalState } from 'lib/global';
 import Typography from '@mui/material/Typography';
@@ -65,13 +66,13 @@ export default function RideResults() {
 	const handleNameChange = (e) => {
 		if (logger) {
 			logger.setName(e.target.value);
-			saveActivityLog(logger);
+			rideRepository.save(logger);
 		}
 	};
 	const handleNotesChange = (e) => {
 		if (logger) {
 			logger.setNotes(e.target.value);
-			saveActivityLog(logger);
+			rideRepository.save(logger);
 		}
 	};
 

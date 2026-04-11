@@ -34,7 +34,8 @@ import StartButton from '../../../components/StartButton';
 import ImportCourse from '../../../components/ImportCourse';
 import { EleArg } from '../../../components/map/Ele';
 import { CourseData, getMapBounds, gpxDocument2obj, parseGpxFile2Document } from '../../../lib/gpx_parser';
-import { PersistedCourse, saveCourse } from '../../../lib/course_storage';
+import { courseRepository } from '../../../lib/orm';
+import type { PersistedCourse } from '../../../lib/orm';
 
 const DynamicMap = dynamic<OpenStreetMapArg>(() => import('../../../components/map/OpenStreetMap'), {
 	ssr: false,
@@ -307,7 +308,7 @@ export default function RideMap() {
 			}
 			setCourseName(name);
 
-			await saveCourse(name, '', data);
+			await courseRepository.save(name, '', data);
 			setLastSavedCourse(data ?? null);
 			setChangeCount(changeCount + 1);
 		})();
@@ -345,7 +346,7 @@ export default function RideMap() {
 
 		setIsSaving(true);
 		try {
-			await saveCourse(trimmedName, '', course);
+			await courseRepository.save(trimmedName, '', course);
 			setCourseName(trimmedName);
 			setLastSavedCourse(course);
 			setChangeCount((c) => c + 1);

@@ -241,59 +241,28 @@ export function createActivityLog() {
 	};
 }
 
+// Re-export the ORM repository and its types for convenience.
+export { rideRepository } from './orm/ride_repository';
+export type { RideEntry } from './orm/ride_repository';
+
+// ---------------------------------------------------------------------------
+// Legacy convenience wrappers — delegate to the ORM repository so all callers
+// that still use these functions continue to work.  New code should prefer
+// importing from 'lib/orm' directly.
+// ---------------------------------------------------------------------------
+
+import { rideRepository } from './orm/ride_repository';
+
 export function saveActivityLog(logger: ReturnType<typeof createActivityLog>) {
-	const date = logger.getStartTimeISO();
-
-	if (!date) {
-		throw new Error('Save failed');
-	}
-
-	localStorage.setItem(`activity_log:${date}`, logger.json());
+	rideRepository.save(logger);
 }
 
-export function getActivityLogs(): {
-	id: string;
-	ts: number;
-	date: string;
-	logger: ReturnType<typeof createActivityLog>;
-}[] {
-	const arr: ReturnType<typeof getActivityLogs> = [];
-
-	if (typeof window === 'undefined') {
-		return [];
-	}
-
-	for (const i in localStorage) {
-		if (i.startsWith('activity_log:')) {
-			const logger = createActivityLog();
-			logger.importJson(localStorage[i]);
-
-			const startTime = logger.getStartTime();
-			const date = new Date(startTime);
-
-			arr.push({
-				id: i,
-				ts: startTime,
-				date: date.toLocaleDateString([navigator.languages[0], 'en-US'], {
-					weekday: 'long',
-					year: 'numeric',
-					month: 'long',
-					day: 'numeric',
-				}),
-				logger: logger,
-			});
-		}
-	}
-
-	return arr.sort((a, b) => b.ts - a.ts);
+export function getActivityLogs() {
+	return rideRepository.findAll();
 }
 
 export function deleteActivityLog(id: string) {
-	if (!id.startsWith('activity_log:')) {
-		throw new Error('The given id is not an activity log id');
-	}
-
-	localStorage.removeItem(id);
+	rideRepository.delete(id);
 }
 
 /**
