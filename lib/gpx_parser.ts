@@ -149,6 +149,55 @@ export function gpxDocument2obj(doc: Document): CourseData {
 	};
 }
 
+function escapeXml(s: string): string {
+	return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+export function courseData2gpx(data: CourseData): string {
+	const lines: string[] = [
+		'<?xml version="1.0" encoding="UTF-8"?>',
+		'<gpx version="1.1" creator="Bfree" xmlns="http://www.topografix.com/GPX/1/1">',
+	];
+
+	for (const wpt of data.waypoints) {
+		const nameAttr = wpt.name ? `<name>${escapeXml(wpt.name)}</name>` : '';
+		const eleAttr = wpt.ele != null ? `<ele>${wpt.ele}</ele>` : '';
+		lines.push(`  <wpt lat="${wpt.lat}" lon="${wpt.lon}">${nameAttr}${eleAttr}</wpt>`);
+	}
+
+	for (const route of data.routes) {
+		lines.push('  <rte>');
+		if (route.name) lines.push(`    <name>${escapeXml(route.name)}</name>`);
+		for (const rpt of route.routepoints) {
+			lines.push(`    <rtept lat="${rpt.lat}" lon="${rpt.lon}" />`);
+		}
+		lines.push('  </rte>');
+	}
+
+	for (const track of data.tracks) {
+		lines.push('  <trk>');
+		if (track.name) lines.push(`    <name>${escapeXml(track.name)}</name>`);
+		for (const seg of track.segments) {
+			lines.push('    <trkseg>');
+			for (const tp of seg.trackpoints) {
+				const children: string[] = [];
+				if (tp.ele != null) children.push(`<ele>${tp.ele}</ele>`);
+				if (tp.time) children.push(`<time>${tp.time.toISOString()}</time>`);
+				if (children.length > 0) {
+					lines.push(`      <trkpt lat="${tp.lat}" lon="${tp.lon}">${children.join('')}</trkpt>`);
+				} else {
+					lines.push(`      <trkpt lat="${tp.lat}" lon="${tp.lon}" />`);
+				}
+			}
+			lines.push('    </trkseg>');
+		}
+		lines.push('  </trk>');
+	}
+
+	lines.push('</gpx>');
+	return lines.join('\n');
+}
+
 export function getMapBounds(obj: CourseData) {
 	const points = [
 		...obj.tracks
