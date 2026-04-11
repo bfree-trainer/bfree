@@ -48,10 +48,10 @@ export default function RideWorkoutEdit() {
 		workoutRepository
 			.save(name, notes, workoutScript)
 			.catch(console.error) // TODO Show an error???
-			.then(() => router.push('/ride/workout'));
+			.then(() => router.push('/ride/trainer/workout'));
 	};
 	const onClickDiscard = () => {
-		router.push('/ride/workout');
+		router.push('/ride/trainer/workout');
 	};
 
 	return (

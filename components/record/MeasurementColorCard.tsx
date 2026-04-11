@@ -6,8 +6,8 @@ import Container from '@mui/material/Container';
 import IconHeart from '@mui/icons-material/Favorite';
 import IconPower from '@mui/icons-material/OfflineBolt';
 import IconSpeed from '@mui/icons-material/Speed';
-import SxPropsTheme from '../../lib/SxPropsTheme';
-import { inlineIconFontSize } from '../../lib/tokens';
+import SxPropsTheme from 'lib/SxPropsTheme';
+import { inlineIconFontSize } from 'lib/tokens';
 
 const iconStyle: SxPropsTheme = {
 	fontSize: inlineIconFontSize,

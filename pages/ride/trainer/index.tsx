@@ -10,22 +10,28 @@ import MyHead from 'components/MyHead';
 import Title from 'components/Title';
 import Typography from '@mui/material/Typography';
 
-export default function Ride() {
+export default function IndoorTrainer() {
 	return (
 		<Container maxWidth="md">
-			<MyHead title="Ride" />
+			<MyHead title="Indoor Trainer" />
 			<Box>
-				<Title href="/">Ride</Title>
+				<Title href="/ride">Indoor Trainer</Title>
 				<Typography variant="body1" color="text.primary" sx={{ mt: 2, mb: 2 }}>
 					Choose how you want to ride.
 				</Typography>
 
 				<Grid container direction="row" alignItems="center" spacing={2}>
-					<MenuCard title="Indoor Trainer" href="/ride/trainer">
-						Indoor smart trainer ride.
+					<MenuCard title="Free Ride" href="/ride/trainer/free">
+						Adjust resistance as you ride.
 					</MenuCard>
-					<MenuCard title="Road" href="/ride/road">
-						Ride outdoors on a road.
+					<MenuCard title="Workout" href="/ride/trainer/workout">
+						Predefined workout profiles.
+					</MenuCard>
+					<MenuCard title="Map Ride" href="/ride/trainer/map">
+						Ride along a route on a map.
+					</MenuCard>
+					<MenuCard title="Virtual Ride" href="/ride/trainer/virtual">
+						Virtual ride with a recorded profile and video.
 					</MenuCard>
 				</Grid>
 			</Box>

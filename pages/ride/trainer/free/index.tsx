@@ -33,7 +33,7 @@ function getInitialAutoSplitValue(autoSplitMode: AutoSplitMode, autoSplit: strin
 }
 
 function makeStartUrl(resistanceMode: string, rollingResistance: number, powerLimits: PowerLimits, autoSplit: string) {
-	let uri = `/ride/record?type=free&resistance=${resistanceMode}`;
+	let uri = `/ride/trainer/record?type=free&resistance=${resistanceMode}`;
 	switch (resistanceMode) {
 		case 'power':
 			uri = `${uri}&minPower=${powerLimits.min}&maxPower=${powerLimits.max}`;
@@ -90,7 +90,7 @@ export default function RideFree() {
 		<StyledContainer maxWidth="md">
 			<MyHead title="Free Ride" />
 			<Box>
-				<Title href="/ride">Free Ride</Title>
+				<Title href="/ride/trainer">Free Ride</Title>
 				<Typography variant="body1" color="text.primary" sx={{ mt: 2, mb: 2 }}>
 					Start a free ride exercise.
 				</Typography>

@@ -29,9 +29,9 @@ import { RoutePlannerArg } from './map/RoutePlanner';
 import CourseList from './CourseList';
 import ImportCourse from './ImportCourse';
 import { EleArg } from './map/Ele';
-import { CourseData, getMapBounds, gpxDocument2obj, parseGpxFile2Document } from '../lib/gpx_parser';
-import { courseRepository } from '../lib/orm';
-import type { PersistedCourse } from '../lib/orm';
+import { CourseData, getMapBounds, gpxDocument2obj, parseGpxFile2Document } from 'lib/gpx_parser';
+import { courseRepository } from 'lib/orm';
+import type { PersistedCourse } from 'lib/orm';
 
 const DynamicMap = dynamic<OpenStreetMapArg>(() => import('./map/OpenStreetMap'), {
 	ssr: false,
