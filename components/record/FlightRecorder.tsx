@@ -4,7 +4,7 @@
 
 import { useEffect } from 'react';
 import { useGlobalState, getGlobalState, setGlobalState } from 'lib/global';
-import { createActivityLog } from 'lib/activity_log';
+import { createActivityLog, ActivityType } from 'lib/activity_log';
 import { rideRepository } from 'lib/orm';
 import {
 	getCyclingCadenceMeasurement,
@@ -13,7 +13,7 @@ import {
 	getHeartRateMeasurement,
 } from 'lib/measurements';
 
-export default function FlightRecorder({ startTime }: { startTime: number }) {
+export default function FlightRecorder({ startTime, activityType }: { startTime: number; activityType: ActivityType }) {
 	const [samplingRate] = useGlobalState('samplingRate');
 	const [logger, setLogger] = useGlobalState('currentActivityLog');
 	const [bikeParams] = useGlobalState('bike');
@@ -21,7 +21,7 @@ export default function FlightRecorder({ startTime }: { startTime: number }) {
 	useEffect(() => {
 		if (!logger && startTime !== 0) {
 			try {
-				const l = createActivityLog();
+				const l = createActivityLog(activityType);
 				l.lapSplit(startTime, 'Manual'); // Initial lap
 				setGlobalState('elapsedTime', 0);
 				setGlobalState('elapsedLapTime', 0);

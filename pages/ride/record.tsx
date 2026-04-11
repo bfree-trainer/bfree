@@ -21,7 +21,7 @@ import Stopwatch from 'components/record/Stopwatch';
 import Title from 'components/Title';
 import WorkoutController from 'components/record/WorkoutController';
 import YouTubeSidePane from 'components/record/YouTubeSidePane';
-import { LapTriggerMethod } from 'lib/activity_log';
+import { LapTriggerMethod, ActivityType } from 'lib/activity_log';
 import { RecordActionButtons } from 'components/record/ActionButtons';
 import { useGlobalState, ControlParams, setGlobalState } from 'lib/global';
 import { PowerLimits } from 'components/ride/PowerResistance';
@@ -77,7 +77,7 @@ const StyledContainer = styled(Container)(({ theme }) => ({
 	},
 }));
 
-type RideType = 'free' | 'workout' | 'virtual';
+type RideType = 'free' | 'workout' | 'map' | 'virtual';
 
 function DataGraphCard() {
 	const [logger] = useGlobalState('currentActivityLog');
@@ -429,10 +429,28 @@ function VirtualRideDashboard() {
 	);
 }
 
+function getActivityType(rideType: RideType): ActivityType {
+	switch (rideType) {
+		case 'free':
+			return 'trainerFreeRide';
+		case 'workout':
+			return 'trainerWorkout';
+		case 'map':
+			return 'trainerMap';
+		case 'virtual':
+			return 'trainerVirtual';
+		default: {
+			const _exhaustiveCheck: never = rideType;
+			return _exhaustiveCheck;
+		}
+	}
+}
+
 function getRideType(rideType: string | string[]): RideType {
 	switch (rideType) {
 		case 'free':
 		case 'workout':
+		case 'map':
 		case 'virtual':
 			return rideType;
 		default:
@@ -558,7 +576,7 @@ export default function RideRecord() {
 			<StyledContainer maxWidth="md">
 				<MyHead title={title} />
 				<Dashboard setMeta={setMeta} doSplit={doSplit} endRide={endRide} />
-				<FlightRecorder startTime={rideStartTime} />
+				<FlightRecorder startTime={rideStartTime} activityType={getActivityType(rideType)} />
 				<PauseModal show={ridePaused === -1 && !rideEnded} onClose={continueRide}>
 					<p id="pause-modal-description">Tap outside of this area to start the ride.</p>
 				</PauseModal>
