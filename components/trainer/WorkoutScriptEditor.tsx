@@ -2,14 +2,14 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import { useState, useEffect } from 'react';
 import Card from '@mui/material/Card';
 import { styled } from '@mui/material/styles';
 import CardContent from '@mui/material/CardContent';
 import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { useState, useEffect } from 'react';
-import EditActionButtons from './EditActionButtons';
+import EditActionButtons from 'components/EditActionButtons';
 
 const PREFIX = 'WorkoutScriptEditor';
 const classes = {

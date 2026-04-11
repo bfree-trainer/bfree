@@ -7,7 +7,7 @@ import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import { createActivityLog } from 'lib/activity_log';
 import { rideRepository } from 'lib/orm';
-import EditActionButtons from 'components/EditActionButtons';
+import EditActionButtons from './EditActionButtons';
 import MyModal from 'components/MyModal';
 
 const editModalStyle = {

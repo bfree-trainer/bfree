@@ -2,20 +2,20 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import { useRouter } from 'next/router';
+import { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
-import dynamic from 'next/dynamic';
-import { useRouter } from 'next/router';
-import { useState, useEffect } from 'react';
+import Typography from '@mui/material/Typography';
 import MyHead from 'components/MyHead';
 import Title from 'components/Title';
-import WorkoutScriptEditor from 'components/WorkoutScriptEditor';
+import WorkoutScriptEditor from 'components/trainer/WorkoutScriptEditor';
 import { workoutRepository } from 'lib/orm';
 import scriptExample from 'lib/workouts/workout_script_example';
-import Typography from '@mui/material/Typography';
 
-const WorkoutPreviewModal = dynamic(() => import('components/WorkoutPreview'), { ssr: false });
+const WorkoutPreviewModal = dynamic(() => import('components/trainer/WorkoutPreview'), { ssr: false });
 
 const defaultName = 'My Workout';
 const defaultNotes = 'This is just an example.';

@@ -5,11 +5,11 @@
 import TextField from '@mui/material/TextField';
 import { useState, useEffect, ChangeEvent } from 'react';
 import { speedUnitConv, distanceUnitConv } from 'lib/units';
+import { useGlobalState } from 'lib/global';
+import { metricColors } from 'lib/tokens';
 import createWorkoutRunner, { RunnerResponse } from 'lib/workout_runner';
 import Graph, { Series } from 'components/Graph';
-import { useGlobalState } from 'lib/global';
-import MyModal from './MyModal';
-import { metricColors } from 'lib/tokens';
+import MyModal from 'components/MyModal';
 
 const graphColors = [
 	metricColors.power, // load resistance

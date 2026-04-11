@@ -12,7 +12,7 @@ import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import { useState, useEffect } from 'react';
 import { useGlobalState } from 'lib/global';
 import { speedUnitConv } from 'lib/units';
-import SensorValue from './SensorValue';
+import SensorValue from 'components/SensorValue';
 import { modalBorder } from 'lib/tokens';
 
 const PREFIX = 'TrainerControl';
