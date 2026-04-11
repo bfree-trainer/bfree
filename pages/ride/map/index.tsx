@@ -384,8 +384,8 @@ export default function RideMap() {
 				</Typography>
 
 				<Grid container spacing={2}>
-					{/* ── Header: course name + actions ── */}
-					<Grid item xs={12} sm={5} md={4} sx={{ minWidth: 0 }}>
+					{/* ── Header: course name + actions (left) | Courses label (right) ── */}
+					<Grid item xs={12} md={8} sx={{ minWidth: 0 }}>
 						<TextField
 							value={courseName}
 							onChange={(e) => setCourseName(e.target.value)}
@@ -393,13 +393,9 @@ export default function RideMap() {
 							size="small"
 							label="Course name"
 							inputProps={{ maxLength: 200 }}
-							sx={{ width: '100%' }}
+							sx={{ width: '100%', mb: 1 }}
 							color={hasUnsavedChanges ? 'warning' : 'primary'}
 						/>
-					</Grid>
-
-					{/* ── Toolbar: actions wrap naturally ── */}
-					<Grid item xs={12} sm={7} md={8} sx={{ minWidth: 0 }}>
 						<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, alignItems: 'center' }}>
 							<ImportCourse newCourse={newCourse} />
 							<MyLocationButton map={map} setPosition={setHomeCoord} onError={setSnackMsg} />
@@ -437,6 +433,17 @@ export default function RideMap() {
 						</Box>
 					</Grid>
 
+					{/* ── Courses label: aligns with the sidebar column on desktop ── */}
+					<Grid item xs={12} md={4} sx={{ minWidth: 0, display: 'flex', alignItems: 'flex-end' }}>
+						<Typography
+							variant="h6"
+							color="primary.main"
+							sx={{ fontWeight: 700 }}
+						>
+							Courses
+						</Typography>
+					</Grid>
+
 					{/* ── Map: appears first on mobile via order ── */}
 					<Grid item xs={12} md={8} sx={{ order: { xs: -1, md: 0 } }}>
 						<Box sx={mapContainerSx}>
@@ -469,13 +476,6 @@ export default function RideMap() {
 
 					{/* ── Sidebar: course list + elevation ── */}
 					<Grid item xs={12} md={4} sx={{ minWidth: 0, order: { xs: 0, md: 0 } }}>
-						<Typography
-							variant="h6"
-							color="primary.main"
-							sx={{ fontWeight: 700, mb: 1 }}
-						>
-							Courses
-						</Typography>
 						<CourseList
 							height={'clamp(160px, 30vh, 300px)'}
 							changeId={changeCount}
