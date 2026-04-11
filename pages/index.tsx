@@ -43,6 +43,9 @@ export default function Home() {
 					<MenuCard title="Previous Rides" href="/history">
 						Manage and export previous rides.
 					</MenuCard>
+					<MenuCard title="Progress" href="/progress">
+						Training load, fitness score, and best efforts.
+					</MenuCard>
 					<MenuCard title="Heatmap" href="/heatmap">
 						View a heatmap of all your rides with GPS data.
 					</MenuCard>
