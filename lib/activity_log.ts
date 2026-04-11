@@ -4,6 +4,7 @@
 
 import haversine from './haversine';
 import type { CourseData } from './gpx_parser';
+import type { ParsedFit } from './fit_parser';
 
 export type TrackPoint = {
 	time: number;
@@ -332,6 +333,80 @@ export function gpxToActivityLog(gpxData: CourseData, name?: string): ReturnType
 	const lastTp = allTrackpoints[allTrackpoints.length - 1];
 	const endTime = hasTimestamps && lastTp.time ? lastTp.time.getTime() : startTime + allTrackpoints.length * 1000;
 	logger.endActivityLog(endTime, 'Manual');
+
+	return logger;
+}
+
+/**
+ * Convert parsed FIT data into a new activity log entry.
+ * Returns null if no data records are found.
+ * Preserves HR, power, cadence and speed data present in the FIT file.
+ */
+export function fitToActivityLog(fitData: ParsedFit, name?: string): ReturnType<typeof createActivityLog> | null {
+	const records = fitData.records ?? [];
+	if (records.length === 0) {
+		return null;
+	}
+
+	// Derive a sensible name: prefer explicit arg, then session sport, then fallback
+	const session = fitData.sessions?.[0];
+	const sport = session?.sport;
+	const defaultName =
+		sport && sport !== 'generic'
+			? `Imported ${sport.charAt(0).toUpperCase()}${sport.slice(1)} Ride`
+			: 'Imported Ride';
+	const logName = name || defaultName;
+
+	const firstTs = new Date(records[0].timestamp).getTime();
+	const lastTs = new Date(records[records.length - 1].timestamp).getTime();
+
+	const logger = createActivityLog('road');
+	logger.setName(logName);
+	logger.lapSplit(firstTs, 'Manual');
+
+	for (const rec of records) {
+		const time = new Date(rec.timestamp).getTime();
+		if (Number.isNaN(time)) continue;
+
+		const trackPoint: TrackPoint = { time };
+
+		const lat = rec.position_lat;
+		const lon = rec.position_long;
+		if (typeof lat === 'number' && typeof lon === 'number') {
+			trackPoint.position = { lat, lon };
+		}
+
+		// Prefer enhanced values when available (higher precision on newer Garmin devices)
+		const alt = rec.enhanced_altitude ?? rec.altitude;
+		if (typeof alt === 'number') {
+			trackPoint.alt = alt;
+		}
+
+		const spd = rec.enhanced_speed ?? rec.speed;
+		if (typeof spd === 'number') {
+			trackPoint.speed = spd;
+		}
+
+		if (typeof rec.distance === 'number') {
+			trackPoint.dist = rec.distance;
+		}
+
+		if (typeof rec.heart_rate === 'number') {
+			trackPoint.hr = rec.heart_rate;
+		}
+
+		if (typeof rec.cadence === 'number') {
+			trackPoint.cadence = rec.cadence;
+		}
+
+		if (typeof rec.power === 'number') {
+			trackPoint.power = rec.power;
+		}
+
+		logger.addTrackPoint(trackPoint);
+	}
+
+	logger.endActivityLog(lastTs, 'Manual');
 
 	return logger;
 }

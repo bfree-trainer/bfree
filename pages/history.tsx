@@ -35,9 +35,10 @@ import Title from 'components/Title';
 import EditRideModal from 'components/EditRideModal';
 import RideStatsPanel from 'components/RideStatsPanel';
 import downloadBlob from 'lib/download_blob';
-import { gpxToActivityLog } from 'lib/activity_log';
+import { gpxToActivityLog, fitToActivityLog } from 'lib/activity_log';
 import { rideRepository } from 'lib/orm';
 import { gpxDocument2obj, parseGpxFile2Document } from 'lib/gpx_parser';
+import { parseFitFile } from 'lib/fit_parser';
 import { getElapsedTimeStr } from 'lib/format';
 import { smartDistanceUnitFormat } from 'lib/units';
 import { useGlobalState } from 'lib/global';
@@ -369,6 +370,42 @@ export default function History() {
 		});
 	};
 
+	const handleImportFit = (e: ChangeEvent<HTMLInputElement>) => {
+		const files = Array.from(e.target.files ?? []);
+		// Reset so selecting the same file(s) again still triggers onChange
+		e.target.value = '';
+		if (files.length === 0) return;
+
+		const promises = files.map((file) =>
+			parseFitFile(file)
+				.then((fitData) => {
+					const logger = fitToActivityLog(fitData, file.name.replace(/\.fit$/i, ''));
+					if (!logger) return false;
+					rideRepository.save(logger);
+					return true;
+				})
+				.catch(() => false)
+		);
+
+		Promise.all(promises).then((results) => {
+			setLogs(rideRepository.findAll());
+			const imported = results.filter(Boolean).length;
+			const failed = results.length - imported;
+			if (files.length === 1) {
+				if (imported === 1) {
+					setSnackMsg('FIT file imported successfully.');
+				} else {
+					setSnackMsg('No data records found in the FIT file.');
+				}
+			} else {
+				const parts: string[] = [];
+				if (imported > 0) parts.push(`${imported} File${imported !== 1 ? 's' : ''} imported`);
+				if (failed > 0) parts.push(`${failed} failed`);
+				setSnackMsg(parts.join(', ') + '.');
+			}
+		});
+	};
+
 	useEffect(() => {
 		setLogs(rideRepository.findAll());
 	}, []);
@@ -393,6 +430,16 @@ export default function History() {
 							aria-label="Upload GPX file"
 							multiple
 							onChange={handleImportGpx}
+						/>
+					</Button>
+					<Button component="label" variant="outlined" size="small">
+						Import FIT
+						<VisuallyHiddenInput
+							type="file"
+							accept=".fit,.FIT"
+							aria-label="Upload FIT file"
+							multiple
+							onChange={handleImportFit}
 						/>
 					</Button>
 				</Box>
