@@ -29,6 +29,7 @@ const OpenStreetMap = ({
 				style={{
 					width,
 					height,
+					touchAction: 'none',
 				}}
 				// @ts-ignore
 				center={center}
