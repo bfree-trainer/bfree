@@ -79,6 +79,20 @@ export const explorerColors = {
 } as const;
 
 // ---------------------------------------------------------------------------
+// Progress page bar chart colors
+// ---------------------------------------------------------------------------
+export const progressBarColors = {
+	/** Active / current-month bar fill — matches MUI primary.main. */
+	active: '#1976D2',
+	/** Past-month bar fill — lighter primary blue (MUI primary.light). */
+	past: '#90CAF9',
+	/** Active / current-month effort bar fill — matches metricColors.power. */
+	effortActive: metricColors.power,
+	/** Past-month effort bar fill — lighter tint of metricColors.power. */
+	effortPast: '#dcedc8',
+} as const;
+
+// ---------------------------------------------------------------------------
 // YouTube brand colors — side pane tab, header, and load button
 // ---------------------------------------------------------------------------
 export const youtubeRed = '#FF0000' as const;

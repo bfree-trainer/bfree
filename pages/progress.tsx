@@ -32,15 +32,13 @@ import Title from 'components/Title';
 import { rideRepository } from 'lib/orm';
 import type { RideEntry } from 'lib/orm';
 import { useGlobalState } from 'lib/global';
-import { chartColors, metricColors } from 'lib/tokens';
+import { chartColors, progressBarColors } from 'lib/tokens';
 
 // ─── Chart color constants ────────────────────────────────────────────────────
-// Primary blue shades matching MUI theme for km/distance bars
-const BAR_COLOR_ACTIVE = '#1976D2'; // MUI primary.main — current month
-const BAR_COLOR_PAST = '#90CAF9';   // MUI primary.light — past months
-// Power metric color from design tokens
-const EFFORT_COLOR_ACTIVE = metricColors.power;
-const EFFORT_COLOR_PAST = '#dcedc8'; // lighter tint of metricColors.power
+const BAR_COLOR_ACTIVE = progressBarColors.active;
+const BAR_COLOR_PAST = progressBarColors.past;
+const EFFORT_COLOR_ACTIVE = progressBarColors.effortActive;
+const EFFORT_COLOR_PAST = progressBarColors.effortPast;
 
 // TSB (Form) thresholds — based on standard TrainingPeaks/WKO conventions:
 // >5 = fresh/peaking, < -10 = accumulated fatigue, in between = neutral
