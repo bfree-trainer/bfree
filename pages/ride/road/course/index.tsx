@@ -18,17 +18,7 @@ import downloadBlob from 'lib/download_blob';
 import { rideRepository } from 'lib/orm';
 import { useGlobalState } from 'lib/global';
 import { speedUnitConv, smartDistanceUnitFormat } from 'lib/units';
-
-/** Format milliseconds as "Xh Ym", "Xh", "Ym", or "0m". */
-function formatDuration(ms: number): string {
-	const totalMin = Math.round(ms / 60000);
-	const hours = Math.floor(totalMin / 60);
-	const minutes = totalMin % 60;
-	if (hours === 0 && minutes === 0) return '0m';
-	if (hours === 0) return `${minutes}m`;
-	if (minutes === 0) return `${hours}h`;
-	return `${hours}h ${minutes}m`;
-}
+import { formatDuration } from 'lib/format';
 
 /**
  * Compute average speed in m/s from `road` activities in the past 4 weeks.

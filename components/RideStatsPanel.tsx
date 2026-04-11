@@ -10,19 +10,9 @@ import { styled } from '@mui/material/styles';
 import type { RideEntry } from 'lib/orm';
 import { smartDistanceUnitFormat } from 'lib/units';
 import { useGlobalState } from 'lib/global';
+import { formatDuration } from 'lib/format';
 
 type Logs = RideEntry[];
-
-/** Format milliseconds as "Xh Ym", "Xh", "Ym", or "0m". */
-function formatDuration(ms: number): string {
-	const totalMin = Math.round(ms / 60000);
-	const hours = Math.floor(totalMin / 60);
-	const minutes = totalMin % 60;
-	if (hours === 0 && minutes === 0) return '0m';
-	if (hours === 0) return `${minutes}m`;
-	if (minutes === 0) return `${hours}h`;
-	return `${hours}h ${minutes}m`;
-}
 
 /** Returns the Monday (00:00:00) of the ISO week that contains `date`. */
 function getISOWeekStart(date: Date): Date {
