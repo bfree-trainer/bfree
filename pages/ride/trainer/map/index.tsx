@@ -17,39 +17,39 @@ import Grid from '@mui/material/Grid';
 import IconHome from '@mui/icons-material/Home';
 import IconBike from '@mui/icons-material/DirectionsBike';
 import IconRoute from '@mui/icons-material/Route';
-import MyHead from '../../../components/MyHead';
+import MyHead from 'components/MyHead';
 import Paper from '@mui/material/Paper';
 import Snackbar from '@mui/material/Snackbar';
 import Switch, { SwitchProps } from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
-import Title from '../../../components/Title';
+import Title from 'components/Title';
 import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { OpenStreetMapArg } from '../../../components/map/OpenStreetMap';
-import { MapMarkerArg } from '../../../components/map/Marker';
-import { MapCourseArg as CourseArg } from '../../../components/map/Course';
-import { RoutePlannerArg } from '../../../components/map/RoutePlanner';
-import CourseList from '../../../components/CourseList';
-import StartButton from '../../../components/StartButton';
-import ImportCourse from '../../../components/ImportCourse';
-import { EleArg } from '../../../components/map/Ele';
-import { CourseData, getMapBounds, gpxDocument2obj, parseGpxFile2Document } from '../../../lib/gpx_parser';
-import { courseRepository } from '../../../lib/orm';
-import type { PersistedCourse } from '../../../lib/orm';
+import { OpenStreetMapArg } from 'components/map/OpenStreetMap';
+import { MapMarkerArg } from 'components/map/Marker';
+import { MapCourseArg as CourseArg } from 'components/map/Course';
+import { RoutePlannerArg } from 'components/map/RoutePlanner';
+import CourseList from 'components/CourseList';
+import StartButton from 'components/StartButton';
+import ImportCourse from 'components/ImportCourse';
+import { EleArg } from 'components/map/Ele';
+import { CourseData, getMapBounds, gpxDocument2obj, parseGpxFile2Document } from 'lib/gpx_parser';
+import { courseRepository } from 'lib/orm';
+import type { PersistedCourse } from 'lib/orm';
 
-const DynamicMap = dynamic<OpenStreetMapArg>(() => import('../../../components/map/OpenStreetMap'), {
+const DynamicMap = dynamic<OpenStreetMapArg>(() => import('components/map/OpenStreetMap'), {
 	ssr: false,
 });
-const DynamicMapMarker = dynamic<MapMarkerArg>(() => import('../../../components/map/Marker'), {
+const DynamicMapMarker = dynamic<MapMarkerArg>(() => import('components/map/Marker'), {
 	ssr: false,
 });
-const DynamicCourse = dynamic<CourseArg>(() => import('../../../components/map/Course'), {
+const DynamicCourse = dynamic<CourseArg>(() => import('components/map/Course'), {
 	ssr: false,
 });
-const DynamicRoutePlanner = dynamic<RoutePlannerArg>(() => import('../../../components/map/RoutePlanner'), {
+const DynamicRoutePlanner = dynamic<RoutePlannerArg>(() => import('components/map/RoutePlanner'), {
 	ssr: false,
 });
-const DynamicEle = dynamic<EleArg>(() => import('../../../components/map/Ele'), { ssr: false });
+const DynamicEle = dynamic<EleArg>(() => import('components/map/Ele'), { ssr: false });
 
 const DEFAULT_COURSE_NAME = 'Untitled';
 
@@ -373,7 +373,7 @@ export default function RideMap() {
 		<Container maxWidth="md">
 			<MyHead title="Map Ride" />
 			<Box>
-				<Title href="/ride">Map Ride</Title>
+				<Title href="/ride/trainer">Map Ride</Title>
 				<Typography variant="body1" color="text.primary" sx={{ mt: 2, mb: 2 }}>
 					Plan a route or import a GPX file.
 				</Typography>
@@ -477,7 +477,7 @@ export default function RideMap() {
 						</Paper>
 					</Grid>
 				</Grid>
-				<StartButton disabled={editMode} href={`/ride/record?type=map&mapId=todo`} />
+				<StartButton disabled={editMode} href={`/ride/trainer/record?type=map&mapId=todo`} />
 			</Box>
 			<Snackbar
 				open={snackMsg !== null}

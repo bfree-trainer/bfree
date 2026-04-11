@@ -85,7 +85,7 @@ function WorkoutCard({ workout, onChange }) {
 	const [btDevice_smart_trainer] = useGlobalState('btDevice_smart_trainer');
 	const [smartTrainerControl] = useGlobalState('smart_trainer_control');
 	const hasTrainer = !!btDevice_smart_trainer || !!smartTrainerControl;
-	const href = useMemo(() => `/ride/record?type=workout&id=${workout.id}`, [workout.id]);
+	const href = useMemo(() => `/ride/trainer/record?type=workout&id=${workout.id}`, [workout.id]);
 
 	const handleMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
 		setAnchorEl(event.currentTarget);
@@ -95,7 +95,7 @@ function WorkoutCard({ workout, onChange }) {
 	};
 	const handleEdit = () => {
 		setAnchorEl(null);
-		router.push(`/ride/workout/edit?id=${workout.id}`);
+		router.push(`/ride/trainer/workout/edit?id=${workout.id}`);
 	};
 	const handleDelete = () => {
 		setAnchorEl(null);
@@ -218,7 +218,7 @@ export default function Workout() {
 		<StyledContainer maxWidth="sm">
 			<MyHead title="Workout" />
 			<Box>
-				<Title href="/ride">Workout</Title>
+				<Title href="/ride/trainer">Workout</Title>
 				<Typography variant="body1" color="text.primary" sx={{ mt: 2, mb: 2 }}>
 					Create and run structured workouts.
 				</Typography>
@@ -232,7 +232,7 @@ export default function Workout() {
 					color="primary"
 					aria-label="add"
 					className={classes.fab}
-					onClick={() => router.push('/ride/workout/edit')}
+					onClick={() => router.push('/ride/trainer/workout/edit')}
 				>
 					<IconAdd />
 				</Fab>

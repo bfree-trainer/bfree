@@ -41,7 +41,7 @@ function makeStartUrl(clip: VideoClip): string {
 	if (clip.roadSurface) {
 		params.set('roadSurface', clip.roadSurface);
 	}
-	return `/ride/record?${params.toString()}`;
+	return `/ride/trainer/record?${params.toString()}`;
 }
 
 function VideoClipCard({ clip, selected, onSelect }: { clip: VideoClip; selected: boolean; onSelect: () => void }) {
@@ -105,7 +105,7 @@ export default function RideVirtual() {
 		<Container maxWidth="md">
 			<MyHead title="Virtual Ride" />
 			<Box>
-				<Title href="/ride">Virtual Ride</Title>
+				<Title href="/ride/trainer">Virtual Ride</Title>
 				<Typography variant="body1" color="text.primary" sx={{ mt: 2, mb: 2 }}>
 					Choose a video for your ride.
 				</Typography>
