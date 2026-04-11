@@ -2,144 +2,48 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import { Rider } from './global';
-import { base64ToString, digestSHA1, stringToBase64 } from './ab';
-import generateFTPTest from './workouts/ftp';
+// Re-export types and the repository singleton from the ORM layer.
+export type { WorkoutScript } from './orm/workout_repository';
+export { workoutRepository } from './orm/workout_repository';
 
-export type WorkoutScript = {
-	id: string;
-	name: string;
-	notes: string;
-	ts: number; // ms
-	fav?: boolean;
-	avatar?: string;
-	script: string;
-};
+// ---------------------------------------------------------------------------
+// Legacy convenience wrappers — delegate to the ORM repository so all callers
+// that still use these functions continue to work.  New code should prefer
+// importing from 'lib/orm' directly.
+// ---------------------------------------------------------------------------
+
+import type { Rider } from './global';
+import { workoutRepository } from './orm/workout_repository';
+import type { WorkoutScript } from './orm/workout_repository';
 
 export function getWorkouts(): WorkoutScript[] {
-	const workouts = [];
-
-	if (typeof window === 'undefined') {
-		return workouts;
-	}
-
-	for (const i in localStorage) {
-		if (i.startsWith('workout:')) {
-			const v = JSON.parse(localStorage[i]);
-
-			workouts.push({
-				id: i,
-				name: v.name,
-				notes: v.notes,
-				ts: v.ts,
-				fav: v.fav,
-				avatar: v.avatar || 'W',
-				script: base64ToString(v.script),
-			});
-		}
-	}
-
-	return workouts.sort((a, b) => b.fav - a.fav || b.ts - a.ts);
+	return workoutRepository.findAll();
 }
 
 export function getWorkoutDate(workout: WorkoutScript) {
-	const date = new Date(workout.ts);
-
-	return date.toLocaleDateString([navigator.languages[0], 'en-US'], {
-		weekday: 'long',
-		year: 'numeric',
-		month: 'long',
-		day: 'numeric',
-	});
+	return workoutRepository.formatDate(workout);
 }
 
-export async function generateSystemWorkouts(rider: Rider) {
-	const systemWorkouts: Array<[string, string, string]> = [
-		['FTP Test', 'Test your FTP.', generateFTPTest(rider.ftp)],
-	];
-
-	await Promise.all(systemWorkouts.map((w) => saveSystemWorkout(...w)));
+export async function generateSystemWorkouts(rider: Rider): Promise<void> {
+	return workoutRepository.generateSystemWorkouts(rider);
 }
 
 export async function saveSystemWorkout(name: string, notes: string, script: string): Promise<string> {
-	const id = `workout:${name.split(' ').join('').toLowerCase()}`;
-
-	localStorage.setItem(
-		id,
-		JSON.stringify({
-			name,
-			notes,
-			ts: 0,
-			avatar: 'T',
-			script: await stringToBase64(script),
-		})
-	);
-
-	return id;
+	return workoutRepository.saveSystem(name, notes, script);
 }
 
 export async function saveWorkout(name: string, notes: string, script: string, ts?: number): Promise<string> {
-	const digest = await digestSHA1(name);
-	const id = `workout:${digest}`;
-
-	localStorage.setItem(
-		id,
-		JSON.stringify({
-			name,
-			notes,
-			ts: ts ?? Date.now(),
-			script: await stringToBase64(script),
-		})
-	);
-
-	return id;
+	return workoutRepository.save(name, notes, script, ts);
 }
 
-export async function toggleWorkoutFav(id: string) {
-	if (!id.startsWith('workout:')) {
-		throw new Error('Not a workout');
-	}
-
-	const raw = localStorage.getItem(id);
-
-	if (!raw) {
-		return null;
-	}
-
-	const w = JSON.parse(raw);
-	w.fav = !w.fav;
-
-	localStorage.setItem(id, JSON.stringify(w));
+export async function toggleWorkoutFav(id: string): Promise<void> {
+	return workoutRepository.toggleFav(id);
 }
 
 export function readWorkout(id: string): WorkoutScript {
-	if (!id.startsWith('workout:')) {
-		throw new Error('Not a workout');
-	}
-
-	const raw = localStorage.getItem(id);
-
-	if (!raw) {
-		return null;
-	}
-
-	const w = JSON.parse(raw);
-
-	return {
-		id,
-		name: w.name,
-		notes: w.notes,
-		ts: w.ts,
-		fav: w.fav,
-		avatar: w.avatar || 'W',
-		script: base64ToString(w.script),
-	};
+	return workoutRepository.findById(id);
 }
 
-export function deleteWorkout(id: string) {
-	if (!id.startsWith('workout:')) {
-		throw new Error('Not a workout');
-	}
-
-	localStorage.removeItem(id);
+export function deleteWorkout(id: string): void {
+	workoutRepository.delete(id);
 }

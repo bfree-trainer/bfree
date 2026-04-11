@@ -10,7 +10,7 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import MyHead from 'components/MyHead';
 import Title from 'components/Title';
-import { getActivityLogs } from 'lib/activity_log';
+import { rideRepository } from 'lib/orm';
 import { useMemo } from 'react';
 import { OpenStreetMapArg } from 'components/map/OpenStreetMap';
 import { RideHeatmapLayerArgs } from 'components/map/RideHeatmapLayer';
@@ -31,7 +31,8 @@ const DynamicExplorerTilesLayer = dynamic<ExplorerTilesLayerArgs>(
 
 export default function Heatmap() {
 const tracks = useMemo<[number, number][][]>(() => {
-return getActivityLogs()
+return rideRepository
+			.findAll()
 .map((log) =>
 log.logger
 .getLaps()

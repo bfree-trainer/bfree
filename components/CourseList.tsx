@@ -12,7 +12,8 @@ import IconDelete from '@mui/icons-material/Delete';
 import Typography from '@mui/material/Typography';
 import AutoSizer, { Size } from 'react-virtualized-auto-sizer';
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
-import { PersistedCourse, deleteCourse, getCourses } from 'lib/course_storage';
+import { courseRepository } from 'lib/orm';
+import type { PersistedCourse } from 'lib/orm';
 
 function renderRow(props: ListChildComponentProps) {
 	const { data, index, style } = props;
@@ -20,7 +21,7 @@ function renderRow(props: ListChildComponentProps) {
 
 	const deleteThis = () => {
 		if (course) {
-			deleteCourse(course.id);
+			courseRepository.delete(course.id);
 			data.setLastDel(Date.now());
 		}
 	};
@@ -65,7 +66,7 @@ export default function CourseList({
 	onSelectCourse: (persistedCourse: PersistedCourse) => void;
 }) {
 	const [lastDel, setLastDel] = useState(0);
-	const courses = useMemo(() => getCourses(), [lastDel, changeId]);
+	const courses = useMemo(() => courseRepository.findAll(), [lastDel, changeId]);
 
 	return (
 		<Box sx={{ width: '100%', height, maxWidth: 360, bgcolor: 'background.paper' }}>
