@@ -46,6 +46,9 @@ export default function Home() {
 					<MenuCard title="Setup" href="/setup">
 						Configure parameters and connect to a trainer and sensors.
 					</MenuCard>
+					<MenuCard title="Heatmap" href="/heatmap">
+						View a heatmap of all your rides with GPS data.
+					</MenuCard>
 				</Grid>
 			</Box>
 
