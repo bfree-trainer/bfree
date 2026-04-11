@@ -585,10 +585,6 @@ export default function RoutePlanner({
 				const isEnd = i === state.waypoints.length - 1;
 				const type = isStart ? 'start' : isEnd ? 'end' : 'via';
 				const label = isStart ? 'Start' : isEnd ? 'End' : `Waypoint ${i + 1}`;
-				// Pixel size of the marker circle (matches createWaypointIcon).
-				const markerSize = type === 'via' ? 10 : 14;
-				// Offset tooltip upward by half the icon + a 4 px gap so it sits clear of the marker.
-				const tooltipOffset: [number, number] = [0, -(markerSize / 2 + 4)];
 				// draggable and icon are not in react-leaflet's MarkerProps typings.
 				const markerProps = {
 					position: [lat, lon] as [number, number],
@@ -603,7 +599,7 @@ export default function RoutePlanner({
 				};
 				return (
 					<Marker key={i} {...markerProps}>
-						<Tooltip direction="top" offset={tooltipOffset}>{label}</Tooltip>
+						<Tooltip>{label}</Tooltip>
 						<Popup>
 							<div style={{ textAlign: 'center', minWidth: 100 }}>
 								<div style={{ marginBottom: 8, fontWeight: 500, fontSize: 13 }}>{label}</div>
