@@ -330,26 +330,40 @@ export default function History() {
 	};
 
 	const handleImportGpx = (e: ChangeEvent<HTMLInputElement>) => {
-		const file = e.target.files?.[0];
-		// Reset so selecting the same file again still triggers onChange
+		const files = Array.from(e.target.files ?? []);
+		// Reset so selecting the same file(s) again still triggers onChange
 		e.target.value = '';
-		if (!file) return;
+		if (files.length === 0) return;
 
-		parseGpxFile2Document(file)
-			.then((xmlDoc) => {
-				const gpxData = gpxDocument2obj(xmlDoc);
-				const logger = gpxToActivityLog(gpxData);
-				if (!logger) {
+		const promises = files.map((file) =>
+			parseGpxFile2Document(file)
+				.then((xmlDoc) => {
+					const gpxData = gpxDocument2obj(xmlDoc);
+					const logger = gpxToActivityLog(gpxData);
+					if (!logger) return false;
+					saveActivityLog(logger);
+					return true;
+				})
+				.catch(() => false),
+		);
+
+		Promise.all(promises).then((results) => {
+			setLogs(getActivityLogs());
+			const imported = results.filter(Boolean).length;
+			const failed = results.length - imported;
+			if (files.length === 1) {
+				if (imported === 1) {
+					setSnackMsg('GPX file imported successfully.');
+				} else {
 					setSnackMsg('No trackpoints found in the GPX file.');
-					return;
 				}
-				saveActivityLog(logger);
-				setLogs(getActivityLogs());
-				setSnackMsg('GPX file imported successfully.');
-			})
-			.catch((err: Error) => {
-				setSnackMsg(`Failed to import GPX file: ${err.message}`);
-			});
+			} else {
+				const parts: string[] = [];
+				if (imported > 0) parts.push(`${imported} File${imported !== 1 ? 's' : ''} imported`);
+				if (failed > 0) parts.push(`${failed} failed`);
+				setSnackMsg(parts.join(', ') + '.');
+			}
+		});
 	};
 
 	useEffect(() => {
@@ -374,6 +388,7 @@ export default function History() {
 							type="file"
 							accept=".gpx,.GPX"
 							aria-label="Upload GPX file"
+							multiple
 							onChange={handleImportGpx}
 						/>
 					</Button>
