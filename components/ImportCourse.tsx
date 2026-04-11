@@ -22,7 +22,6 @@ export default function ImportCourseDialog({ newCourse }: { newCourse: (name: st
 		setOpen(true);
 	};
 	const handleSelectFile = (e: ChangeEvent<HTMLInputElement>) => {
-		console.log(e.target.files)
 		setFile(e?.target?.files[0] ?? null);
 	};
 	const handleCreate = () => {
@@ -39,7 +38,11 @@ export default function ImportCourseDialog({ newCourse }: { newCourse: (name: st
 
 	return (
 		<>
-			<Button variant="contained" onClick={handleClickOpen} sx={{ '@media (pointer: coarse)': { minHeight: 44 } }}>
+			<Button
+				variant="contained"
+				onClick={handleClickOpen}
+				sx={{ '@media (pointer: coarse)': { minHeight: 44 } }}
+			>
 				Import
 			</Button>
 			<Dialog open={open} onClose={handleCancel}>

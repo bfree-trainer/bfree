@@ -5,7 +5,7 @@
 import dynamic from 'next/dynamic';
 import type L from 'leaflet';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material/styles';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -20,7 +20,7 @@ import IconRoute from '@mui/icons-material/Route';
 import MyHead from '../../../components/MyHead';
 import Paper from '@mui/material/Paper';
 import Snackbar from '@mui/material/Snackbar';
-import Switch, {SwitchProps} from '@mui/material/Switch';
+import Switch, { SwitchProps } from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
 import Title from '../../../components/Title';
 import Typography from '@mui/material/Typography';
@@ -51,86 +51,86 @@ const DynamicMapMarker = dynamic<MapMarkerArg>(() => import('../../../components
 const DynamicCourse = dynamic<CourseArg>(() => import('../../../components/map/Course'), {
 	ssr: false,
 });
-const DynamicRoutePlanner = dynamic<RoutePlannerArg>(
-	() => import('../../../components/map/RoutePlanner'),
-	{ ssr: false },
-);
-const DynamicEle = dynamic<EleArg>(
-	() => import('../../../components/map/Ele'),
-	{ ssr: false },
-);
+const DynamicRoutePlanner = dynamic<RoutePlannerArg>(() => import('../../../components/map/RoutePlanner'), {
+	ssr: false,
+});
+const DynamicEle = dynamic<EleArg>(() => import('../../../components/map/Ele'), { ssr: false });
 
 const DEFAULT_COURSE_NAME = 'Untitled';
 
 const RouteSwitch = styled((props: SwitchProps) => (
-  <Switch
-    focusVisibleClassName=".Mui-focusVisible"
-    disableRipple
-    {...props}
-    icon={
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          width: 32,
-          height: 32,
-          borderRadius: '50%',
-          backgroundColor: 'background.paper',
-          boxShadow: '0 2px 4px 0 rgba(0,0,0,0.2)',
-        }}
-      >
-        <IconRoute sx={{ fontSize: 20, color: 'text.secondary' }} />
-      </Box>
-    }
-    checkedIcon={
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          width: 32,
-          height: 32,
-          borderRadius: '50%',
-          backgroundColor: 'primary.main',
-          boxShadow: '0 2px 4px 0 rgba(0,0,0,0.2)',
-        }}
-      >
-        <IconRoute sx={{ fontSize: 20, color: 'common.white' }} />
-      </Box>
-    }
-  />
+	<Switch
+		focusVisibleClassName=".Mui-focusVisible"
+		disableRipple
+		{...props}
+		icon={
+			<Box
+				sx={{
+					display: 'flex',
+					justifyContent: 'center',
+					alignItems: 'center',
+					width: 32,
+					height: 32,
+					borderRadius: '50%',
+					backgroundColor: 'background.paper',
+					boxShadow: '0 2px 4px 0 rgba(0,0,0,0.2)',
+				}}
+			>
+				<IconRoute sx={{ fontSize: 20, color: 'text.secondary' }} />
+			</Box>
+		}
+		checkedIcon={
+			<Box
+				sx={{
+					display: 'flex',
+					justifyContent: 'center',
+					alignItems: 'center',
+					width: 32,
+					height: 32,
+					borderRadius: '50%',
+					backgroundColor: 'primary.main',
+					boxShadow: '0 2px 4px 0 rgba(0,0,0,0.2)',
+				}}
+			>
+				<IconRoute sx={{ fontSize: 20, color: 'common.white' }} />
+			</Box>
+		}
+	/>
 ))(({ theme }) => ({
-  width: 64,
-  height: 36,
-  padding: 0,
-  margin: 8,
-  '@media (pointer: coarse)': {
-    height: 44,
-    width: 72,
-  },
-  '& .MuiSwitch-switchBase': {
-    padding: 2,
-    '&.Mui-checked': {
-      transform: 'translateX(28px)',
-      '& + .MuiSwitch-track': {
-        backgroundColor: theme.palette.primary.light,
-        opacity: 1,
-        border: 0,
-      },
-    },
-  },
-  '& .MuiSwitch-track': {
-    borderRadius: 36 / 2,
-    backgroundColor: theme.palette.grey[300],
-    opacity: 1,
-    transition: theme.transitions.create(['background-color'], {
-      duration: 500,
-    }),
-  },
-}))
+	width: 64,
+	height: 36,
+	padding: 0,
+	margin: 8,
+	'@media (pointer: coarse)': {
+		height: 44,
+		width: 72,
+	},
+	'& .MuiSwitch-switchBase': {
+		padding: 2,
+		'&.Mui-checked': {
+			transform: 'translateX(28px)',
+			'& + .MuiSwitch-track': {
+				backgroundColor: theme.palette.primary.light,
+				opacity: 1,
+				border: 0,
+			},
+		},
+	},
+	'& .MuiSwitch-track': {
+		borderRadius: 36 / 2,
+		backgroundColor: theme.palette.grey[300],
+		opacity: 1,
+		transition: theme.transitions.create(['background-color'], {
+			duration: 500,
+		}),
+	},
+}));
 
-function MyLocationButton({ map, setPosition, onError }: {
+function MyLocationButton({
+	map,
+	setPosition,
+	onError,
+}: {
 	map: L.Map | null;
 	setPosition: (pos: [number, number]) => void;
 	onError: (msg: string) => void;
@@ -168,12 +168,17 @@ function MyLocationButton({ map, setPosition, onError }: {
 						onError('An unknown error occurred while getting your location.');
 				}
 			},
-			{ timeout: 10000 },
+			{ timeout: 10000 }
 		);
 	};
 
 	return (
-		<Button variant="outlined" onClick={getMyLocation} disabled={loading} sx={{ '@media (pointer: coarse)': { minHeight: 44 } }}>
+		<Button
+			variant="outlined"
+			onClick={getMyLocation}
+			disabled={loading}
+			sx={{ '@media (pointer: coarse)': { minHeight: 44 } }}
+		>
 			{loading ? <CircularProgress size={20} /> : 'My Location'}
 		</Button>
 	);
@@ -253,8 +258,7 @@ export default function RideMap() {
 	const bikeDisplayPos = showMarker && markerCoord ? markerCoord : bikeAnimPos;
 
 	const routeHasData =
-		course &&
-		(course.tracks[0]?.segments[0]?.trackpoints?.length > 0 || course.routes[0]?.routepoints?.length > 0);
+		course && (course.tracks[0]?.segments[0]?.trackpoints?.length > 0 || course.routes[0]?.routepoints?.length > 0);
 	const hasUnsavedChanges = Boolean(routeHasData && course !== lastSavedCourse);
 
 	useEffect(() => {
@@ -359,13 +363,16 @@ export default function RideMap() {
 		}
 	};
 
-	const mapContainerSx = useMemo(() => ({
-		borderRadius: 1,
-		overflow: 'hidden',
-		border: 2,
-		borderColor: editMode ? 'primary.main' : 'transparent',
-		transition: 'border-color 0.2s ease-out',
-	}), [editMode]);
+	const mapContainerSx = useMemo(
+		() => ({
+			borderRadius: 1,
+			overflow: 'hidden',
+			border: 2,
+			borderColor: editMode ? 'primary.main' : 'transparent',
+			transition: 'border-color 0.2s ease-out',
+		}),
+		[editMode]
+	);
 
 	return (
 		<Container maxWidth="md">
@@ -442,36 +449,42 @@ export default function RideMap() {
 					{/* ── Map: appears first on mobile via order ── */}
 					<Grid item xs={12} md={8} sx={{ order: { xs: -1, md: 0 } }}>
 						<Box sx={mapContainerSx}>
-						<DynamicMap center={homeCoord} width={'100%'} height={mapHeight} setMap={setMap} ariaLabel="Route planner map">
-							<DynamicMapMarker icon={<IconHome />} position={homeCoord}>
-								You are here.
-							</DynamicMapMarker>
-							<DynamicMapMarker
-								icon={<IconBike />}
-								position={bikeDisplayPos ?? markerCoord}
-								hidden={!bikeDisplayPos}
-							></DynamicMapMarker>
-							{editMode ? (
-							<DynamicRoutePlanner
-								key={routePlannerKey}
-								setCourse={setCourse}
-								initialCourse={course}
-							/>
-						) : null}
-							{course && !editMode ? <DynamicCourse course={course} /> : null}
-						</DynamicMap>
+							<DynamicMap
+								center={homeCoord}
+								width={'100%'}
+								height={mapHeight}
+								setMap={setMap}
+								ariaLabel="Route planner map"
+							>
+								<DynamicMapMarker icon={<IconHome />} position={homeCoord}>
+									You are here.
+								</DynamicMapMarker>
+								<DynamicMapMarker
+									icon={<IconBike />}
+									position={bikeDisplayPos ?? markerCoord}
+									hidden={!bikeDisplayPos}
+								></DynamicMapMarker>
+								{editMode ? (
+									<DynamicRoutePlanner
+										key={routePlannerKey}
+										setCourse={setCourse}
+										initialCourse={course}
+									/>
+								) : null}
+								{course && !editMode ? <DynamicCourse course={course} /> : null}
+							</DynamicMap>
 						</Box>
 					</Grid>
 
 					{/* ── Sidebar: course list + elevation ── */}
 					<Grid item xs={12} md={4} sx={{ minWidth: 0, order: { xs: 0, md: 0 } }}>
-						<CourseList height={'clamp(160px, 30vh, 300px)'} changeId={changeCount} onSelectCourse={selectCourse} />
+						<CourseList
+							height={'clamp(160px, 30vh, 300px)'}
+							changeId={changeCount}
+							onSelectCourse={selectCourse}
+						/>
 						<Paper elevation={0} sx={{ height: 256, mt: 1 }}>
-							<DynamicEle
-								course={course}
-								showMarker={handleShowMarker}
-								moveMarker={setMarkerCoord}
-							/>
+							<DynamicEle course={course} showMarker={handleShowMarker} moveMarker={setMarkerCoord} />
 						</Paper>
 					</Grid>
 				</Grid>
