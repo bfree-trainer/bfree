@@ -8,6 +8,9 @@ import MyHead from 'components/MyHead';
 import Title from 'components/Title';
 import Typography from '@mui/material/Typography';
 import RoutePlannerPanel from 'components/RoutePlannerPanel';
+import BottomNavi from 'components/BottomNavi';
+import BottomNavigationAction from '@mui/material/BottomNavigationAction';
+import IconDownload from '@mui/icons-material/GetApp';
 
 export default function RoadCourse() {
 	return (
@@ -20,6 +23,15 @@ export default function RoadCourse() {
 				</Typography>
 				<RoutePlannerPanel />
 			</Box>
+			<BottomNavi>
+				<BottomNavigationAction
+					label="Download"
+					icon={<IconDownload />}
+					onClick={(e) => {
+						e.preventDefault();
+					}}
+				/>
+			</BottomNavi>
 		</Container>
 	);
 }
