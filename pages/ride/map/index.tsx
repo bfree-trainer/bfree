@@ -384,17 +384,8 @@ export default function RideMap() {
 				</Typography>
 
 				<Grid container spacing={2}>
-					{/* ── Header: title + course name ── */}
-					<Grid item xs={12} sm={6} md={4}>
-						<Typography
-							variant="h6"
-							color="primary.main"
-							sx={{ fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-						>
-							Courses
-						</Typography>
-					</Grid>
-					<Grid item xs={12} sm={6} md={3} sx={{ minWidth: 0 }}>
+					{/* ── Header: course name + actions ── */}
+					<Grid item xs={12} sm={5} md={4} sx={{ minWidth: 0 }}>
 						<TextField
 							value={courseName}
 							onChange={(e) => setCourseName(e.target.value)}
@@ -408,7 +399,7 @@ export default function RideMap() {
 					</Grid>
 
 					{/* ── Toolbar: actions wrap naturally ── */}
-					<Grid item xs={12} md={5} sx={{ minWidth: 0 }}>
+					<Grid item xs={12} sm={7} md={8} sx={{ minWidth: 0 }}>
 						<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, alignItems: 'center' }}>
 							<ImportCourse newCourse={newCourse} />
 							<MyLocationButton map={map} setPosition={setHomeCoord} onError={setSnackMsg} />
@@ -478,6 +469,13 @@ export default function RideMap() {
 
 					{/* ── Sidebar: course list + elevation ── */}
 					<Grid item xs={12} md={4} sx={{ minWidth: 0, order: { xs: 0, md: 0 } }}>
+						<Typography
+							variant="h6"
+							color="primary.main"
+							sx={{ fontWeight: 700, mb: 1 }}
+						>
+							Courses
+						</Typography>
 						<CourseList
 							height={'clamp(160px, 30vh, 300px)'}
 							changeId={changeCount}
