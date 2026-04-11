@@ -10,22 +10,19 @@ import MyHead from 'components/MyHead';
 import Title from 'components/Title';
 import Typography from '@mui/material/Typography';
 
-export default function Ride() {
+export default function Road() {
 	return (
 		<Container maxWidth="md">
-			<MyHead title="Ride" />
+			<MyHead title="Road" />
 			<Box>
-				<Title href="/">Ride</Title>
+				<Title href="/">Road</Title>
 				<Typography variant="body1" color="text.primary" sx={{ mt: 2, mb: 2 }}>
 					Choose how you want to ride.
 				</Typography>
 
 				<Grid container direction="row" alignItems="center" spacing={2}>
-					<MenuCard title="Indoor Trainer" href="/ride/trainer">
-						Indoor smart trainer ride.
-					</MenuCard>
-					<MenuCard title="Road" href="/ride/road">
-						Ride outdoors on a road.
+					<MenuCard title="Course" href="/ride/road/course">
+						Find or plan a course.
 					</MenuCard>
 				</Grid>
 			</Box>

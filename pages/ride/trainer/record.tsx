@@ -539,7 +539,7 @@ export default function RideRecord() {
 		}
 		setRidePaused(-1);
 		setRideEnded(true);
-		router.push('/ride/results');
+		router.push('/ride/trainer/results');
 	};
 	const handleEndRide = () => {
 		if (rideType === 'workout') {
