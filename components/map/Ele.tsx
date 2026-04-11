@@ -10,6 +10,7 @@ import { AreaChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, A
 import { CourseData } from '../../lib/gpx_parser';
 import haversine from '../../lib/haversine';
 import { metricColors, chartColors } from '../../lib/tokens';
+import { smartDistanceUnitFormat } from '../../lib/units';
 
 type ChartPoint = {
 	distance: number;
@@ -17,7 +18,8 @@ type ChartPoint = {
 	position: [number, number];
 };
 
-const formatValue = (value: number) => `${value.toFixed(2)}m`;
+const formatDistance = (value: number) => smartDistanceUnitFormat('km', value);
+const formatElevation = (value: number) => `${value.toFixed(0)} m`;
 
 /** Maximum number of data-points fed into Recharts.
  *  Large GPX files can easily contain 10k+ points; rendering all of them
@@ -50,8 +52,8 @@ function CustomTooltip({
 
 	return (
 		<Paper variant="outlined" sx={{ px: 1.5, py: 1 }}>
-			<Typography variant="body2">{`Distance: ${formatValue(point.distance)}`}</Typography>
-			<Typography variant="body2">{`Elevation: ${formatValue(point.elevation)}`}</Typography>
+			<Typography variant="body2">{`Distance: ${formatDistance(point.distance)}`}</Typography>
+			<Typography variant="body2">{`Elevation: ${formatElevation(point.elevation)}`}</Typography>
 		</Paper>
 	);
 }
@@ -122,7 +124,7 @@ export default function Ele({
 					<CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
 					<XAxis
 						dataKey="distance"
-						tickFormatter={formatValue}
+						tickFormatter={formatDistance}
 						label={{
 							value: 'distance',
 							position: 'bottom',
@@ -136,7 +138,7 @@ export default function Ele({
 					/>
 					<YAxis
 						dataKey="elevation"
-						tickFormatter={formatValue}
+						tickFormatter={formatElevation}
 						label={{
 							value: 'elevation',
 							angle: -90,
