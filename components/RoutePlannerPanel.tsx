@@ -4,7 +4,7 @@
 
 import dynamic from 'next/dynamic';
 import type L from 'leaflet';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { styled } from '@mui/material/styles';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
@@ -207,15 +207,25 @@ export default function RoutePlannerPanel({ onCourseChange, onEditModeChange }: 
 	const handleShowMarker = useCallback((en: boolean) => setShowMarker(en), []);
 	const handleCloseSnack = useCallback(() => setSnackMsg(null), []);
 
+	// Keep callback refs fresh so effects never go stale or trigger extra renders.
+	const onCourseChangeRef = useRef(onCourseChange);
+	const onEditModeChangeRef = useRef(onEditModeChange);
+	useEffect(() => {
+		onCourseChangeRef.current = onCourseChange;
+	});
+	useEffect(() => {
+		onEditModeChangeRef.current = onEditModeChange;
+	});
+
 	// Notify parent whenever course or name changes.
 	useEffect(() => {
-		onCourseChange?.(course, courseName);
-	}, [course, courseName, onCourseChange]);
+		onCourseChangeRef.current?.(course, courseName);
+	}, [course, courseName]);
 
 	// Notify parent whenever edit mode changes.
 	useEffect(() => {
-		onEditModeChange?.(editMode);
-	}, [editMode, onEditModeChange]);
+		onEditModeChangeRef.current?.(editMode);
+	}, [editMode]);
 
 	// ---------------------------------------------------------------------------
 	// Preview-mode animated bike marker
@@ -323,7 +333,7 @@ export default function RoutePlannerPanel({ onCourseChange, onEditModeChange }: 
 
 			await courseRepository.save(name, '', data);
 			setLastSavedCourse(data ?? null);
-			setChangeCount(changeCount + 1);
+			setChangeCount((c) => c + 1);
 		})();
 	};
 	const selectCourse = (persistedCourse: PersistedCourse) => {
