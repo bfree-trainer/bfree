@@ -429,11 +429,7 @@ export default function RideMap() {
 
 					{/* ── Courses label: aligns with the sidebar column on desktop ── */}
 					<Grid item xs={12} md={4} sx={{ minWidth: 0, display: 'flex', alignItems: 'flex-end' }}>
-						<Typography
-							variant="h6"
-							color="primary.main"
-							sx={{ fontWeight: 700 }}
-						>
+						<Typography variant="h6" color="primary.main" sx={{ fontWeight: 700 }}>
 							Courses
 						</Typography>
 					</Grid>

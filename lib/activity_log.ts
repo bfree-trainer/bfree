@@ -300,13 +300,8 @@ export function deleteActivityLog(id: string) {
  * Convert parsed GPX data into a new activity log entry.
  * Returns null if no trackpoints are found in the GPX data.
  */
-export function gpxToActivityLog(
-	gpxData: CourseData,
-	name?: string
-): ReturnType<typeof createActivityLog> | null {
-	const allTrackpoints = gpxData.tracks.flatMap((track) =>
-		track.segments.flatMap((segment) => segment.trackpoints)
-	);
+export function gpxToActivityLog(gpxData: CourseData, name?: string): ReturnType<typeof createActivityLog> | null {
+	const allTrackpoints = gpxData.tracks.flatMap((track) => track.segments.flatMap((segment) => segment.trackpoints));
 
 	if (allTrackpoints.length === 0) {
 		return null;
