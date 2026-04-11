@@ -49,6 +49,7 @@ const DynamicRideMiniMap = dynamic<RideMiniMapArgs>(() => import('components/map
 	ssr: false,
 });
 const DataGraph = dynamic(() => import('components/DataGraph'), { ssr: false });
+const RideExpandedStats = dynamic(() => import('components/RideExpandedStats'), { ssr: false });
 
 const VisuallyHiddenInput = styled('input')({
 	clip: 'rect(0 0 0 0)',
@@ -291,6 +292,7 @@ function RideCard({ log, onSelect }: { log: Log; onSelect: (v: boolean) => void 
 				<Collapse in={expanded} timeout="auto" unmountOnExit>
 					<CardContent>
 						<DataGraph logger={log.logger} type="full" isInteractive={true} />
+						<RideExpandedStats logger={log.logger} />
 					</CardContent>
 				</Collapse>
 				<CardActions disableSpacing>
