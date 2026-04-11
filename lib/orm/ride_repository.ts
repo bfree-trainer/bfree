@@ -90,7 +90,7 @@ class LocalStorageRideRepository implements RideRepository {
 
 	delete(id: string): void {
 		if (!id.startsWith(this.KEY_PREFIX)) {
-			throw new Error('The given id is not an activity log id');
+			throw new Error(`Invalid activity log ID: must start with "${this.KEY_PREFIX}"`);
 		}
 
 		localStorage.removeItem(id);

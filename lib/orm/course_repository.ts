@@ -62,7 +62,7 @@ class LocalStorageCourseRepository implements CourseRepository {
 
 	findById(id: string): PersistedCourse | null {
 		if (!id.startsWith(this.KEY_PREFIX)) {
-			throw new Error('Not a course id');
+			throw new Error(`Invalid course ID: must start with "${this.KEY_PREFIX}"`);
 		}
 
 		const raw = localStorage.getItem(id);
@@ -98,7 +98,7 @@ class LocalStorageCourseRepository implements CourseRepository {
 
 	delete(id: string): void {
 		if (!id.startsWith(this.KEY_PREFIX)) {
-			throw new Error('Not a course');
+			throw new Error(`Invalid course ID: must start with "${this.KEY_PREFIX}"`);
 		}
 
 		localStorage.removeItem(id);

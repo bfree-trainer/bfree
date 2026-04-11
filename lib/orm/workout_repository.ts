@@ -68,12 +68,12 @@ class LocalStorageWorkoutRepository implements WorkoutRepository {
 			}
 		}
 
-		return workouts.sort((a, b) => +!!b.fav - +!!a.fav || b.ts - a.ts);
+		return workouts.sort((a, b) => (b.fav ? 1 : 0) - (a.fav ? 1 : 0) || b.ts - a.ts);
 	}
 
 	findById(id: string): WorkoutScript | null {
 		if (!id.startsWith(this.KEY_PREFIX)) {
-			throw new Error('Not a workout');
+			throw new Error(`Invalid workout ID: must start with "${this.KEY_PREFIX}"`);
 		}
 
 		const raw = localStorage.getItem(id);
@@ -135,7 +135,7 @@ class LocalStorageWorkoutRepository implements WorkoutRepository {
 
 	async toggleFav(id: string): Promise<void> {
 		if (!id.startsWith(this.KEY_PREFIX)) {
-			throw new Error('Not a workout');
+			throw new Error(`Invalid workout ID: must start with "${this.KEY_PREFIX}"`);
 		}
 
 		const raw = localStorage.getItem(id);
@@ -149,7 +149,7 @@ class LocalStorageWorkoutRepository implements WorkoutRepository {
 
 	delete(id: string): void {
 		if (!id.startsWith(this.KEY_PREFIX)) {
-			throw new Error('Not a workout');
+			throw new Error(`Invalid workout ID: must start with "${this.KEY_PREFIX}"`);
 		}
 
 		localStorage.removeItem(id);
