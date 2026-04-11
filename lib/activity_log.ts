@@ -20,6 +20,7 @@ export type TrackPoint = {
 };
 export type LapTriggerMethod = 'Manual' | 'Distance' | 'Location' | 'Time' | 'HeartRate';
 export type Intensity = 'Active' | 'Resting';
+export type ActivityType = 'trainerFreeRide' | 'trainerWorkout' | 'trainerMap' | 'trainerVirtual' | 'road';
 export type Lap = {
 	trackPoints: TrackPoint[];
 	startTime: number;
@@ -49,10 +50,11 @@ const createTcxFooter = (name: string) =>
 
 const convTs = (ts: number) => new Date(ts).toISOString();
 
-export function createActivityLog() {
+export function createActivityLog(activityType: ActivityType) {
 	let name: string = '';
 	let notes: string = '';
 	let avatar: string = 'R';
+	let type: ActivityType = activityType;
 	const laps: Lap[] = [];
 
 	const calcLapStats = (lap: Lap, time: number, triggerMethod: LapTriggerMethod) => {
@@ -105,6 +107,7 @@ export function createActivityLog() {
 			name = parsed.name || '';
 			notes = parsed.notes || '';
 			avatar = parsed.avatar || 'R';
+			type = parsed.activityType || 'trainerFreeRide';
 
 			laps.length = 0;
 			for (const lap of parsed.laps) {
@@ -119,6 +122,8 @@ export function createActivityLog() {
 		getNotes: () => notes,
 		setAvatar: (s: string) => (avatar = s || 'R'),
 		getAvatar: () => avatar,
+		setActivityType: (t: ActivityType) => (type = t),
+		getActivityType: (): ActivityType => type,
 		getLapStartTime: (lapIndex?: number): number => {
 			const lap = typeof lapIndex === 'number' ? laps[lapIndex] : laps[laps.length - 1];
 
@@ -237,7 +242,7 @@ export function createActivityLog() {
 			}
 			outputCb(createTcxFooter(name));
 		},
-		json: () => JSON.stringify({ name, notes, avatar, laps }),
+		json: () => JSON.stringify({ name, notes, avatar, activityType: type, laps }),
 	};
 }
 
@@ -282,7 +287,7 @@ export function gpxToActivityLog(gpxData: CourseData, name?: string): ReturnType
 
 	const logName = name || gpxData.tracks[0]?.name || gpxData.routes[0]?.name || 'Imported Ride';
 
-	const logger = createActivityLog();
+	const logger = createActivityLog('road');
 	logger.setName(logName);
 	logger.lapSplit(startTime, 'Manual');
 
