@@ -35,6 +35,7 @@ type OpenStreetMapArg = Parameters<typeof OpenStreetMap>[0];
 type MapMarkerArg = Parameters<typeof MapMarker>[0];
 type CourseArg = Parameters<typeof Course>[0];
 type RoutePlannerArg = Parameters<typeof RoutePlanner>[0];
+type EleArg = Parameters<typeof Ele>[0];
 
 const DynamicMap = dynamic<OpenStreetMapArg>(() => import('../../../components/map/OpenStreetMap'), {
 	ssr: false,
@@ -47,6 +48,10 @@ const DynamicCourse = dynamic<CourseArg>(() => import('../../../components/map/C
 });
 const DynamicRoutePlanner = dynamic<RoutePlannerArg>(
 	() => import('../../../components/map/RoutePlanner'),
+	{ ssr: false },
+);
+const DynamicEle = dynamic<EleArg>(
+	() => import('../../../components/map/Ele'),
 	{ ssr: false },
 );
 
@@ -364,7 +369,7 @@ export default function RideMap() {
 					<Grid item xs={12} md={4}>
 						<CourseList height={'50%'} changeId={changeCount} onSelectCourse={selectCourse} />
 						<Paper elevation={0} sx={{ height: '49%', mt: 1 }}>
-							<Ele
+							<DynamicEle
 								course={course}
 								showMarker={(en: boolean) => setShowMarker(en)}
 								moveMarker={setMarkerCoord}
