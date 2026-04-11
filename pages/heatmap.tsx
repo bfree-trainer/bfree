@@ -63,9 +63,6 @@ export default function Heatmap() {
 					: 'No rides with GPS data found. Record a ride with GPS enabled to see it here.'}
 			</Typography>
 			<Box sx={{ borderRadius: 2, overflow: 'hidden', boxShadow: 1 }}>
-				<Typography variant="h6" fontWeight={700} gutterBottom>
-					Explorer Tiles
-				</Typography>
 				<Paper variant="outlined" sx={{ p: 2, mb: 2, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
 					<Box>
 						<Typography variant="h4" fontWeight={700} color="primary">
