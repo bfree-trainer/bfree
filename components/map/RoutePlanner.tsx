@@ -272,11 +272,7 @@ export default function RoutePlanner({
 	setCourse: (c: CourseData) => void;
 	initialCourse?: CourseData | null;
 }) {
-	const [state, dispatch] = useReducer(
-		routePlannerReducer,
-		initialCourse,
-		courseToInitialState,
-	);
+	const [state, dispatch] = useReducer(routePlannerReducer, initialCourse, courseToInitialState);
 
 	// Keep setCourse in a ref so the sync effect never goes stale.
 	const setCourseRef = useRef(setCourse);
@@ -305,8 +301,7 @@ export default function RoutePlanner({
 	// via setCourse), so without this cache every subsequent edit would
 	// emit an all-zero elevation profile while waiting for the API.
 	const eleCacheRef = useRef<Map<string, number>>(new Map());
-	const coordKey = (c: { lat: number; lon: number }) =>
-		`${c.lat.toFixed(6)},${c.lon.toFixed(6)}`;
+	const coordKey = (c: { lat: number; lon: number }) => `${c.lat.toFixed(6)},${c.lon.toFixed(6)}`;
 
 	useEffect(() => {
 		if (!isMountedRef.current) {
@@ -358,9 +353,7 @@ export default function RoutePlanner({
 		emitCourse(fullPath);
 
 		// Identify points that are missing elevation data.
-		const missingIndices = fullPath
-			.map((pt, i) => (pt.ele == null ? i : -1))
-			.filter((i) => i !== -1);
+		const missingIndices = fullPath.map((pt, i) => (pt.ele == null ? i : -1)).filter((i) => i !== -1);
 
 		// If all points already have elevation, nothing to fetch.
 		if (missingIndices.length === 0) return;
@@ -517,9 +510,7 @@ export default function RoutePlanner({
 	// Flatten segments into a single [lat, lon][] array for the polyline.
 	// Each segment[i>0] already excludes its preceding waypoint, so .flat()
 	// produces the complete path without duplicating boundary coordinates.
-	const routedPath: [number, number][] = state.segments
-		.flat()
-		.map(({ lat, lon }) => [lat, lon]);
+	const routedPath: [number, number][] = state.segments.flat().map(({ lat, lon }) => [lat, lon]);
 
 	return (
 		<>
@@ -528,18 +519,17 @@ export default function RoutePlanner({
 			<RoutingStatusControl isRouting={state.isRouting} />
 
 			{routedPath.length > 1 && (
-				<Polyline positions={routedPath} pathOptions={{ color: routeColors.routeLine, weight: 4, opacity: 0.85 }} />
+				<Polyline
+					positions={routedPath}
+					pathOptions={{ color: routeColors.routeLine, weight: 4, opacity: 0.85 }}
+				/>
 			)}
 
 			{state.waypoints.map(({ lat, lon }, i) => {
 				const isStart = i === 0;
 				const isEnd = i === state.waypoints.length - 1;
 				const type = isStart ? 'start' : isEnd ? 'end' : 'via';
-				const label = isStart
-					? 'Start'
-					: isEnd
-						? 'End'
-						: `Waypoint ${i + 1}`;
+				const label = isStart ? 'Start' : isEnd ? 'End' : `Waypoint ${i + 1}`;
 				// draggable and icon are not in react-leaflet's MarkerProps typings.
 				const markerProps = {
 					position: [lat, lon] as [number, number],

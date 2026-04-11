@@ -186,7 +186,12 @@ function WeekBar({ week, maxTimeMs }: { week: WeekStats; maxTimeMs: number }) {
 				<Typography variant="caption" color="text.secondary">
 					{activitiesLabel}
 				</Typography>
-				<Typography variant="caption" fontWeight={600} color="text.primary" sx={{ minWidth: 52, textAlign: 'right' }}>
+				<Typography
+					variant="caption"
+					fontWeight={600}
+					color="text.primary"
+					sx={{ minWidth: 52, textAlign: 'right' }}
+				>
 					{formatDuration(week.totalTimeMs)}
 				</Typography>
 			</Box>

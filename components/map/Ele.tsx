@@ -70,9 +70,7 @@ export default function Ele({
 			return EMPTY_DATA;
 		}
 
-		const allTp = course.tracks.flatMap((track) =>
-			track.segments.flatMap((seg) => seg.trackpoints),
-		);
+		const allTp = course.tracks.flatMap((track) => track.segments.flatMap((seg) => seg.trackpoints));
 
 		if (allTp.length < 2) {
 			return EMPTY_DATA;
@@ -80,10 +78,7 @@ export default function Ele({
 
 		const points = allTp.reduce<ChartPoint[]>((acc, tp, i) => {
 			const prevDist = i === 0 ? 0 : acc[i - 1].distance;
-			const segDist =
-				i === 0
-					? 0
-					: haversine([allTp[i - 1].lat, allTp[i - 1].lon], [tp.lat, tp.lon]);
+			const segDist = i === 0 ? 0 : haversine([allTp[i - 1].lat, allTp[i - 1].lon], [tp.lat, tp.lon]);
 			acc.push({
 				distance: prevDist + segDist,
 				elevation: tp.ele ?? 0,
@@ -123,11 +118,7 @@ export default function Ele({
 	return (
 		<Box sx={{ width: '100%', height: 256 }} role="img" aria-label="Elevation profile chart">
 			<ResponsiveContainer>
-				<AreaChart
-					data={data}
-					margin={CHART_MARGIN}
-					onMouseLeave={handleMouseLeave}
-				>
+				<AreaChart data={data} margin={CHART_MARGIN} onMouseLeave={handleMouseLeave}>
 					<CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
 					<XAxis
 						dataKey="distance"

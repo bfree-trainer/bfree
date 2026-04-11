@@ -50,9 +50,7 @@ async function fetchBatch(batch: Coord[], outerSignal?: AbortSignal): Promise<nu
 	const timeoutId = setTimeout(() => timeoutCtrl.abort(), REQUEST_TIMEOUT_MS);
 	const timeoutCtrl = new AbortController();
 
-	const combinedSignal = outerSignal
-		? AbortSignal.any([outerSignal, timeoutCtrl.signal])
-		: timeoutCtrl.signal;
+	const combinedSignal = outerSignal ? AbortSignal.any([outerSignal, timeoutCtrl.signal]) : timeoutCtrl.signal;
 
 	let response: Response;
 	try {
@@ -74,19 +72,13 @@ async function fetchBatch(batch: Coord[], outerSignal?: AbortSignal): Promise<nu
 	const data: unknown = await response.json();
 
 	// Validate the response shape before trusting it.
-	if (
-		!data ||
-		typeof data !== 'object' ||
-		!Array.isArray((data as Record<string, unknown>).elevation)
-	) {
+	if (!data || typeof data !== 'object' || !Array.isArray((data as Record<string, unknown>).elevation)) {
 		throw new Error('Elevation API returned an unexpected response shape');
 	}
 
 	const elevations = (data as { elevation: unknown[] }).elevation;
 	if (elevations.length !== batch.length) {
-		throw new Error(
-			`Elevation API returned ${elevations.length} values for ${batch.length} coordinates`,
-		);
+		throw new Error(`Elevation API returned ${elevations.length} values for ${batch.length} coordinates`);
 	}
 
 	// Coerce each value to a finite number, falling back to 0 for NaN/null.

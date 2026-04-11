@@ -159,7 +159,7 @@ function useNotifications(): [Notification[], (notification: Notification) => vo
 		if ('id' in notification && pendingNotifications.some((n) => n.id === notification.id)) {
 			setGlobalState(
 				'pendingNotifications',
-				pendingNotifications.filter((n) => n.id !== notification.id),
+				pendingNotifications.filter((n) => n.id !== notification.id)
 			);
 		} else {
 			setClearedNotifications([...clearedNotifications, notification.text]);
