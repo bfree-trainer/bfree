@@ -7,6 +7,7 @@ import Avatar from '@mui/material/Avatar';
 import Badge from '@mui/material/Badge';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
@@ -22,18 +23,20 @@ import IconExpandMore from '@mui/icons-material/ExpandMore';
 import IconMoreVert from '@mui/icons-material/MoreVert';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import Snackbar from '@mui/material/Snackbar';
 import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme, styled } from '@mui/material/styles';
 import { red } from '@mui/material/colors';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, ChangeEvent } from 'react';
 import BottomNavi from 'components/BottomNavi';
 import MyHead from 'components/MyHead';
 import Title from 'components/Title';
 import EditRideModal from 'components/EditRideModal';
 import RideStatsPanel from 'components/RideStatsPanel';
 import downloadBlob from 'lib/download_blob';
-import { deleteActivityLog, getActivityLogs } from 'lib/activity_log';
+import { deleteActivityLog, getActivityLogs, gpxToActivityLog, saveActivityLog } from 'lib/activity_log';
+import { gpxDocument2obj, parseGpxFile2Document } from 'lib/gpx_parser';
 import { getElapsedTimeStr } from 'lib/format';
 import { smartDistanceUnitFormat } from 'lib/units';
 import { useGlobalState } from 'lib/global';
@@ -44,6 +47,18 @@ const DynamicRideMiniMap = dynamic<RideMiniMapArgs>(() => import('components/map
 	ssr: false,
 });
 const DataGraph = dynamic(() => import('components/DataGraph'), { ssr: false });
+
+const VisuallyHiddenInput = styled('input')({
+	clip: 'rect(0 0 0 0)',
+	clipPath: 'inset(50%)',
+	height: 1,
+	overflow: 'hidden',
+	position: 'absolute',
+	bottom: 0,
+	left: 0,
+	whiteSpace: 'nowrap',
+	width: 1,
+});
 
 const PREFIX = 'history';
 const classes = {
@@ -303,6 +318,8 @@ export default function History() {
 	const [logs, setLogs] = useState<ReturnType<typeof getActivityLogs>>([]);
 	const selectionRef = useRef(new WeakMap<Log, boolean>());
 	const [selectionCount, setSelectionCount] = useState(0);
+	const [snackMsg, setSnackMsg] = useState<string | null>(null);
+
 	const massDeletion = () => {
 		const q = logs.filter((log) => selectionRef.current.has(log));
 		setSelectionCount(selectionCount - q.length); // RFE Will this go out of sync if deletion fails?
@@ -310,6 +327,29 @@ export default function History() {
 			deleteActivityLog(id);
 		});
 		setLogs(getActivityLogs());
+	};
+
+	const handleImportGpx = (e: ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		// Reset so selecting the same file again still triggers onChange
+		e.target.value = '';
+		if (!file) return;
+
+		parseGpxFile2Document(file)
+			.then((xmlDoc) => {
+				const gpxData = gpxDocument2obj(xmlDoc);
+				const logger = gpxToActivityLog(gpxData);
+				if (!logger) {
+					setSnackMsg('No trackpoints found in the GPX file.');
+					return;
+				}
+				saveActivityLog(logger);
+				setLogs(getActivityLogs());
+				setSnackMsg('GPX file imported successfully.');
+			})
+			.catch((err: Error) => {
+				setSnackMsg(`Failed to import GPX file: ${err.message}`);
+			});
 	};
 
 	useEffect(() => {
@@ -324,9 +364,20 @@ export default function History() {
 			<MyHead title="Previous Rides" />
 			<Box>
 				<Title href="/">{isBreakpoint ? 'Previous Rides' : 'Rides'}</Title>
-				<Typography variant="body1" color="text.primary" sx={{ mt: 2, mb: 2 }}>
-					Manage and export previous rides.
-				</Typography>
+				<Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 2, mb: 2 }}>
+					<Typography variant="body1" color="text.primary" sx={{ flex: 1 }}>
+						Manage and export previous rides.
+					</Typography>
+					<Button component="label" variant="outlined" size="small">
+						Import GPX
+						<VisuallyHiddenInput
+							type="file"
+							accept=".gpx,.GPX"
+							aria-label="Upload GPX file"
+							onChange={handleImportGpx}
+						/>
+					</Button>
+				</Box>
 
 				<Grid container spacing={3} alignItems="flex-start">
 					<Grid item xs={12} md={8}>
@@ -361,6 +412,12 @@ export default function History() {
 					</Grid>
 				</Grid>
 			</Box>
+			<Snackbar
+				open={!!snackMsg}
+				autoHideDuration={4000}
+				onClose={() => setSnackMsg(null)}
+				message={snackMsg}
+			/>
 			<BottomNavi>
 				<BottomNavigationAction
 					sx={

@@ -2,6 +2,9 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import haversine from './haversine';
+import type { CourseData } from './gpx_parser';
+
 export type TrackPoint = {
 	time: number;
 	position?: {
@@ -291,4 +294,75 @@ export function deleteActivityLog(id: string) {
 	}
 
 	localStorage.removeItem(id);
+}
+
+/**
+ * Convert parsed GPX data into a new activity log entry.
+ * Returns null if no trackpoints are found in the GPX data.
+ */
+export function gpxToActivityLog(
+	gpxData: CourseData,
+	name?: string
+): ReturnType<typeof createActivityLog> | null {
+	const allTrackpoints = gpxData.tracks.flatMap((track) =>
+		track.segments.flatMap((segment) => segment.trackpoints)
+	);
+
+	if (allTrackpoints.length === 0) {
+		return null;
+	}
+
+	const firstWithTime = allTrackpoints.find((tp) => tp.time);
+	const startTime = firstWithTime ? firstWithTime.time.getTime() : Date.now();
+	const hasTimestamps = Boolean(firstWithTime);
+
+	const logName = name || gpxData.tracks[0]?.name || gpxData.routes[0]?.name || 'Imported Ride';
+
+	const logger = createActivityLog();
+	logger.setName(logName);
+	logger.lapSplit(startTime, 'Manual');
+
+	let cumulativeDist = 0;
+	let prevTp: (typeof allTrackpoints)[0] | null = null;
+
+	for (let i = 0; i < allTrackpoints.length; i++) {
+		const tp = allTrackpoints[i];
+
+		if (prevTp) {
+			cumulativeDist += haversine([prevTp.lat, prevTp.lon], [tp.lat, tp.lon]);
+		}
+
+		const time = hasTimestamps && tp.time ? tp.time.getTime() : startTime + i * 1000;
+
+		let speed: number | undefined;
+		if (prevTp && prevTp.time && tp.time) {
+			const dt = (tp.time.getTime() - prevTp.time.getTime()) / 1000;
+			if (dt > 0) {
+				const dist = haversine([prevTp.lat, prevTp.lon], [tp.lat, tp.lon]);
+				speed = dist / dt;
+			}
+		}
+
+		const trackPoint: TrackPoint = {
+			time,
+			position: { lat: tp.lat, lon: tp.lon },
+			dist: cumulativeDist,
+		};
+
+		if (typeof tp.ele === 'number') {
+			trackPoint.alt = tp.ele;
+		}
+		if (typeof speed === 'number') {
+			trackPoint.speed = speed;
+		}
+
+		logger.addTrackPoint(trackPoint);
+		prevTp = tp;
+	}
+
+	const lastTp = allTrackpoints[allTrackpoints.length - 1];
+	const endTime = hasTimestamps && lastTp.time ? lastTp.time.getTime() : startTime + allTrackpoints.length * 1000;
+	logger.endActivityLog(endTime, 'Manual');
+
+	return logger;
 }
