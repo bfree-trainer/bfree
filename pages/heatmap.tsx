@@ -5,6 +5,7 @@
 import dynamic from 'next/dynamic';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
+import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import MyHead from 'components/MyHead';
 import Title from 'components/Title';
@@ -12,6 +13,9 @@ import { rideRepository } from 'lib/orm';
 import { useMemo } from 'react';
 import { OpenStreetMapArg } from 'components/map/OpenStreetMap';
 import { RideHeatmapLayerArgs } from 'components/map/RideHeatmapLayer';
+import { ExplorerTilesLayerArgs } from 'components/map/ExplorerTilesLayer';
+import { collectVisitedTiles, findMaxSquare } from 'lib/explorer_tiles';
+import { explorerColors } from 'lib/tokens';
 
 const DynamicMap = dynamic<OpenStreetMapArg>(() => import('components/map/OpenStreetMap'), {
 	ssr: false,
@@ -19,10 +23,14 @@ const DynamicMap = dynamic<OpenStreetMapArg>(() => import('components/map/OpenSt
 const DynamicHeatmapLayer = dynamic<RideHeatmapLayerArgs>(() => import('components/map/RideHeatmapLayer'), {
 	ssr: false,
 });
+const DynamicExplorerTilesLayer = dynamic<ExplorerTilesLayerArgs>(() => import('components/map/ExplorerTilesLayer'), {
+	ssr: false,
+});
 
 export default function Heatmap() {
 	const tracks = useMemo<[number, number][][]>(() => {
-		return rideRepository.findAll()
+		return rideRepository
+			.findAll()
 			.map((log) =>
 				log.logger
 					.getLaps()
@@ -35,6 +43,9 @@ export default function Heatmap() {
 			)
 			.filter((positions) => positions.length > 0);
 	}, []);
+
+	const explorerTiles = useMemo(() => collectVisitedTiles(tracks), [tracks]);
+	const maxSquare = useMemo(() => findMaxSquare(explorerTiles), [explorerTiles]);
 
 	const mapHeight = 'clamp(300px, 65vh, 700px)';
 	const hasData = tracks.length > 0;
@@ -52,6 +63,26 @@ export default function Heatmap() {
 					: 'No rides with GPS data found. Record a ride with GPS enabled to see it here.'}
 			</Typography>
 			<Box sx={{ borderRadius: 2, overflow: 'hidden', boxShadow: 1 }}>
+				<Paper variant="outlined" sx={{ p: 2, mb: 2, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+					<Box>
+						<Typography variant="h4" fontWeight={700} color="primary">
+							{explorerTiles.size}
+						</Typography>
+						<Typography variant="caption" color="text.secondary">
+							tiles visited
+						</Typography>
+					</Box>
+					{maxSquare && (
+						<Box>
+							<Typography variant="h4" fontWeight={700} sx={{ color: explorerColors.maxSquare }}>
+								{maxSquare.size}×{maxSquare.size}
+							</Typography>
+							<Typography variant="caption" color="text.secondary">
+								max square
+							</Typography>
+						</Box>
+					)}
+				</Paper>
 				<DynamicMap
 					center={center}
 					width="100%"
@@ -60,6 +91,7 @@ export default function Heatmap() {
 					ariaLabel="Interactive map showing heatmap of all recorded rides with GPS data"
 				>
 					{hasData && <DynamicHeatmapLayer tracks={tracks} />}
+					{hasData && <DynamicExplorerTilesLayer tracks={tracks} />}
 				</DynamicMap>
 			</Box>
 		</Container>

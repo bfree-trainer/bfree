@@ -347,7 +347,7 @@ export default function History() {
 					rideRepository.save(logger);
 					return true;
 				})
-				.catch(() => false),
+				.catch(() => false)
 		);
 
 		Promise.all(promises).then((results) => {
