@@ -7,11 +7,11 @@ import Divider from '@mui/material/Divider';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import { styled } from '@mui/material/styles';
-import { getActivityLogs } from 'lib/activity_log';
+import type { RideEntry } from 'lib/orm';
 import { smartDistanceUnitFormat } from 'lib/units';
 import { useGlobalState } from 'lib/global';
 
-type Logs = ReturnType<typeof getActivityLogs>;
+type Logs = RideEntry[];
 
 /** Format milliseconds as "Xh Ym", "Xh", "Ym", or "0m". */
 function formatDuration(ms: number): string {

@@ -11,7 +11,7 @@ import { useState, useEffect } from 'react';
 import MyHead from 'components/MyHead';
 import Title from 'components/Title';
 import WorkoutScriptEditor from 'components/WorkoutScriptEditor';
-import { saveWorkout, readWorkout } from 'lib/workout_storage';
+import { workoutRepository } from 'lib/orm';
 import scriptExample from 'lib/workouts/workout_script_example';
 import Typography from '@mui/material/Typography';
 
@@ -32,7 +32,7 @@ export default function RideWorkoutEdit() {
 		if (!router.isReady) return;
 
 		if (typeof id === 'string') {
-			const w = readWorkout(id);
+			const w = workoutRepository.findById(id);
 			if (!w) {
 				router.push('not_found');
 			} else {
@@ -45,7 +45,8 @@ export default function RideWorkoutEdit() {
 	}, [router.isReady, id]); // eslint-disable-line react-hooks/exhaustive-deps
 
 	const onClickSave = (name: string, notes: string) => {
-		saveWorkout(name, notes, workoutScript)
+		workoutRepository
+			.save(name, notes, workoutScript)
 			.catch(console.error) // TODO Show an error???
 			.then(() => router.push('/ride/workout'));
 	};

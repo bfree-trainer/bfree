@@ -4,7 +4,8 @@
 
 import { useEffect } from 'react';
 import { useGlobalState, getGlobalState, setGlobalState } from 'lib/global';
-import { createActivityLog, saveActivityLog } from 'lib/activity_log';
+import { createActivityLog } from 'lib/activity_log';
+import { rideRepository } from 'lib/orm';
 import {
 	getCyclingCadenceMeasurement,
 	getCyclingPowerMeasurement,
@@ -158,7 +159,7 @@ export default function FlightRecorder({ startTime }: { startTime: number }) {
 			// data loss.
 			const backupIntervalId = setInterval(() => {
 				try {
-					saveActivityLog(logger);
+					rideRepository.save(logger);
 				} catch (err) {
 					console.error('Backup failed', err);
 				}
@@ -170,7 +171,7 @@ export default function FlightRecorder({ startTime }: { startTime: number }) {
 				clearInterval(backupIntervalId);
 				// TODO Might not always be manual trigger
 				logger.endActivityLog(Date.now(), 'Manual');
-				saveActivityLog(logger);
+				rideRepository.save(logger);
 			};
 		},
 		// Note: 'bikeParams.wheelCircumference' and 'samplingRate' won't change

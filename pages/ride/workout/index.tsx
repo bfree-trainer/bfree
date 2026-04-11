@@ -29,13 +29,8 @@ import MyHead from 'components/MyHead';
 import Title from 'components/Title';
 import WarningDialog from 'components/WarningDialog';
 import downloadBlob from 'lib/download_blob';
-import {
-	generateSystemWorkouts,
-	getWorkouts,
-	getWorkoutDate,
-	deleteWorkout,
-	toggleWorkoutFav,
-} from 'lib/workout_storage';
+import { workoutRepository } from 'lib/orm';
+import type { WorkoutScript } from 'lib/orm';
 
 const PREFIX = 'index';
 const classes = {
@@ -104,7 +99,7 @@ function WorkoutCard({ workout, onChange }) {
 	};
 	const handleDelete = () => {
 		setAnchorEl(null);
-		deleteWorkout(workout.id);
+		workoutRepository.delete(workout.id);
 		onChange();
 	};
 	const handleDownload = () => {
@@ -117,7 +112,7 @@ function WorkoutCard({ workout, onChange }) {
 		downloadBlob(blob, `${workout.name}.js`);
 	};
 	const handleFav = () => {
-		toggleWorkoutFav(workout.id).catch(console.error).then(onChange());
+		workoutRepository.toggleFav(workout.id).catch(console.error).then(onChange());
 	};
 	const handleRide = (e) => {
 		if (!hasTrainer) {
@@ -166,7 +161,7 @@ function WorkoutCard({ workout, onChange }) {
 						)
 					}
 					title={workout.name}
-					subheader={workout.ts != 0 ? getWorkoutDate(workout) : ''}
+					subheader={workout.ts != 0 ? workoutRepository.formatDate(workout) : ''}
 				/>
 				{/* TODO Add preview here */}
 				<CardContent>
@@ -206,15 +201,16 @@ function WorkoutCard({ workout, onChange }) {
 export default function Workout() {
 	const router = useRouter();
 	const [rider] = useGlobalState('rider');
-	const [workouts, setWorkouts] = useState(() => getWorkouts());
-	const handleChange = () => setWorkouts(getWorkouts());
+	const [workouts, setWorkouts] = useState<WorkoutScript[]>(() => workoutRepository.findAll());
+	const handleChange = () => setWorkouts(workoutRepository.findAll());
 
 	// Get the workouts when we enter this page;
 	// Otherwise we'd show stale data after an edit.
 	// Interestingly there is a short delay
 	useEffect(() => {
-		generateSystemWorkouts(rider)
-			.then(() => setWorkouts(getWorkouts()))
+		workoutRepository
+			.generateSystemWorkouts(rider)
+			.then(() => setWorkouts(workoutRepository.findAll()))
 			.catch(console.error);
 	}, [rider]);
 

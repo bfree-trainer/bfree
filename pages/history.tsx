@@ -35,7 +35,8 @@ import Title from 'components/Title';
 import EditRideModal from 'components/EditRideModal';
 import RideStatsPanel from 'components/RideStatsPanel';
 import downloadBlob from 'lib/download_blob';
-import { deleteActivityLog, getActivityLogs, gpxToActivityLog, saveActivityLog } from 'lib/activity_log';
+import { gpxToActivityLog } from 'lib/activity_log';
+import { rideRepository } from 'lib/orm';
 import { gpxDocument2obj, parseGpxFile2Document } from 'lib/gpx_parser';
 import { getElapsedTimeStr } from 'lib/format';
 import { smartDistanceUnitFormat } from 'lib/units';
@@ -150,7 +151,9 @@ const RideStatsLiLast = styled('li')({
 	justifyContent: 'flex-end',
 });
 
-type Log = ReturnType<typeof getActivityLogs>[1];
+import type { RideEntry } from 'lib/orm';
+
+type Log = RideEntry;
 
 function RideStats({ stats }: { stats: [string, string][] }) {
 	const last = stats.length - 1;
@@ -315,7 +318,7 @@ function RideCard({ log, onSelect }: { log: Log; onSelect: (v: boolean) => void 
 export default function History() {
 	const theme = useTheme();
 	const isBreakpoint = useMediaQuery(theme.breakpoints.up('md'));
-	const [logs, setLogs] = useState<ReturnType<typeof getActivityLogs>>([]);
+	const [logs, setLogs] = useState<RideEntry[]>([]);
 	const selectionRef = useRef(new WeakMap<Log, boolean>());
 	const [selectionCount, setSelectionCount] = useState(0);
 	const [snackMsg, setSnackMsg] = useState<string | null>(null);
@@ -324,9 +327,9 @@ export default function History() {
 		const q = logs.filter((log) => selectionRef.current.has(log));
 		setSelectionCount(selectionCount - q.length); // RFE Will this go out of sync if deletion fails?
 		q.forEach(({ id }) => {
-			deleteActivityLog(id);
+			rideRepository.delete(id);
 		});
-		setLogs(getActivityLogs());
+		setLogs(rideRepository.findAll());
 	};
 
 	const handleImportGpx = (e: ChangeEvent<HTMLInputElement>) => {
@@ -341,14 +344,14 @@ export default function History() {
 					const gpxData = gpxDocument2obj(xmlDoc);
 					const logger = gpxToActivityLog(gpxData);
 					if (!logger) return false;
-					saveActivityLog(logger);
+					rideRepository.save(logger);
 					return true;
 				})
 				.catch(() => false),
 		);
 
 		Promise.all(promises).then((results) => {
-			setLogs(getActivityLogs());
+			setLogs(rideRepository.findAll());
 			const imported = results.filter(Boolean).length;
 			const failed = results.length - imported;
 			if (files.length === 1) {
@@ -367,7 +370,7 @@ export default function History() {
 	};
 
 	useEffect(() => {
-		setLogs(getActivityLogs());
+		setLogs(rideRepository.findAll());
 	}, []);
 	useEffect(() => {
 		setSelectionCount(logs.reduce((acc, cur) => acc + +selectionRef.current.has(cur), 0));

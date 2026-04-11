@@ -13,7 +13,7 @@ import { useRouter } from 'next/router';
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useGlobalState, getGlobalState, ControlParams } from 'lib/global';
 import createWorkoutRunner, { RunnerResponse } from 'lib/workout_runner';
-import { readWorkout } from 'lib/workout_storage';
+import { workoutRepository } from 'lib/orm';
 import { LapTriggerMethod } from 'lib/activity_log';
 import {
 	stdBikeFrontalArea,
@@ -114,7 +114,7 @@ export default function WorkoutController({
 					prevRunner.terminate();
 				}
 
-				const { avatar, name, script } = readWorkout(workoutId) || {};
+				const { avatar, name, script } = workoutRepository.findById(workoutId) || {};
 				if (!script) {
 					// TODO We should show an error
 					return null;

@@ -5,7 +5,8 @@
 import { useState } from 'react';
 import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
-import { createActivityLog, saveActivityLog } from 'lib/activity_log';
+import { createActivityLog } from 'lib/activity_log';
+import { rideRepository } from 'lib/orm';
 import EditActionButtons from 'components/EditActionButtons';
 import MyModal from 'components/MyModal';
 
@@ -38,7 +39,7 @@ export default function EditModal({
 	const onClickSave = () => {
 		logger.setName(newName);
 		logger.setNotes(newNotes);
-		saveActivityLog(logger);
+		rideRepository.save(logger);
 		onClose();
 	};
 	const onClickDiscard = () => {
