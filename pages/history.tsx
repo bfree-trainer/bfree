@@ -5,7 +5,6 @@
 import dynamic from 'next/dynamic';
 import Avatar from '@mui/material/Avatar';
 import Badge from '@mui/material/Badge';
-import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
@@ -30,6 +29,7 @@ import { useTheme, styled } from '@mui/material/styles';
 import { red } from '@mui/material/colors';
 import { useState, useEffect, useRef, ChangeEvent } from 'react';
 import BottomNavi from 'components/BottomNavi';
+import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import MyHead from 'components/MyHead';
 import Title from 'components/Title';
 import EditRideModal from 'components/EditRideModal';
