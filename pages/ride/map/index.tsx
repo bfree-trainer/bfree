@@ -105,6 +105,10 @@ const RouteSwitch = styled((props: SwitchProps) => (
   height: 36,
   padding: 0,
   margin: 8,
+  '@media (pointer: coarse)': {
+    height: 44,
+    width: 72,
+  },
   '& .MuiSwitch-switchBase': {
     padding: 2,
     '&.Mui-checked': {
@@ -169,8 +173,8 @@ function MyLocationButton({ map, setPosition, onError }: {
 	};
 
 	return (
-		<Button variant="outlined" onClick={getMyLocation} disabled={loading}>
-			{loading ? <CircularProgress size={20} /> : 'Get My Location'}
+		<Button variant="outlined" onClick={getMyLocation} disabled={loading} sx={{ '@media (pointer: coarse)': { minHeight: 44 } }}>
+			{loading ? <CircularProgress size={20} /> : 'My Location'}
 		</Button>
 	);
 }
@@ -373,7 +377,8 @@ export default function RideMap() {
 				</Typography>
 
 				<Grid container spacing={2}>
-					<Grid item xs={12} sm={4}>
+					{/* ── Header: title + course name ── */}
+					<Grid item xs={12} sm={6} md={4}>
 						<Typography
 							variant="h6"
 							color="primary.main"
@@ -382,7 +387,7 @@ export default function RideMap() {
 							Courses
 						</Typography>
 					</Grid>
-					<Grid item xs={12} sm={2} sx={{ minWidth: 0 }}>
+					<Grid item xs={12} sm={6} md={3} sx={{ minWidth: 0 }}>
 						<TextField
 							value={courseName}
 							onChange={(e) => setCourseName(e.target.value)}
@@ -394,15 +399,17 @@ export default function RideMap() {
 							color={hasUnsavedChanges ? 'warning' : 'primary'}
 						/>
 					</Grid>
-					<Grid item xs={12} sm={6} sx={{ minWidth: 0 }}>
-						<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, alignItems: 'center' }}>
+
+					{/* ── Toolbar: actions wrap naturally ── */}
+					<Grid item xs={12} md={5} sx={{ minWidth: 0 }}>
+						<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, alignItems: 'center' }}>
 							<ImportCourse newCourse={newCourse} />
 							<MyLocationButton map={map} setPosition={setHomeCoord} onError={setSnackMsg} />
 							<Button
 								variant="outlined"
 								color="error"
 								onClick={handleClearMap}
-								sx={{ borderColor: 'error.light' }}
+								sx={{ borderColor: 'error.light', '@media (pointer: coarse)': { minHeight: 44 } }}
 							>
 								Clear
 							</Button>
@@ -417,7 +424,7 @@ export default function RideMap() {
 										/>
 									}
 									label="Edit"
-									sx={{ ml: 1, textTransform: 'uppercase' }}
+									sx={{ ml: 0.5, textTransform: 'uppercase' }}
 								/>
 							</FormGroup>
 							<Button
@@ -425,24 +432,15 @@ export default function RideMap() {
 								color="success"
 								onClick={saveCurrentRoute}
 								disabled={!hasUnsavedChanges || isSaving}
+								sx={{ '@media (pointer: coarse)': { minHeight: 44 } }}
 							>
 								{isSaving ? <CircularProgress size={20} color="inherit" /> : 'Save Route'}
 							</Button>
 						</Box>
 					</Grid>
 
-					<Grid item xs={12} md={4} sx={{ minWidth: 0 }}>
-						<CourseList height={'50%'} changeId={changeCount} onSelectCourse={selectCourse} />
-						<Paper elevation={0} sx={{ height: 256, mt: 1 }}>
-							<DynamicEle
-								course={course}
-								showMarker={handleShowMarker}
-								moveMarker={setMarkerCoord}
-							/>
-						</Paper>
-					</Grid>
-
-					<Grid item xs={12} md={8}>
+					{/* ── Map: appears first on mobile via order ── */}
+					<Grid item xs={12} md={8} sx={{ order: { xs: -1, md: 0 } }}>
 						<Box sx={mapContainerSx}>
 						<DynamicMap center={homeCoord} width={'100%'} height={mapHeight} setMap={setMap} ariaLabel="Route planner map">
 							<DynamicMapMarker icon={<IconHome />} position={homeCoord}>
@@ -463,6 +461,18 @@ export default function RideMap() {
 							{course && !editMode ? <DynamicCourse course={course} /> : null}
 						</DynamicMap>
 						</Box>
+					</Grid>
+
+					{/* ── Sidebar: course list + elevation ── */}
+					<Grid item xs={12} md={4} sx={{ minWidth: 0, order: { xs: 0, md: 0 } }}>
+						<CourseList height={'clamp(160px, 30vh, 300px)'} changeId={changeCount} onSelectCourse={selectCourse} />
+						<Paper elevation={0} sx={{ height: 256, mt: 1 }}>
+							<DynamicEle
+								course={course}
+								showMarker={handleShowMarker}
+								moveMarker={setMarkerCoord}
+							/>
+						</Paper>
 					</Grid>
 				</Grid>
 				<StartButton disabled={editMode} href={`/ride/record?type=map&mapId=todo`} />
