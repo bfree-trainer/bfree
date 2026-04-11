@@ -297,6 +297,7 @@ export default function RoutePlanner({
 	// Sync the parent course whenever the accumulated segments change.
 	// Elevation is fetched asynchronously and patched in once available.
 	const elevationRequestRef = useRef(0);
+	const elevationAbortRef = useRef<AbortController | null>(null);
 
 	useEffect(() => {
 		if (!isMountedRef.current) {
@@ -304,6 +305,11 @@ export default function RoutePlanner({
 			return;
 		}
 		if (state.segments.length === 0) return;
+
+		// Abort any in-flight elevation request from a previous render.
+		elevationAbortRef.current?.abort();
+		const abortCtrl = new AbortController();
+		elevationAbortRef.current = abortCtrl;
 
 		// Flatten all segments. Each segment[i>0] already excludes the
 		// preceding waypoint (stored via routeCoords.slice(1) in ADD_POINT),
@@ -362,9 +368,10 @@ export default function RoutePlanner({
 
 		const sampledCoords = sampledMissingIndices.map((i) => fullPath[i]);
 
-		getElevations(sampledCoords)
+		getElevations(sampledCoords, abortCtrl.signal)
 			.then((elevations) => {
 				if (requestId !== elevationRequestRef.current) return;
+				if (abortCtrl.signal.aborted) return;
 
 				// Map sampled results back: index in fullPath → fetched ele.
 				const fetchedEle = new Map<number, number>();
@@ -397,8 +404,13 @@ export default function RoutePlanner({
 				emitCourse(enrichedPath);
 			})
 			.catch((err) => {
+				if (abortCtrl.signal.aborted) return;
 				console.warn('Elevation lookup failed, continuing without elevation:', err);
 			});
+
+		return () => {
+			abortCtrl.abort();
+		};
 	}, [state.segments]);
 
 	const handleUndo = () => dispatch({ type: 'UNDO' });
