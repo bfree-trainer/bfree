@@ -299,6 +299,15 @@ export default function RoutePlanner({
 	const elevationRequestRef = useRef(0);
 	const elevationAbortRef = useRef<AbortController | null>(null);
 
+	// Elevation cache: stores previously-fetched elevation keyed by
+	// "lat,lon" (rounded to 6 dp).  The reducer's segment data never
+	// receives the API-enriched ele values (they flow only to the parent
+	// via setCourse), so without this cache every subsequent edit would
+	// emit an all-zero elevation profile while waiting for the API.
+	const eleCacheRef = useRef<Map<string, number>>(new Map());
+	const coordKey = (c: { lat: number; lon: number }) =>
+		`${c.lat.toFixed(6)},${c.lon.toFixed(6)}`;
+
 	useEffect(() => {
 		if (!isMountedRef.current) {
 			isMountedRef.current = true;
@@ -316,6 +325,15 @@ export default function RoutePlanner({
 		// so a plain flat() produces the complete, non-duplicated path.
 		const fullPath = state.segments.flat();
 
+		// Pre-fill elevation from cache for points the reducer doesn't know.
+		const cache = eleCacheRef.current;
+		for (const pt of fullPath) {
+			if (pt.ele == null) {
+				const cached = cache.get(coordKey(pt));
+				if (cached !== undefined) pt.ele = cached;
+			}
+		}
+
 		// Emit immediately with whatever elevation data we already have.
 		const emitCourse = (path: EleCoord[]) => {
 			setCourseRef.current({
@@ -326,7 +344,7 @@ export default function RoutePlanner({
 								trackpoints: path.map(({ lat, lon, ele }) => ({
 									lat,
 									lon,
-									...(ele != null ? { ele } : {}),
+									ele: ele ?? 0,
 								})),
 							},
 						],
@@ -401,6 +419,14 @@ export default function RoutePlanner({
 					}
 				}
 
+				// Populate the cache so the next immediate emit already has
+				// elevation for these coordinates.
+				for (const pt of enrichedPath) {
+					if (pt.ele != null) {
+						cache.set(coordKey(pt), pt.ele);
+					}
+				}
+
 				emitCourse(enrichedPath);
 			})
 			.catch((err) => {
@@ -417,6 +443,7 @@ export default function RoutePlanner({
 
 	const handleClear = () => {
 		dispatch({ type: 'CLEAR' });
+		eleCacheRef.current.clear();
 		setCourseRef.current({ tracks: [], routes: [], waypoints: [] });
 	};
 
