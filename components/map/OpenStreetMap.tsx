@@ -34,6 +34,7 @@ const OpenStreetMap = ({
 				center={center}
 				zoom={13}
 				scrollWheelZoom={false}
+				touchZoom={true}
 				ref={setMap}
 			>
 				<TileLayer
