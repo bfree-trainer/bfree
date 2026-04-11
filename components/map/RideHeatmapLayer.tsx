@@ -47,3 +47,5 @@ export default function RideHeatmapLayer({ tracks }: { tracks: [number, number][
 		</>
 	);
 }
+
+export type RideHeatmapLayerArgs = Parameters<typeof RideHeatmapLayer>[0];

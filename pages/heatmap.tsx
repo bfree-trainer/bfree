@@ -10,15 +10,13 @@ import MyHead from 'components/MyHead';
 import Title from 'components/Title';
 import { getActivityLogs } from 'lib/activity_log';
 import { useMemo } from 'react';
-import type RideHeatmapLayerType from 'components/map/RideHeatmapLayer';
 import { OpenStreetMapArg } from 'components/map/OpenStreetMap';
+import { RideHeatmapLayerArgs } from 'components/map/RideHeatmapLayer';
 
-type RideHeatmapLayerArgs = Parameters<typeof RideHeatmapLayerType>[0];
 
 const DynamicMap = dynamic<OpenStreetMapArg>(() => import('components/map/OpenStreetMap'), {
 	ssr: false,
 });
-
 const DynamicHeatmapLayer = dynamic<RideHeatmapLayerArgs>(
 	() => import('components/map/RideHeatmapLayer'),
 	{ ssr: false }
