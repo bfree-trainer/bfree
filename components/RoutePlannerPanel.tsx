@@ -29,7 +29,8 @@ import { RoutePlannerArg } from './map/RoutePlanner';
 import CourseList from './CourseList';
 import ImportCourse from './ImportCourse';
 import { EleArg } from './map/Ele';
-import { CourseData, getMapBounds, gpxDocument2obj, parseGpxFile2Document } from 'lib/gpx_parser';
+import { parseXmlFile } from 'lib/xml_parser';
+import { CourseData, getMapBounds, gpxDocument2obj } from 'lib/gpx_parser';
 import { courseRepository } from 'lib/orm';
 import type { PersistedCourse } from 'lib/orm';
 
@@ -297,7 +298,7 @@ export default function RoutePlannerPanel({ onCourseChange, onEditModeChange }: 
 	const clearCourseName = () => setCourseName(DEFAULT_COURSE_NAME);
 	const importGpx = async (file: File): Promise<CourseData | null> => {
 		try {
-			const xmlDoc = await parseGpxFile2Document(file);
+			const xmlDoc = await parseXmlFile(file);
 			return gpxDocument2obj(xmlDoc);
 		} catch (err) {
 			const message = err instanceof Error ? err.message : 'Unknown error';

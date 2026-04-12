@@ -350,6 +350,152 @@ export function gpxToActivityLog(gpxData: CourseData, name?: string): ReturnType
 	return logger;
 }
 
+const VALID_TRIGGER_METHODS: LapTriggerMethod[] = ['Manual', 'Distance', 'Location', 'Time', 'HeartRate'];
+const VALID_INTENSITIES: Intensity[] = ['Active', 'Resting'];
+
+/**
+ * Convert a parsed TCX document into a new activity log entry.
+ * Returns null if no trackpoints are found.
+ * Preserves lap structure, HR, power, cadence, speed, altitude, and GPS data.
+ */
+export function tcxToActivityLog(xmlDoc: Document, name?: string): ReturnType<typeof createActivityLog> | null {
+	const activityEl = xmlDoc.getElementsByTagName('Activity')[0];
+	if (!activityEl) return null;
+
+	const lapEls = activityEl.getElementsByTagName('Lap');
+	if (lapEls.length === 0) return null;
+
+	// Count total trackpoints across all laps
+	let totalTrackPoints = 0;
+	for (let i = 0; i < lapEls.length; i++) {
+		totalTrackPoints += lapEls[i].getElementsByTagName('Trackpoint').length;
+	}
+	if (totalTrackPoints === 0) return null;
+
+	// Derive activity name from <Training><Plan><Name>, or fall back
+	let logName = name;
+	if (!logName) {
+		const trainingEl = activityEl.getElementsByTagName('Training')[0];
+		const planEl = trainingEl?.getElementsByTagName('Plan')[0];
+		const nameEl = planEl?.getElementsByTagName('Name')[0];
+		logName = nameEl?.textContent?.trim() || 'Imported Ride';
+	}
+
+	// Collect notes that are direct children of <Activity>
+	let notes = '';
+	const activityChildren = activityEl.children;
+	for (let i = 0; i < activityChildren.length; i++) {
+		if (activityChildren[i].tagName === 'Notes') {
+			notes = activityChildren[i].textContent?.trim() ?? '';
+			break;
+		}
+	}
+
+	const logger = createActivityLog('road');
+	logger.setName(logName);
+	if (notes) logger.setNotes(notes);
+
+	for (let i = 0; i < lapEls.length; i++) {
+		const lapEl = lapEls[i];
+		const startTimeStr = lapEl.getAttribute('StartTime');
+		const startTime = startTimeStr ? new Date(startTimeStr).getTime() : NaN;
+		if (Number.isNaN(startTime)) continue;
+
+		const rawTrigger = lapEl.getElementsByTagName('TriggerMethod')[0]?.textContent?.trim() ?? 'Manual';
+		const triggerMethod: LapTriggerMethod = VALID_TRIGGER_METHODS.includes(rawTrigger as LapTriggerMethod)
+			? (rawTrigger as LapTriggerMethod)
+			: 'Manual';
+
+		const rawIntensity = lapEl.getElementsByTagName('Intensity')[0]?.textContent?.trim() ?? 'Active';
+		const intensity: Intensity = VALID_INTENSITIES.includes(rawIntensity as Intensity)
+			? (rawIntensity as Intensity)
+			: 'Active';
+
+		logger.lapSplit(startTime, triggerMethod, intensity);
+
+		const trackpointEls = lapEl.getElementsByTagName('Trackpoint');
+		for (let j = 0; j < trackpointEls.length; j++) {
+			const tpEl = trackpointEls[j];
+
+			const timeStr = tpEl.getElementsByTagName('Time')[0]?.textContent?.trim();
+			if (!timeStr) continue;
+			const time = new Date(timeStr).getTime();
+			if (Number.isNaN(time)) continue;
+
+			const trackPoint: TrackPoint = { time };
+
+			// GPS position
+			const posEl = tpEl.getElementsByTagName('Position')[0];
+			if (posEl) {
+				const lat = parseFloat(posEl.getElementsByTagName('LatitudeDegrees')[0]?.textContent ?? '');
+				const lon = parseFloat(posEl.getElementsByTagName('LongitudeDegrees')[0]?.textContent ?? '');
+				if (!Number.isNaN(lat) && !Number.isNaN(lon)) {
+					trackPoint.position = { lat, lon };
+				}
+			}
+
+			// Altitude
+			const alt = parseFloat(tpEl.getElementsByTagName('AltitudeMeters')[0]?.textContent ?? '');
+			if (!Number.isNaN(alt)) trackPoint.alt = alt;
+
+			// Distance
+			const dist = parseFloat(tpEl.getElementsByTagName('DistanceMeters')[0]?.textContent ?? '');
+			if (!Number.isNaN(dist)) trackPoint.dist = dist;
+
+			// Heart rate
+			const hrValueEl = tpEl.getElementsByTagName('HeartRateBpm')[0]?.getElementsByTagName('Value')[0];
+			if (hrValueEl) {
+				const hr = parseFloat(hrValueEl.textContent ?? '');
+				if (!Number.isNaN(hr)) trackPoint.hr = hr;
+			}
+
+			// Cadence
+			const cadEl = tpEl.getElementsByTagName('Cadence')[0];
+			if (cadEl) {
+				const cadence = parseFloat(cadEl.textContent ?? '');
+				if (!Number.isNaN(cadence)) trackPoint.cadence = cadence;
+			}
+
+			// Extensions: Speed (ns2:Speed, ns3:Speed, etc.) and Watts
+			const extEl = tpEl.getElementsByTagName('Extensions')[0];
+			if (extEl) {
+				const allExt = extEl.getElementsByTagName('*');
+				for (let k = 0; k < allExt.length; k++) {
+					const el = allExt[k];
+					if (el.localName === 'Speed') {
+						const speed = parseFloat(el.textContent ?? '');
+						if (!Number.isNaN(speed)) trackPoint.speed = speed;
+					} else if (el.localName === 'Watts') {
+						const power = parseFloat(el.textContent ?? '');
+						if (!Number.isNaN(power)) trackPoint.power = power;
+					}
+				}
+			}
+
+			logger.addTrackPoint(trackPoint);
+		}
+	}
+
+	// Determine the end time from the last trackpoint in the last non-empty lap
+	let lastTime = NaN;
+	for (let i = lapEls.length - 1; i >= 0 && Number.isNaN(lastTime); i--) {
+		const tpEls = lapEls[i].getElementsByTagName('Trackpoint');
+		for (let j = tpEls.length - 1; j >= 0; j--) {
+			const timeStr = tpEls[j].getElementsByTagName('Time')[0]?.textContent?.trim();
+			if (timeStr) {
+				const t = new Date(timeStr).getTime();
+				if (!Number.isNaN(t)) {
+					lastTime = t;
+					break;
+				}
+			}
+		}
+	}
+	logger.endActivityLog(Number.isNaN(lastTime) ? Date.now() : lastTime, 'Manual');
+
+	return logger;
+}
+
 /**
  * Convert parsed FIT data into a new activity log entry.
  * Returns null if no data records are found.

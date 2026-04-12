@@ -28,7 +28,8 @@ import { PowerLimits } from 'components/ride/PowerResistance';
 import useInterval from 'lib/use-interval';
 import { useHeartRateMeasurement, getCyclingSpeedMeasurement } from 'lib/measurements';
 import DataGraph, { measurementColors } from 'components/DataGraph';
-import { gpxDocument2obj, parseGpxText2Document } from 'lib/gpx_parser';
+import { parseXmlText } from 'lib/xml_parser';
+import { gpxDocument2obj } from 'lib/gpx_parser';
 import {
 	getTimedTrackpoints,
 	calcGpsPlaybackRate,
@@ -227,7 +228,7 @@ function VirtualRideDashboard() {
 				return r.text();
 			})
 			.then((text) => {
-				const doc = parseGpxText2Document(text);
+				const doc = parseXmlText(text);
 				const gpxData = gpxDocument2obj(doc);
 				smoothedSlopeRef.current = null; // reset LPF state for the new route
 				setGpxPoints(getTimedTrackpoints(gpxData));
