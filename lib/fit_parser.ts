@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import FitParser from 'fit-file-parser';
+import { decompressGzip, isGzipFile } from './decompress';
 
 /** The full parsed FIT object returned by fit-file-parser in list mode. */
 export type ParsedFit = Awaited<ReturnType<FitParser['parseAsync']>>;
@@ -18,7 +19,10 @@ export type ParsedSession = NonNullable<ParsedFit['sessions']>[number];
  * Records, sessions, and laps are available as flat arrays on the returned object.
  */
 export async function parseFitFile(file: File): Promise<ParsedFit> {
-	const arrayBuffer = await file.arrayBuffer();
+	let arrayBuffer = await file.arrayBuffer();
+	if (isGzipFile(file.name)) {
+		arrayBuffer = await decompressGzip(arrayBuffer);
+	}
 	const fitParser = new FitParser({
 		force: true,
 		speedUnit: 'm/s',
