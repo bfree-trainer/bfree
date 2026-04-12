@@ -35,7 +35,7 @@ import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme, styled } from '@mui/material/styles';
 import Link from 'next/link';
-import { useState, useEffect, useCallback, useRef, memo, ChangeEvent, ChangeEventHandler } from 'react';
+import { useState, useEffect, useCallback, useRef, memo, ChangeEvent, ChangeEventHandler, ReactNode } from 'react';
 import BottomNavi from 'components/BottomNavi';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import MyHead from 'components/MyHead';
@@ -62,6 +62,19 @@ const DynamicRideMiniMap = dynamic<RideMiniMapArgs>(() => import('components/map
 });
 const DataGraph = dynamic(() => import('components/DataGraph'), { ssr: false });
 const RideExpandedStats = dynamic(() => import('components/RideExpandedStats'), { ssr: false });
+
+// BottomNavigation passes `showLabel` to all its direct children via cloneElement.
+// FormControlLabel doesn't consume that prop and would forward it to the <label> DOM
+// element, causing a React warning. This wrapper absorbs the prop.
+function BottomNavFormItem({
+	showLabel: _showLabel,
+	children,
+}: {
+	showLabel?: boolean;
+	children: ReactNode;
+}) {
+	return <>{children}</>;
+}
 
 const VisuallyHiddenInput = styled('input')({
 	clip: 'rect(0 0 0 0)',
@@ -623,26 +636,28 @@ export default function History() {
 				{`Delete ${selectionCount} selected ride${selectionCount !== 1 ? 's' : ''}? This cannot be undone.`}
 			</WarningDialog>
 			<BottomNavi>
-				<FormControlLabel
-					control={
-						<Checkbox
-							checked={logs.length > 0 && selectedIds.size === logs.length}
-							indeterminate={selectedIds.size > 0 && selectedIds.size < logs.length}
-							onChange={handleSelectAll}
-							disabled={logs.length === 0}
-							inputProps={{
-								'aria-label':
-									logs.length > 0 && selectedIds.size === logs.length
-										? 'Deselect all rides'
-										: 'Select all rides',
-							}}
-						/>
-					}
-					label={
-						logs.length > 0 && selectedIds.size === logs.length ? 'Deselect all' : 'Select all'
-					}
-					sx={{ mx: 1 }}
-				/>
+				<BottomNavFormItem>
+					<FormControlLabel
+						control={
+							<Checkbox
+								checked={logs.length > 0 && selectedIds.size === logs.length}
+								indeterminate={selectedIds.size > 0 && selectedIds.size < logs.length}
+								onChange={handleSelectAll}
+								disabled={logs.length === 0}
+								inputProps={{
+									'aria-label':
+										logs.length > 0 && selectedIds.size === logs.length
+											? 'Deselect all rides'
+											: 'Select all rides',
+								}}
+							/>
+						}
+						label={
+							logs.length > 0 && selectedIds.size === logs.length ? 'Deselect all' : 'Select all'
+						}
+						sx={{ mx: 1 }}
+					/>
+				</BottomNavFormItem>
 				<BottomNavigationAction
 					disabled={selectionCount === 0}
 					sx={
