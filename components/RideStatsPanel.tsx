@@ -11,7 +11,7 @@ import type { RideEntry } from 'lib/orm';
 import { smartDistanceUnitFormat } from 'lib/units';
 import { useGlobalState } from 'lib/global';
 import { formatDuration } from 'lib/format';
-import { formatWeekLabel as formatWeekLabelLocale } from 'lib/locale';
+import { formatWeekLabel } from 'lib/locale';
 
 type Logs = RideEntry[];
 
@@ -25,10 +25,6 @@ function getISOWeekStart(date: Date): Date {
 	return d;
 }
 
-/** Format a short week label like "Apr 7". */
-function formatWeekLabel(weekStart: Date): string {
-	return formatWeekLabelLocale(weekStart);
-}
 
 interface WeekStats {
 	label: string;
