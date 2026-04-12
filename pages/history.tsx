@@ -314,12 +314,13 @@ export default function History() {
 	}, []);
 
 	const handleSelectAll = useCallback(() => {
-		if (selectedIds.size === logs.length) {
-			setSelectedIds(new Set());
-		} else {
-			setSelectedIds(new Set(logs.map((l) => l.id)));
-		}
-	}, [selectedIds.size, logs]);
+		setSelectedIds((prev) => {
+			if (prev.size === logs.length) {
+				return new Set();
+			}
+			return new Set(logs.map((l) => l.id));
+		});
+	}, [logs]);
 
 	const massDeletion = useCallback(() => {
 		selectedIds.forEach((id) => {
@@ -580,10 +581,17 @@ export default function History() {
 							indeterminate={selectedIds.size > 0 && selectedIds.size < logs.length}
 							onChange={handleSelectAll}
 							disabled={logs.length === 0}
-							inputProps={{ 'aria-label': 'Select all rides' }}
+							inputProps={{
+								'aria-label':
+									logs.length > 0 && selectedIds.size === logs.length
+										? 'Deselect all rides'
+										: 'Select all rides',
+							}}
 						/>
 					}
-					label="Select all"
+					label={
+						logs.length > 0 && selectedIds.size === logs.length ? 'Deselect all' : 'Select all'
+					}
 					sx={{ mx: 1 }}
 				/>
 				<BottomNavigationAction
