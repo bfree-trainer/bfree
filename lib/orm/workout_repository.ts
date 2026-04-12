@@ -5,6 +5,7 @@
 import type { Rider } from '../global';
 import { base64ToString, digestSHA1, stringToBase64 } from '../ab';
 import generateFTPTest from '../workouts/ftp';
+import { formatLongDate } from '../locale';
 
 export type WorkoutScript = {
 	id: string;
@@ -156,14 +157,7 @@ class LocalStorageWorkoutRepository implements WorkoutRepository {
 	}
 
 	formatDate(workout: WorkoutScript): string {
-		const date = new Date(workout.ts);
-		if (typeof window === 'undefined') return date.toISOString();
-		return date.toLocaleDateString([navigator.languages[0], 'en-US'], {
-			weekday: 'long',
-			year: 'numeric',
-			month: 'long',
-			day: 'numeric',
-		});
+		return formatLongDate(new Date(workout.ts));
 	}
 }
 

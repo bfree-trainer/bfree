@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import { createActivityLog } from '../activity_log';
+import { formatLongDate } from '../locale';
 
 export type ActivityLogger = ReturnType<typeof createActivityLog>;
 
@@ -34,17 +35,6 @@ export interface RideRepository {
 // localStorage implementation
 // ---------------------------------------------------------------------------
 
-function formatDate(ts: number): string {
-	const date = new Date(ts);
-	if (typeof window === 'undefined') return date.toISOString();
-	return date.toLocaleDateString([navigator.languages[0], 'en-US'], {
-		weekday: 'long',
-		year: 'numeric',
-		month: 'long',
-		day: 'numeric',
-	});
-}
-
 class LocalStorageRideRepository implements RideRepository {
 	private readonly KEY_PREFIX = 'activity_log:';
 
@@ -61,7 +51,7 @@ class LocalStorageRideRepository implements RideRepository {
 				logger.importJson(localStorage[key]);
 
 				const ts = logger.getStartTime();
-				arr.push({ id: key, ts, date: formatDate(ts), logger });
+				arr.push({ id: key, ts, date: formatLongDate(ts), logger });
 			}
 		}
 

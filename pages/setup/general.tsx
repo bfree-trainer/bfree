@@ -9,13 +9,44 @@ import MyHead from 'components/MyHead';
 import Title from 'components/Title';
 import { BooleanConfigParam, EnumConfigParam, UnsignedConfigParam } from 'components/SetupComponents';
 import { UnitConv, distanceUnitConv, speedUnitConv } from 'lib/units';
+import { getClientLang } from 'lib/locale';
 import Typography from '@mui/material/Typography';
 
 const gen = (uc: UnitConv): [string, string][] => Object.keys(uc).map((k) => [k, uc[k].name]);
 const speedUnits: [string, string][] = gen(speedUnitConv);
 const distanceUnits: [string, string][] = gen(distanceUnitConv).filter((v) => ['m', 'km', 'yd', 'mi'].includes(v[0]));
 
+/**
+ * A curated list of [BCP-47 locale tag, human-readable label] pairs.
+ * The empty string entry means "use the browser's detected locale".
+ */
+function getDateLocaleOptions(): [string, string][] {
+	const browserLocale = typeof window !== 'undefined' ? getClientLang() : 'en-US';
+	return [
+		['', `Browser default (${browserLocale})`],
+		['en-US', 'English (US) — MM/DD/YYYY'],
+		['en-GB', 'English (UK) — DD/MM/YYYY'],
+		['de-DE', 'Deutsch (Deutschland)'],
+		['fr-FR', 'Français (France)'],
+		['es-ES', 'Español (España)'],
+		['it-IT', 'Italiano (Italia)'],
+		['pt-BR', 'Português (Brasil)'],
+		['nl-NL', 'Nederlands (Nederland)'],
+		['sv-SE', 'Svenska (Sverige)'],
+		['fi-FI', 'Suomi (Suomi)'],
+		['nb-NO', 'Norsk bokmål (Norge)'],
+		['da-DK', 'Dansk (Danmark)'],
+		['pl-PL', 'Polski (Polska)'],
+		['ru-RU', 'Русский (Россия)'],
+		['ja-JP', '日本語 (日本)'],
+		['zh-CN', '中文 (中国大陆)'],
+		['ko-KR', '한국어 (대한민국)'],
+	];
+}
+
 export default function SetupGeneral() {
+	const dateLocaleOptions = getDateLocaleOptions();
+
 	return (
 		<Container maxWidth="md">
 			<MyHead title="General" />
@@ -45,6 +76,15 @@ export default function SetupGeneral() {
 						idPrefix="distance-unit"
 						items={distanceUnits}
 						configName="unitDistance"
+					/>
+					<EnumConfigParam
+						title="Date Format"
+						image="/images/cards/misc.jpg"
+						idPrefix="date-locale"
+						label="Locale"
+						helpLabel="Controls how dates are displayed across the app."
+						items={dateLocaleOptions}
+						configName="dateLocale"
 					/>
 					<BooleanConfigParam
 						title="Misc"
