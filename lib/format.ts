@@ -11,9 +11,9 @@ export function getElapsedTimeStr(t: number) {
 	return `${zeroPad(min, 2)}:${zeroPad(sec, 2)}`;
 }
 
-/** Format milliseconds as "Xh Ym", "Xh", "Ym", or "0m". */
+/** Format milliseconds as "Xh Ym", "Xh", "Ym", or "0m". Negative values are treated as 0. */
 export function formatDuration(ms: number): string {
-	const totalMin = Math.round(ms / 60000);
+	const totalMin = Math.round(Math.max(0, ms) / 60000);
 	const hours = Math.floor(totalMin / 60);
 	const minutes = totalMin % 60;
 	if (hours === 0 && minutes === 0) return '0m';

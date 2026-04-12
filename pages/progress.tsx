@@ -38,7 +38,7 @@ const TSB_FRESH_THRESHOLD = 10;
 const TSB_FATIGUED_THRESHOLD = -10;
 
 function formatDuration(ms: number): string {
-	const totalMin = Math.round(ms / 60000);
+	const totalMin = Math.round(Math.max(0, ms) / 60000);
 	const hours = Math.floor(totalMin / 60);
 	const minutes = totalMin % 60;
 	if (hours === 0 && minutes === 0) return '0m';
