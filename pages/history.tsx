@@ -326,7 +326,7 @@ function RideCard({ log, onSelect }: { log: Log; onSelect: (v: boolean) => void 
 						{notes}
 					</Typography>
 				</CardContent>
-				<Collapse in={expanded} timeout="auto" unmountOnExit>
+				<Collapse in={expanded} timeout="auto" unmountOnExit id={`ride-details-${log.id}`}>
 					<CardContent>
 						<DataGraph logger={log.logger} type="full" isInteractive={true} />
 						<RideExpandedStats logger={log.logger} />
@@ -338,12 +338,14 @@ function RideCard({ log, onSelect }: { log: Log; onSelect: (v: boolean) => void 
 					</IconButton>
 					<Checkbox
 						color="default"
+						aria-label={`Select ${name}`}
 						onChange={(e: React.ChangeEvent<HTMLInputElement>) => onSelect(e.target.checked)}
 					/>
 					<ExpandMore
 						expand={expanded}
 						onClick={handleExpandClick}
 						aria-expanded={expanded}
+						aria-controls={`ride-details-${log.id}`}
 						aria-label={expanded ? 'Hide ride details' : 'Show ride details'}
 					>
 						<IconExpandMore />
@@ -509,6 +511,18 @@ export default function History() {
 				<Grid container spacing={3} alignItems="flex-start">
 					<Grid item xs={12} md={8}>
 						<Grid container direction="column" alignItems="center" spacing={2}>
+							{logs.length === 0 && (
+								<Grid item sx={{ width: '100%', maxWidth: 400 }}>
+									<Box sx={{ textAlign: 'center', py: 6 }}>
+										<Typography variant="h6" color="text.secondary" gutterBottom>
+											No rides yet
+										</Typography>
+										<Typography variant="body2" color="text.secondary">
+											Record your first ride or import a GPX/FIT file to get started.
+										</Typography>
+									</Box>
+								</Grid>
+							)}
 							{logs.map((log) => (
 								<RideCard
 									log={log}
@@ -551,9 +565,10 @@ export default function History() {
 			</Snackbar>
 			<BottomNavi>
 				<BottomNavigationAction
+					disabled={selectionCount === 0}
 					sx={
 						selectionCount === 0
-							? { color: 'action.disabled', cursor: 'not-allowed' }
+							? { color: 'action.disabled' }
 							: {
 									'&:hover': {
 										color: 'action.disabled',
@@ -568,9 +583,7 @@ export default function History() {
 					}
 					onClick={(e) => {
 						e.preventDefault();
-						{
-							if (selectionCount > 0) massDeletion();
-						}
+						massDeletion();
 					}}
 				/>
 			</BottomNavi>
