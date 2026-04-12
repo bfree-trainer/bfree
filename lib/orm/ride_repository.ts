@@ -127,7 +127,7 @@ class IndexedDbRideRepository implements RideRepository {
 			tx.onerror = () => reject(tx.error);
 			const store = tx.objectStore(STORE_NAME);
 			for (const [key, value] of entries) {
-				// add() is a no-op if the key already exists, avoiding duplicates.
+				// put() overwrites any existing entry, ensuring idempotent migration.
 				store.put(value, key);
 			}
 		});
@@ -189,6 +189,7 @@ class IndexedDbRideRepository implements RideRepository {
 
 		if (this.db) {
 			const tx = this.db.transaction(STORE_NAME, 'readwrite');
+			tx.onerror = () => console.error('IndexedDB save failed:', tx.error);
 			tx.objectStore(STORE_NAME).put(json, key);
 		}
 	}
@@ -207,6 +208,7 @@ class IndexedDbRideRepository implements RideRepository {
 
 		if (this.db) {
 			const tx = this.db.transaction(STORE_NAME, 'readwrite');
+			tx.onerror = () => console.error('IndexedDB saveNew failed:', tx.error);
 			tx.objectStore(STORE_NAME).put(json, key);
 		}
 	}
@@ -220,6 +222,7 @@ class IndexedDbRideRepository implements RideRepository {
 
 		if (this.db) {
 			const tx = this.db.transaction(STORE_NAME, 'readwrite');
+			tx.onerror = () => console.error('IndexedDB delete failed:', tx.error);
 			tx.objectStore(STORE_NAME).delete(id);
 		}
 	}
