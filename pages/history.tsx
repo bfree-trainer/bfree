@@ -31,7 +31,7 @@ import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme, styled } from '@mui/material/styles';
 import Link from 'next/link';
-import { useState, useEffect, useRef, useCallback, memo, ChangeEvent } from 'react';
+import { useState, useEffect, useCallback, memo, ChangeEvent, ChangeEventHandler } from 'react';
 import BottomNavi from 'components/BottomNavi';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import MyHead from 'components/MyHead';
@@ -157,6 +157,21 @@ function getActivityTypeLabel(type: ActivityType): string {
 function isTrainerActivity(type: ActivityType): boolean {
 	return (
 		type === 'trainerFreeRide' || type === 'trainerWorkout' || type === 'trainerMap' || type === 'trainerVirtual'
+	);
+}
+
+function ImportButton({ onChange }: { onChange: ChangeEventHandler<HTMLInputElement> }) {
+	return (
+		<Button component="label" variant="outlined" size="small">
+			Import
+			<VisuallyHiddenInput
+				type="file"
+				accept=".gpx,.GPX,.gpx.gz,.GPX.gz,.fit,.FIT,.fit.gz,.FIT.gz,.tcx,.TCX,.tcx.gz,.TCX.gz,application/gzip,application/x-gzip"
+				aria-label="Upload GPX file"
+				multiple
+				onChange={onChange}
+			/>
+		</Button>
 	);
 }
 
@@ -334,14 +349,17 @@ export default function History() {
 		setLogs(rideRepository.findAll());
 	}, [selectedIds]);
 
-	const handleImportGpx = (e: ChangeEvent<HTMLInputElement>) => {
+	const handleImport = (e: ChangeEvent<HTMLInputElement>) => {
 		const files = Array.from(e.target.files ?? []);
 		// Reset so selecting the same file(s) again still triggers onChange
 		e.target.value = '';
 		if (files.length === 0) return;
 
-		const promises = files.map((file) =>
-			parseXmlFile(file)
+		const promises: Promise<{ file: File, result: 'ok' | 'duplicate' | 'failed' }>[] = [];
+
+		files.map((file) => {
+			if (/\.gpx(\.gz)?$/.test(file.name)) {
+			promises.push(parseXmlFile(file)
 				.then((xmlDoc) => {
 					const gpxData = gpxDocument2obj(xmlDoc);
 					const logger = gpxToActivityLog(gpxData);
@@ -353,15 +371,46 @@ export default function History() {
 					if (err instanceof RideAlreadyExistsError) return { file, result: 'duplicate' as const };
 					return { file, result: 'failed' as const };
 				})
-		);
+			);
 
-		Promise.all(promises).then((entries) => {
+			} else if (/\.fit(\.gz)?$/.test(file.name)) {
+				promises.push(parseFitFile(file)
+					.then((fitData) => {
+						const logger = fitToActivityLog(fitData, file.name.replace(/\.fit(\.gz)?$/i, ''));
+						if (!logger) return { file, result: 'failed' as const };
+						rideRepository.saveNew(logger);
+						return { file, result: 'ok' as const };
+					})
+					.catch((err) => {
+						if (err instanceof RideAlreadyExistsError) return { file, result: 'duplicate' as const };
+						return { file, result: 'failed' as const };
+					})
+				);
+			} else if (/\.tcx(\.gz)?$/.test(file.name)) {
+				promises.push(parseXmlFile(file)
+					.then((xmlDoc) => {
+						const logger = tcxToActivityLog(xmlDoc, file.name.replace(/\.tcx(\.gz)?$/i, ''));
+						if (!logger) return { file, result: 'failed' as const };
+						rideRepository.saveNew(logger);
+						return { file, result: 'ok' as const };
+					})
+					.catch((err) => {
+						if (err instanceof RideAlreadyExistsError) return { file, result: 'duplicate' as const };
+						return { file, result: 'failed' as const };
+					})
+				);
+			} else {
+				promises.push(new Promise(() => ({ file, result: 'failed' })));
+			}
+		});
+
+		Promise.all(promises).then((results) => {
 			setLogs(rideRepository.findAll());
-			const imported = entries.filter((e) => e.result === 'ok').length;
-			const duplicates = entries.filter((e) => e.result === 'duplicate').length;
-			const failed = entries.filter((e) => e.result === 'failed').length;
+			const imported = results.filter((r) => r.result === 'ok').length;
+			const duplicates = results.filter((r) => r.result === 'duplicate').length;
+			const failed = results.filter((r) => r.result === 'failed').length;
 
-			for (const { file: f, result } of entries) {
+			for (const { file: f, result } of results) {
 				if (result === 'failed') {
 					addNotification({ severity: 'error', text: `Failed to import "${f.name}": no trackpoints found.` });
 				} else if (result === 'duplicate') {
@@ -372,104 +421,13 @@ export default function History() {
 			if (files.length === 1) {
 				if (imported === 1) {
 					setSnackSeverity('success');
-					setSnackMsg('GPX file imported successfully.');
-				}
-			} else if (imported > 0 || duplicates > 0 || failed > 0) {
-				const parts: string[] = [];
-				if (imported > 0) parts.push(`${imported} file${imported !== 1 ? 's' : ''} imported`);
-				if (duplicates > 0) parts.push(`${duplicates} already exist`);
-				if (failed > 0) parts.push(`${failed} failed`);
-				setSnackSeverity(duplicates > 0 || failed > 0 ? 'error' : 'success');
-				setSnackMsg(parts.join(', ') + '.');
-			}
-		});
-	};
-
-	const handleImportFit = (e: ChangeEvent<HTMLInputElement>) => {
-		const files = Array.from(e.target.files ?? []);
-		// Reset so selecting the same file(s) again still triggers onChange
-		e.target.value = '';
-		if (files.length === 0) return;
-
-		const promises = files.map((file) =>
-			parseFitFile(file)
-				.then((fitData) => {
-					const logger = fitToActivityLog(fitData, file.name.replace(/\.fit(\.gz)?$/i, ''));
-					if (!logger) return { file, result: 'failed' as const };
-					rideRepository.saveNew(logger);
-					return { file, result: 'ok' as const };
-				})
-				.catch((err) => {
-					if (err instanceof RideAlreadyExistsError) return { file, result: 'duplicate' as const };
-					return { file, result: 'failed' as const };
-				})
-		);
-
-		Promise.all(promises).then((entries) => {
-			setLogs(rideRepository.findAll());
-			const imported = entries.filter((e) => e.result === 'ok').length;
-			const duplicates = entries.filter((e) => e.result === 'duplicate').length;
-			const failed = entries.filter((e) => e.result === 'failed').length;
-
-			for (const { file: f, result } of entries) {
-				if (result === 'failed') {
-					addNotification({ severity: 'error', text: `Failed to import "${f.name}": no data records found.` });
-				} else if (result === 'duplicate') {
-					addNotification({ severity: 'warning', text: `"${f.name}" has already been imported.` });
-				}
-			}
-
-			if (files.length === 1) {
-				if (imported === 1) {
-					setSnackSeverity('success');
-					setSnackMsg('FIT file imported successfully.');
-				}
-			} else if (imported > 0 || duplicates > 0 || failed > 0) {
-				const parts: string[] = [];
-				if (imported > 0) parts.push(`${imported} file${imported !== 1 ? 's' : ''} imported`);
-				if (duplicates > 0) parts.push(`${duplicates} already exist`);
-				if (failed > 0) parts.push(`${failed} failed`);
-				setSnackSeverity(duplicates > 0 || failed > 0 ? 'error' : 'success');
-				setSnackMsg(parts.join(', ') + '.');
-			}
-		});
-	};
-
-	const handleImportTcx = (e: ChangeEvent<HTMLInputElement>) => {
-		const files = Array.from(e.target.files ?? []);
-		// Reset so selecting the same file(s) again still triggers onChange
-		e.target.value = '';
-		if (files.length === 0) return;
-
-		const promises = files.map((file) =>
-			parseXmlFile(file)
-				.then((xmlDoc) => {
-					const logger = tcxToActivityLog(xmlDoc, file.name.replace(/\.tcx(\.gz)?$/i, ''));
-					if (!logger) return 'failed' as const;
-					rideRepository.saveNew(logger);
-					return 'ok' as const;
-				})
-				.catch((err) => {
-					if (err instanceof RideAlreadyExistsError) return 'duplicate' as const;
-					return 'failed' as const;
-				})
-		);
-
-		Promise.all(promises).then((results) => {
-			setLogs(rideRepository.findAll());
-			const imported = results.filter((r) => r === 'ok').length;
-			const duplicates = results.filter((r) => r === 'duplicate').length;
-			const failed = results.filter((r) => r === 'failed').length;
-			if (files.length === 1) {
-				if (imported === 1) {
-					setSnackSeverity('success');
-					setSnackMsg('TCX file imported successfully.');
+					setSnackMsg('Ride imported successfully.');
 				} else if (duplicates === 1) {
 					setSnackSeverity('error');
 					setSnackMsg('This ride has already been imported.');
 				} else {
 					setSnackSeverity('error');
-					setSnackMsg('No trackpoints found in the TCX file.');
+					setSnackMsg('No trackpoints found in the file.');
 				}
 			} else {
 				const parts: string[] = [];
@@ -480,7 +438,7 @@ export default function History() {
 				setSnackMsg(parts.join(', ') + '.');
 			}
 		});
-	};
+	}
 
 	return (
 		<Container maxWidth="lg" sx={{ pb: 9 }}>
@@ -492,36 +450,7 @@ export default function History() {
 						Manage and export previous rides.
 					</Typography>
 					<Box sx={{ display: 'flex', gap: 1 }}>
-						<Button component="label" variant="outlined" size="small">
-							Import GPX
-							<VisuallyHiddenInput
-								type="file"
-								accept=".gpx,.GPX,.gpx.gz,.GPX.gz,application/gzip,application/x-gzip"
-								aria-label="Upload GPX file"
-								multiple
-								onChange={handleImportGpx}
-							/>
-						</Button>
-						<Button component="label" variant="outlined" size="small">
-							Import FIT
-							<VisuallyHiddenInput
-								type="file"
-								accept=".fit,.FIT,.fit.gz,.FIT.gz,application/gzip,application/x-gzip"
-								aria-label="Upload FIT file"
-								multiple
-								onChange={handleImportFit}
-							/>
-						</Button>
-						<Button component="label" variant="outlined" size="small">
-							Import TCX
-							<VisuallyHiddenInput
-								type="file"
-								accept=".tcx,.TCX,.tcx.gz,.TCX.gz,application/gzip,application/x-gzip"
-								aria-label="Upload TCX file"
-								multiple
-								onChange={handleImportTcx}
-							/>
-						</Button>
+						<ImportButton onChange={handleImport} />
 					</Box>
 				</Box>
 
@@ -566,36 +495,7 @@ export default function History() {
 											>
 												Start a ride
 											</Button>
-											<Button component="label" variant="outlined" size="medium">
-												Import GPX
-												<VisuallyHiddenInput
-													type="file"
-													accept=".gpx,.GPX,.gpx.gz,.GPX.gz,application/gzip,application/x-gzip"
-													aria-label="Upload GPX file"
-													multiple
-													onChange={handleImportGpx}
-												/>
-											</Button>
-											<Button component="label" variant="outlined" size="medium">
-												Import FIT
-												<VisuallyHiddenInput
-													type="file"
-													accept=".fit,.FIT,.fit.gz,.FIT.gz,application/gzip,application/x-gzip"
-													aria-label="Upload FIT file"
-													multiple
-													onChange={handleImportFit}
-												/>
-											</Button>
-											<Button component="label" variant="outlined" size="medium">
-												Import TCX
-												<VisuallyHiddenInput
-													type="file"
-													accept=".tcx,.TCX"
-													aria-label="Upload TCX file"
-													multiple
-													onChange={handleImportTcx}
-												/>
-											</Button>
+											<ImportButton onChange={handleImport} />
 										</Box>
 									</Box>
 								</Grid>
