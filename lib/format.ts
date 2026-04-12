@@ -5,9 +5,14 @@
 const zeroPad = (num: number, places: number) => String(num).padStart(places, '0');
 
 export function getElapsedTimeStr(t: number) {
-	const min = Math.floor(t / 60000);
-	const sec = Math.floor((t % (1000 * 60)) / 1000);
+	const totalSec = Math.floor(t / 1000);
+	const hours = Math.floor(totalSec / 3600);
+	const min = Math.floor((totalSec % 3600) / 60);
+	const sec = totalSec % 60;
 
+	if (hours > 0) {
+		return `${hours}:${zeroPad(min, 2)}:${zeroPad(sec, 2)}`;
+	}
 	return `${zeroPad(min, 2)}:${zeroPad(sec, 2)}`;
 }
 
