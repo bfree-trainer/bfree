@@ -387,7 +387,7 @@ export default function History() {
 		const promises = files.map((file) =>
 			parseFitFile(file)
 				.then((fitData) => {
-					const logger = fitToActivityLog(fitData, file.name.replace(/\.fit$/i, ''));
+					const logger = fitToActivityLog(fitData, file.name.replace(/\.fit(\.gz)?$/i, ''));
 					if (!logger) return 'failed' as const;
 					rideRepository.saveNew(logger);
 					return 'ok' as const;
@@ -439,7 +439,7 @@ export default function History() {
 							Import GPX
 							<VisuallyHiddenInput
 								type="file"
-								accept=".gpx,.GPX"
+								accept=".gpx,.GPX,.gpx.gz,.GPX.gz,application/gzip,application/x-gzip"
 								aria-label="Upload GPX file"
 								multiple
 								onChange={handleImportGpx}
@@ -449,7 +449,7 @@ export default function History() {
 							Import FIT
 							<VisuallyHiddenInput
 								type="file"
-								accept=".fit,.FIT"
+								accept=".fit,.FIT,.fit.gz,.FIT.gz,application/gzip,application/x-gzip"
 								aria-label="Upload FIT file"
 								multiple
 								onChange={handleImportFit}
@@ -503,7 +503,7 @@ export default function History() {
 												Import GPX
 												<VisuallyHiddenInput
 													type="file"
-													accept=".gpx,.GPX"
+													accept=".gpx,.GPX,.gpx.gz,.GPX.gz,application/gzip,application/x-gzip"
 													aria-label="Upload GPX file"
 													multiple
 													onChange={handleImportGpx}
@@ -513,7 +513,7 @@ export default function History() {
 												Import FIT
 												<VisuallyHiddenInput
 													type="file"
-													accept=".fit,.FIT"
+													accept=".fit,.FIT,.fit.gz,.FIT.gz,application/gzip,application/x-gzip"
 													aria-label="Upload FIT file"
 													multiple
 													onChange={handleImportFit}
