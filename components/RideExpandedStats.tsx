@@ -127,12 +127,14 @@ function ZoneBar({ zones }: { zones: ZoneResult[] }) {
 
 export default function RideExpandedStats({ logger }: { logger: ReturnType<typeof createActivityLog> }) {
 	const [rider] = useGlobalState('rider');
+	const [bike] = useGlobalState('bike');
 	const [unitSpeed] = useGlobalState('unitSpeed');
 	const speedUnit = speedUnitConv[unitSpeed];
 
-	const stats = computeRideStats(logger, rider);
+	const stats = computeRideStats(logger, rider, bike.weight);
 
 	const hasPower = stats.avgPower !== null;
+	const hasEstimatedPower = !hasPower && stats.estimatedAvgPower !== null;
 	const hasHR = stats.avgHR !== null;
 	const hasSpeed = stats.avgSpeed !== null;
 	const hasElevation = stats.totalAscent !== null;
@@ -140,7 +142,7 @@ export default function RideExpandedStats({ logger }: { logger: ReturnType<typeo
 	const hasPowerZones = stats.powerZones !== null;
 	const hasHRZones = stats.hrZones !== null;
 
-	const hasAnyStats = hasPower || hasHR || hasSpeed || hasElevation;
+	const hasAnyStats = hasPower || hasEstimatedPower || hasHR || hasSpeed || hasElevation;
 	if (!hasAnyStats && !hasRelativeEffort && !hasPowerZones && !hasHRZones) {
 		return null;
 	}
@@ -173,10 +175,24 @@ export default function RideExpandedStats({ logger }: { logger: ReturnType<typeo
 				</>
 			)}
 
+			{hasEstimatedPower && (
+				<>
+					<SectionLabel>Estimated Power</SectionLabel>
+					<Box sx={{ display: 'flex', flexWrap: 'wrap', mx: -0.5 }}>
+						<StatCell label="Avg" value={`${stats.estimatedAvgPower} W`} />
+						<StatCell label="Max" value={`${stats.estimatedMaxPower} W`} />
+						{stats.estimatedNormalizedPower !== null && (
+							<StatCell label="Norm" value={`${stats.estimatedNormalizedPower} W`} />
+						)}
+					</Box>
+				</>
+			)}
+
 			{hasHR && (
 				<>
 					<SectionLabel>Heart Rate</SectionLabel>
 					<Box sx={{ display: 'flex', flexWrap: 'wrap', mx: -0.5 }}>
+						<StatCell label="Min" value={`${stats.minHR} bpm`} />
 						<StatCell label="Avg" value={`${stats.avgHR} bpm`} />
 						<StatCell label="Max" value={`${stats.maxHR} bpm`} />
 					</Box>
