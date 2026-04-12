@@ -411,7 +411,7 @@ export default function History() {
 			<Box>
 				<Title href="/">{isBreakpoint ? 'Previous Rides' : 'Rides'}</Title>
 				<Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 2, mb: 2, flexWrap: 'wrap' }}>
-					<Typography variant="body1" color="text.primary" sx={{ flex: '1 1 100%', minWidth: 0 }}>
+					<Typography variant="body1" color="text.primary" sx={{ flex: '1 1 auto', minWidth: 0 }}>
 						Manage and export previous rides.
 					</Typography>
 					<Box sx={{ display: 'flex', gap: 1 }}>
