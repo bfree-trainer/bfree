@@ -29,7 +29,6 @@ import Snackbar from '@mui/material/Snackbar';
 import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme, styled } from '@mui/material/styles';
-import { red } from '@mui/material/colors';
 import Link from 'next/link';
 import { useState, useEffect, useRef, ChangeEvent } from 'react';
 import BottomNavi from 'components/BottomNavi';
@@ -41,6 +40,7 @@ import RideStatsPanel from 'components/RideStatsPanel';
 import downloadBlob from 'lib/download_blob';
 import { gpxToActivityLog, fitToActivityLog } from 'lib/activity_log';
 import type { ActivityType } from 'lib/activity_log';
+import type { RideEntry } from 'lib/orm';
 import { rideRepository, RideAlreadyExistsError } from 'lib/orm';
 import { gpxDocument2obj, parseGpxFile2Document } from 'lib/gpx_parser';
 import { parseFitFile } from 'lib/fit_parser';
@@ -68,65 +68,6 @@ const VisuallyHiddenInput = styled('input')({
 	width: 1,
 });
 
-const PREFIX = 'history';
-const classes = {
-	cardRoot: `${PREFIX}-cardRoot`,
-	fab: `${PREFIX}-fab`,
-	media: `${PREFIX}-media`,
-	expand: `${PREFIX}-expand`,
-	expandOpen: `${PREFIX}-expandOpen`,
-	avatar: `${PREFIX}-avatar`,
-};
-
-const StyledContainer = styled(Container)(({ theme }) => ({
-	[`& .${classes.cardRoot}`]: {
-		width: '100%',
-	},
-
-	[`& .${classes.fab}`]: {
-		display: 'flex',
-		marginLeft: 'auto',
-		marginRight: 'auto',
-		marginBottom: '2em',
-		marginTop: '2em',
-	},
-
-	[`& .${classes.media}`]: {
-		height: 0,
-		paddingTop: '56.25%', // 16:9
-	},
-
-	[`& .${classes.expand}`]: {
-		transform: 'rotate(0deg)',
-		marginLeft: 'auto',
-		transition: theme.transitions.create('transform', {
-			duration: theme.transitions.duration.shortest,
-		}),
-	},
-
-	[`& .${classes.expandOpen}`]: {
-		transform: 'rotate(180deg)',
-	},
-
-	[`& .${classes.avatar}`]: {
-		backgroundColor: red[500],
-	},
-}));
-
-const FlexParent = styled('div')({
-	margin: 0,
-	padding: 0,
-	display: 'flex',
-	flexDirection: 'row',
-});
-
-const Flex = styled('div')({
-	margin: 0,
-	padding: 0,
-	flex: '1 1',
-	position: 'relative',
-});
-
 const RideStatsUl = styled('ul')({
 	margin: 0,
 	padding: 0,
@@ -134,56 +75,33 @@ const RideStatsUl = styled('ul')({
 	display: 'flex',
 	flexFlow: 'row wrap',
 	listStyle: 'none',
-	paddingLeft: 0,
-	marginBottom: 0,
-	marginTop: 0,
 });
 
 const RideStatsLi = styled('li')(({ theme }) => ({
 	listStyle: 'none',
 	margin: 0,
-	padding: 5,
+	padding: theme.spacing(0.75),
 	display: 'flex',
 	flexDirection: 'column',
 	justifyContent: 'flex-end',
 	borderRight: `1px solid ${theme.palette.divider}`,
+	'&:last-child': {
+		borderRight: 'none',
+	},
 }));
-
-const RideStatsLiLast = styled('li')({
-	listStyle: 'none',
-	margin: 0,
-	padding: 5,
-	display: 'flex',
-	flexDirection: 'column',
-	justifyContent: 'flex-end',
-});
-
-import type { RideEntry } from 'lib/orm';
 
 type Log = RideEntry;
 
 function RideStats({ stats }: { stats: [string, string][] }) {
-	const last = stats.length - 1;
 	return (
-		<FlexParent>
-			<Flex>
-				<RideStatsUl>
-					{stats.map((stat, i) =>
-						i < last ? (
-							<RideStatsLi key={i}>
-								<Typography variant="caption">{stat[0]}</Typography>
-								<Typography variant="body1">{stat[1]}</Typography>
-							</RideStatsLi>
-						) : (
-							<RideStatsLiLast key={i}>
-								<Typography variant="caption">{stat[0]}</Typography>
-								<Typography variant="body1">{stat[1]}</Typography>
-							</RideStatsLiLast>
-						)
-					)}
-				</RideStatsUl>
-			</Flex>
-		</FlexParent>
+		<RideStatsUl>
+			{stats.map((stat, i) => (
+				<RideStatsLi key={i}>
+					<Typography variant="caption">{stat[0]}</Typography>
+					<Typography variant="body1">{stat[1]}</Typography>
+				</RideStatsLi>
+			))}
+		</RideStatsUl>
 	);
 }
 
@@ -277,10 +195,10 @@ function RideCard({ log, onSelect }: { log: Log; onSelect: (v: boolean) => void 
 
 	return (
 		<Grid item sx={{ width: '100%', maxWidth: 400 }}>
-			<Card variant="outlined" className={classes.cardRoot}>
+			<Card variant="outlined" sx={{ width: '100%' }}>
 				<CardHeader
 					avatar={
-						<Avatar aria-label="ride" className={classes.avatar}>
+						<Avatar aria-label="ride" sx={{ bgcolor: 'error.main' }}>
 							{log.logger.getAvatar()}
 						</Avatar>
 					}
@@ -324,7 +242,7 @@ function RideCard({ log, onSelect }: { log: Log; onSelect: (v: boolean) => void 
 							['Calories', `${calories}`],
 						]}
 					/>
-					<Typography variant="body2" color="textSecondary" component="p">
+					<Typography variant="body2" color="text.secondary" component="p">
 						{notes}
 					</Typography>
 				</CardContent>
@@ -480,7 +398,7 @@ export default function History() {
 	}, [logs]);
 
 	return (
-		<StyledContainer maxWidth="lg" sx={{ pb: '72px' }}>
+		<Container maxWidth="lg" sx={{ pb: 9 }}>
 			<MyHead title="Previous Rides" />
 			<Box>
 				<Title href="/">{isBreakpoint ? 'Previous Rides' : 'Rides'}</Title>
@@ -639,6 +557,6 @@ export default function History() {
 					}}
 				/>
 			</BottomNavi>
-		</StyledContainer>
+		</Container>
 	);
 }
