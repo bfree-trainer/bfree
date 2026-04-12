@@ -11,6 +11,9 @@ export type Coord = {
 export type Trackpoint = Coord & {
 	ele?: number;
 	time?: Date;
+	hr?: number;
+	cadence?: number;
+	power?: number;
 };
 export type Segment = {
 	trackpoints: Trackpoint[];
@@ -71,6 +74,27 @@ function getElValue(el: HTMLCollectionOf<Element>) {
 	return el[0].childNodes[0].nodeValue;
 }
 
+/**
+ * Search the `<extensions>` child of a trackpoint element for a descendant
+ * whose local name (ignoring namespace prefix) matches `localName`.
+ * Returns the numeric value, or undefined if not found / not a number.
+ */
+function getExtensionNumericValue(trkptEl: Element, localName: string): number | undefined {
+	const extensionsEls = trkptEl.getElementsByTagName('extensions');
+	if (extensionsEls.length === 0) return undefined;
+
+	const all = extensionsEls[0].getElementsByTagName('*');
+	for (let i = 0; i < all.length; i++) {
+		const child = all[i];
+		// child.localName strips any namespace prefix (e.g. "gpxtpx:hr" → "hr")
+		if (child.localName === localName) {
+			const val = parseFloat(child.textContent ?? '');
+			if (!Number.isNaN(val)) return val;
+		}
+	}
+	return undefined;
+}
+
 function parseTrackpoint(el: Element): Trackpoint {
 	const trackpoint: Trackpoint = {
 		lat: parseFloat(el.getAttribute('lat')),
@@ -89,6 +113,19 @@ function parseTrackpoint(el: Element): Trackpoint {
 				trackpoint.time = parsed;
 			}
 		}
+	}
+
+	const hr = getExtensionNumericValue(el, 'hr');
+	if (hr !== undefined) {
+		trackpoint.hr = hr;
+	}
+	const cadence = getExtensionNumericValue(el, 'cad');
+	if (cadence !== undefined) {
+		trackpoint.cadence = cadence;
+	}
+	const power = getExtensionNumericValue(el, 'PowerInWatts') ?? getExtensionNumericValue(el, 'watts') ?? getExtensionNumericValue(el, 'power');
+	if (power !== undefined) {
+		trackpoint.power = power;
 	}
 
 	return trackpoint;

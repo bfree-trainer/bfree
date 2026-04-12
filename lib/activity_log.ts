@@ -325,6 +325,15 @@ export function gpxToActivityLog(gpxData: CourseData, name?: string): ReturnType
 		if (typeof speed === 'number') {
 			trackPoint.speed = speed;
 		}
+		if (typeof tp.hr === 'number') {
+			trackPoint.hr = tp.hr;
+		}
+		if (typeof tp.cadence === 'number') {
+			trackPoint.cadence = tp.cadence;
+		}
+		if (typeof tp.power === 'number') {
+			trackPoint.power = tp.power;
+		}
 
 		logger.addTrackPoint(trackPoint);
 		prevTp = tp;
