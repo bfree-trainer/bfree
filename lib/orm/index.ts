@@ -4,6 +4,7 @@
 
 export { rideRepository } from './ride_repository';
 export type { RideRepository, RideEntry, ActivityLogger } from './ride_repository';
+export { RideAlreadyExistsError } from './ride_repository';
 
 export { courseRepository } from './course_repository';
 export type { CourseRepository, PersistedCourse } from './course_repository';

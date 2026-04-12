@@ -14,6 +14,13 @@ export type RideEntry = {
 	logger: ActivityLogger;
 };
 
+export class RideAlreadyExistsError extends Error {
+	constructor(id: string) {
+		super(`Ride already exists: ${id}`);
+		this.name = 'RideAlreadyExistsError';
+	}
+}
+
 /**
  * Repository interface for ride (activity log) persistence.
  * Implementations may use localStorage, IndexedDB, a remote API, etc.
@@ -27,6 +34,8 @@ export interface RideRepository {
 	findBetween(start: Date, end: Date): RideEntry[];
 	/** Persist or update a ride. */
 	save(logger: ActivityLogger): void;
+	/** Persist a new ride. Throws RideAlreadyExistsError if the key already exists. */
+	saveNew(logger: ActivityLogger): void;
 	/** Remove a ride by its storage key. */
 	delete(id: string): void;
 }
@@ -76,6 +85,21 @@ class LocalStorageRideRepository implements RideRepository {
 		}
 
 		localStorage.setItem(`${this.KEY_PREFIX}${date}`, logger.json());
+	}
+
+	saveNew(logger: ActivityLogger): void {
+		const date = logger.getStartTimeISO();
+
+		if (!date) {
+			throw new Error('Save failed: activity log has no start time');
+		}
+
+		const key = `${this.KEY_PREFIX}${date}`;
+		if (localStorage.getItem(key) !== null) {
+			throw new RideAlreadyExistsError(key);
+		}
+
+		localStorage.setItem(key, logger.json());
 	}
 
 	delete(id: string): void {

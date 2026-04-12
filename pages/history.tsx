@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import Alert from '@mui/material/Alert';
 import dynamic from 'next/dynamic';
 import Avatar from '@mui/material/Avatar';
 import Badge from '@mui/material/Badge';
@@ -38,7 +39,7 @@ import RideStatsPanel from 'components/RideStatsPanel';
 import downloadBlob from 'lib/download_blob';
 import { gpxToActivityLog, fitToActivityLog } from 'lib/activity_log';
 import type { ActivityType } from 'lib/activity_log';
-import { rideRepository } from 'lib/orm';
+import { rideRepository, RideAlreadyExistsError } from 'lib/orm';
 import { gpxDocument2obj, parseGpxFile2Document } from 'lib/gpx_parser';
 import { parseFitFile } from 'lib/fit_parser';
 import { getElapsedTimeStr } from 'lib/format';
@@ -357,6 +358,7 @@ export default function History() {
 	const selectionRef = useRef(new WeakMap<Log, boolean>());
 	const [selectionCount, setSelectionCount] = useState(0);
 	const [snackMsg, setSnackMsg] = useState<string | null>(null);
+	const [snackSeverity, setSnackSeverity] = useState<'success' | 'error' | 'info'>('info');
 
 	const massDeletion = () => {
 		const q = logs.filter((log) => selectionRef.current.has(log));
@@ -378,27 +380,38 @@ export default function History() {
 				.then((xmlDoc) => {
 					const gpxData = gpxDocument2obj(xmlDoc);
 					const logger = gpxToActivityLog(gpxData);
-					if (!logger) return false;
-					rideRepository.save(logger);
-					return true;
+					if (!logger) return 'failed' as const;
+					rideRepository.saveNew(logger);
+					return 'ok' as const;
 				})
-				.catch(() => false)
+				.catch((err) => {
+					if (err instanceof RideAlreadyExistsError) return 'duplicate' as const;
+					return 'failed' as const;
+				})
 		);
 
 		Promise.all(promises).then((results) => {
 			setLogs(rideRepository.findAll());
-			const imported = results.filter(Boolean).length;
-			const failed = results.length - imported;
+			const imported = results.filter((r) => r === 'ok').length;
+			const duplicates = results.filter((r) => r === 'duplicate').length;
+			const failed = results.filter((r) => r === 'failed').length;
 			if (files.length === 1) {
 				if (imported === 1) {
+					setSnackSeverity('success');
 					setSnackMsg('GPX file imported successfully.');
+				} else if (duplicates === 1) {
+					setSnackSeverity('error');
+					setSnackMsg('This ride has already been imported.');
 				} else {
+					setSnackSeverity('error');
 					setSnackMsg('No trackpoints found in the GPX file.');
 				}
 			} else {
 				const parts: string[] = [];
-				if (imported > 0) parts.push(`${imported} File${imported !== 1 ? 's' : ''} imported`);
+				if (imported > 0) parts.push(`${imported} file${imported !== 1 ? 's' : ''} imported`);
+				if (duplicates > 0) parts.push(`${duplicates} already exist`);
 				if (failed > 0) parts.push(`${failed} failed`);
+				setSnackSeverity(duplicates > 0 || failed > 0 ? 'error' : 'success');
 				setSnackMsg(parts.join(', ') + '.');
 			}
 		});
@@ -414,27 +427,38 @@ export default function History() {
 			parseFitFile(file)
 				.then((fitData) => {
 					const logger = fitToActivityLog(fitData, file.name.replace(/\.fit$/i, ''));
-					if (!logger) return false;
-					rideRepository.save(logger);
-					return true;
+					if (!logger) return 'failed' as const;
+					rideRepository.saveNew(logger);
+					return 'ok' as const;
 				})
-				.catch(() => false)
+				.catch((err) => {
+					if (err instanceof RideAlreadyExistsError) return 'duplicate' as const;
+					return 'failed' as const;
+				})
 		);
 
 		Promise.all(promises).then((results) => {
 			setLogs(rideRepository.findAll());
-			const imported = results.filter(Boolean).length;
-			const failed = results.length - imported;
+			const imported = results.filter((r) => r === 'ok').length;
+			const duplicates = results.filter((r) => r === 'duplicate').length;
+			const failed = results.filter((r) => r === 'failed').length;
 			if (files.length === 1) {
 				if (imported === 1) {
+					setSnackSeverity('success');
 					setSnackMsg('FIT file imported successfully.');
+				} else if (duplicates === 1) {
+					setSnackSeverity('error');
+					setSnackMsg('This ride has already been imported.');
 				} else {
+					setSnackSeverity('error');
 					setSnackMsg('No data records found in the FIT file.');
 				}
 			} else {
 				const parts: string[] = [];
-				if (imported > 0) parts.push(`${imported} File${imported !== 1 ? 's' : ''} imported`);
+				if (imported > 0) parts.push(`${imported} file${imported !== 1 ? 's' : ''} imported`);
+				if (duplicates > 0) parts.push(`${duplicates} already exist`);
 				if (failed > 0) parts.push(`${failed} failed`);
+				setSnackSeverity(duplicates > 0 || failed > 0 ? 'error' : 'success');
 				setSnackMsg(parts.join(', ') + '.');
 			}
 		});
@@ -511,7 +535,11 @@ export default function History() {
 					</Grid>
 				</Grid>
 			</Box>
-			<Snackbar open={!!snackMsg} autoHideDuration={4000} onClose={() => setSnackMsg(null)} message={snackMsg} />
+			<Snackbar open={!!snackMsg} autoHideDuration={4000} onClose={() => setSnackMsg(null)}>
+				<Alert onClose={() => setSnackMsg(null)} severity={snackSeverity} variant="filled" sx={{ width: '100%' }}>
+					{snackMsg}
+				</Alert>
+			</Snackbar>
 			<BottomNavi>
 				<BottomNavigationAction
 					sx={
