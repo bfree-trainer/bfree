@@ -18,6 +18,7 @@ import Collapse from '@mui/material/Collapse';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import IconButton, { IconButtonProps } from '@mui/material/IconButton';
+import IconBike from '@mui/icons-material/DirectionsBike';
 import IconDelete from '@mui/icons-material/Delete';
 import IconDownload from '@mui/icons-material/GetApp';
 import IconExpandMore from '@mui/icons-material/ExpandMore';
@@ -29,6 +30,7 @@ import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme, styled } from '@mui/material/styles';
 import { red } from '@mui/material/colors';
+import Link from 'next/link';
 import { useState, useEffect, useRef, ChangeEvent } from 'react';
 import BottomNavi from 'components/BottomNavi';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
@@ -512,14 +514,64 @@ export default function History() {
 					<Grid item xs={12} md={8}>
 						<Grid container direction="column" alignItems="center" spacing={2}>
 							{logs.length === 0 && (
-								<Grid item sx={{ width: '100%', maxWidth: 400 }}>
-									<Box sx={{ textAlign: 'center', py: 6 }}>
+								<Grid item sx={{ width: '100%' }}>
+									<Box
+										sx={{
+											display: 'flex',
+											flexDirection: 'column',
+											alignItems: 'center',
+											py: 8,
+											px: 2,
+										}}
+									>
+										<IconBike
+											sx={{
+												fontSize: 56,
+												color: 'action.disabled',
+												mb: 2,
+											}}
+										/>
 										<Typography variant="h6" color="text.secondary" gutterBottom>
 											No rides yet
 										</Typography>
-										<Typography variant="body2" color="text.secondary">
-											Record your first ride or import a GPX/FIT file to get started.
+										<Typography
+											variant="body2"
+											color="text.secondary"
+											sx={{ maxWidth: 360, textAlign: 'center', mb: 3 }}
+										>
+											Your ride history will appear here — distance, time, route maps, and
+											performance charts for every session.
 										</Typography>
+										<Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', justifyContent: 'center' }}>
+											<Button
+												component={Link}
+												href="/ride"
+												variant="contained"
+												size="medium"
+											>
+												Start a ride
+											</Button>
+											<Button component="label" variant="outlined" size="medium">
+												Import GPX
+												<VisuallyHiddenInput
+													type="file"
+													accept=".gpx,.GPX"
+													aria-label="Upload GPX file"
+													multiple
+													onChange={handleImportGpx}
+												/>
+											</Button>
+											<Button component="label" variant="outlined" size="medium">
+												Import FIT
+												<VisuallyHiddenInput
+													type="file"
+													accept=".fit,.FIT"
+													aria-label="Upload FIT file"
+													multiple
+													onChange={handleImportFit}
+												/>
+											</Button>
+										</Box>
 									</Box>
 								</Grid>
 							)}

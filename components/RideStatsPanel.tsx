@@ -191,9 +191,12 @@ export default function RideStatsPanel({ logs }: { logs: Logs }) {
 
 	if (logs.length === 0) {
 		return (
-			<Paper variant="outlined" sx={{ p: 2 }}>
+			<Paper variant="outlined" sx={{ p: 3, textAlign: 'center' }}>
+				<Typography variant="subtitle2" color="text.secondary" gutterBottom>
+					Weekly stats
+				</Typography>
 				<Typography variant="body2" color="text.secondary">
-					Complete your first ride to see stats here.
+					Ride totals, weekly trends, and averages will appear here after your first ride.
 				</Typography>
 			</Paper>
 		);
