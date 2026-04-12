@@ -31,7 +31,7 @@ import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme, styled } from '@mui/material/styles';
 import Link from 'next/link';
-import { useState, useCallback, memo, ChangeEvent } from 'react';
+import { useState, useEffect, useRef, useCallback, memo, ChangeEvent } from 'react';
 import BottomNavi from 'components/BottomNavi';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import MyHead from 'components/MyHead';
@@ -294,7 +294,10 @@ const RideCard = memo(function RideCard({
 export default function History() {
 	const theme = useTheme();
 	const isBreakpoint = useMediaQuery(theme.breakpoints.up('md'));
-	const [logs, setLogs] = useState<RideEntry[]>(() => rideRepository.findAll());
+	const [logs, setLogs] = useState<RideEntry[]>([]);
+	useEffect(() => {
+		rideRepository.ready.then(() => setLogs(rideRepository.findAll()));
+	}, []);
 	const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 	const selectionCount = selectedIds.size;
 	const [snackMsg, setSnackMsg] = useState<string | null>(null);

@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Paper from '@mui/material/Paper';
@@ -40,9 +40,13 @@ function computeAvgRoadSpeedMps(): number | null {
 export default function RoadCourse() {
 	const [course, setCourse] = useState<CourseData | null>(null);
 	const [courseName, setCourseName] = useState('Untitled');
-	const [avgSpeedMps] = useState<number | null>(() => computeAvgRoadSpeedMps());
+	const [avgSpeedMps, setAvgSpeedMps] = useState<number | null>(null);
 	const [unitDistance] = useGlobalState('unitDistance');
 	const [unitSpeed] = useGlobalState('unitSpeed');
+
+	useEffect(() => {
+		rideRepository.ready.then(() => setAvgSpeedMps(computeAvgRoadSpeedMps()));
+	}, []);
 
 	const handleCourseChange = useCallback((c: CourseData | null, name: string) => {
 		setCourse(c);
