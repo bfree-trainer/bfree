@@ -115,6 +115,7 @@ export type GlobalState = {
 		type: 'atb' | 'commuter' | 'road' | 'racing';
 	};
 	lapResetsAgg: boolean;
+	dateLocale: string;
 	// Sensors
 	btDevice_cycling_cadence: null | BtDevice;
 	btDevice_cycling_power: null | BtDevice;
@@ -175,6 +176,7 @@ const initialState: GlobalState = {
 		type: 'road',
 	},
 	lapResetsAgg: false,
+	dateLocale: '',
 	// Sensors
 	btDevice_cycling_cadence: null,
 	btDevice_cycling_power: null,
@@ -224,6 +226,7 @@ export const configKeys = [
 	'rider',
 	'bike',
 	'lapResetsAgg',
+	'dateLocale',
 ] as const;
 export type ConfigKey = (typeof configKeys)[number];
 
@@ -254,6 +257,7 @@ function saveConfig() {
 		rider: getGlobalState('rider'),
 		bike: getGlobalState('bike'),
 		lapResetsAgg: getGlobalState('lapResetsAgg'),
+		dateLocale: getGlobalState('dateLocale'),
 	};
 
 	localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(config));

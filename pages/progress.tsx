@@ -33,6 +33,7 @@ import { rideRepository } from 'lib/orm';
 import type { RideEntry } from 'lib/orm';
 import { useGlobalState } from 'lib/global';
 import { chartColors, progressBarColors } from 'lib/tokens';
+import { formatMonthLabel } from 'lib/locale';
 
 // ─── Chart color constants ────────────────────────────────────────────────────
 const BAR_COLOR_ACTIVE = progressBarColors.active;
@@ -121,10 +122,7 @@ function buildMonthBuckets(
 	for (let i = n - 1; i >= 0; i--) {
 		const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
 		const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-		const label = d.toLocaleDateString(navigator.languages?.[0] ?? 'en-US', {
-			month: 'short',
-			year: '2-digit',
-		});
+		const label = formatMonthLabel(d);
 		buckets.push({ month: label, key, distanceM: 0, durationMs: 0, activities: 0, load: 0 });
 	}
 
