@@ -350,6 +350,9 @@ export function gpxToActivityLog(gpxData: CourseData, name?: string): ReturnType
 	return logger;
 }
 
+const VALID_TRIGGER_METHODS: LapTriggerMethod[] = ['Manual', 'Distance', 'Location', 'Time', 'HeartRate'];
+const VALID_INTENSITIES: Intensity[] = ['Active', 'Resting'];
+
 /**
  * Convert a parsed TCX document into a new activity log entry.
  * Returns null if no trackpoints are found.
@@ -392,9 +395,6 @@ export function tcxToActivityLog(xmlDoc: Document, name?: string): ReturnType<ty
 	logger.setName(logName);
 	if (notes) logger.setNotes(notes);
 
-	const validTriggerMethods: LapTriggerMethod[] = ['Manual', 'Distance', 'Location', 'Time', 'HeartRate'];
-	const validIntensities: Intensity[] = ['Active', 'Resting'];
-
 	for (let i = 0; i < lapEls.length; i++) {
 		const lapEl = lapEls[i];
 		const startTimeStr = lapEl.getAttribute('StartTime');
@@ -402,12 +402,12 @@ export function tcxToActivityLog(xmlDoc: Document, name?: string): ReturnType<ty
 		if (Number.isNaN(startTime)) continue;
 
 		const rawTrigger = lapEl.getElementsByTagName('TriggerMethod')[0]?.textContent?.trim() ?? 'Manual';
-		const triggerMethod: LapTriggerMethod = validTriggerMethods.includes(rawTrigger as LapTriggerMethod)
+		const triggerMethod: LapTriggerMethod = VALID_TRIGGER_METHODS.includes(rawTrigger as LapTriggerMethod)
 			? (rawTrigger as LapTriggerMethod)
 			: 'Manual';
 
 		const rawIntensity = lapEl.getElementsByTagName('Intensity')[0]?.textContent?.trim() ?? 'Active';
-		const intensity: Intensity = validIntensities.includes(rawIntensity as Intensity)
+		const intensity: Intensity = VALID_INTENSITIES.includes(rawIntensity as Intensity)
 			? (rawIntensity as Intensity)
 			: 'Active';
 
