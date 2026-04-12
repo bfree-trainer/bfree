@@ -11,4 +11,20 @@ module.exports = {
 		// Set to '1' to enable the trainer emulator (opt-in, build-time flag).
 		NEXT_PUBLIC_TRAINER_EMULATOR: process.env.NEXT_PUBLIC_TRAINER_EMULATOR || '',
 	},
+	async headers() {
+		return [
+			{
+				// The service worker script must never be served from a cache so
+				// browsers always pick up the latest version on each page load.
+				source: '/sw.js',
+				headers: [
+					{
+						key: 'Cache-Control',
+						value: 'no-cache, no-store, must-revalidate',
+					},
+					{ key: 'Pragma', value: 'no-cache' },
+				],
+			},
+		];
+	},
 }

@@ -43,11 +43,23 @@ function App({ Component, pageProps }) {
 			jssStyles.parentElement.removeChild(jssStyles);
 		}
 
-		// Register the service worker for PWA / offline support.
-		if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {
-			navigator.serviceWorker.register('/sw.js').catch((err) => {
-				console.error('Service worker registration failed:', err);
-			});
+		if ('serviceWorker' in navigator) {
+			if (process.env.NODE_ENV === 'production') {
+				// Register the service worker for PWA / offline support.
+				navigator.serviceWorker.register('/sw.js').catch((err) => {
+					console.error('Service worker registration failed:', err);
+				});
+			} else {
+				// In development, unregister any lingering service workers to prevent
+				// stale cached responses from interfering with hot module reloading.
+				navigator.serviceWorker.getRegistrations().then((registrations) => {
+					for (const registration of registrations) {
+						registration.unregister();
+					}
+				}).catch((err) => {
+					console.error('Failed to unregister service workers:', err);
+				});
+			}
 		}
 	}, []);
 

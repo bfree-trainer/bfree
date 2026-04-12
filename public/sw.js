@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-const CACHE_NAME = 'bfree-v1';
+const CACHE_NAME = 'bfree-v2';
 
 // Assets that are pre-cached when the service worker installs.
 // These cover the app shell so the app loads offline immediately.
@@ -41,10 +41,17 @@ self.addEventListener('activate', (event) => {
 });
 
 // Fetch strategy:
+//   - /_next/ paths are intentionally NOT intercepted. Next.js already
+//     content-addresses its static chunks (immutable hashes in filenames) and
+//     the browser's HTTP cache handles them efficiently. Caching them inside
+//     the service worker would only cause stale-chunk errors when a new build
+//     is deployed.
 //   - Navigation requests (HTML pages) use network-first so that fresh
 //     content is preferred when online, falling back to the cache offline.
-//   - All other requests (JS, CSS, images, fonts…) use cache-first for
-//     performance, fetching from the network and updating the cache on miss.
+//   - All other requests (images, fonts, public assets…) use
+//     stale-while-revalidate: serve the cached version immediately for speed,
+//     then refresh the cache entry in the background so the next request gets
+//     the latest content.
 self.addEventListener('fetch', (event) => {
 	const { request } = event;
 
@@ -53,6 +60,12 @@ self.addEventListener('fetch', (event) => {
 
 	// Skip non-http(s) schemes (e.g. chrome-extension://).
 	if (!request.url.startsWith('http')) return;
+
+	// Let Next.js's own HTTP cache headers handle all /_next/ requests.
+	// These files are content-addressed (immutable hashes) in production, so
+	// a service worker cache layer would only introduce stale-chunk problems.
+	const url = new URL(request.url);
+	if (url.pathname.startsWith('/_next/')) return;
 
 	const isNavigation =
 		request.mode === 'navigate' ||
@@ -79,21 +92,28 @@ self.addEventListener('fetch', (event) => {
 				),
 		);
 	} else {
-		// Cache-first for everything else (JS, CSS, images, fonts…).
+		// Stale-while-revalidate for public assets (images, fonts, icons…).
+		// Serve from cache immediately if available, then always refresh in
+		// the background so the next request gets the latest content.
 		event.respondWith(
-			caches.match(request).then(
-				(cached) =>
-					cached ||
-					fetch(request).then((response) => {
-						const clone = response.clone();
-						caches
-							.open(CACHE_NAME)
-							.then((cache) => cache.put(request, clone))
+			caches.open(CACHE_NAME).then((cache) =>
+				cache.match(request).then((cached) => {
+					const networkFetch = fetch(request).then((response) => {
+						cache
+							.put(request, response.clone())
 							.catch((err) =>
-								console.error('Failed to cache response:', err),
+								console.error('Failed to update cache:', err),
 							);
 						return response;
-					}),
+					});
+					// Always kick off the network request so the cache is kept
+					// fresh (true stale-while-revalidate behaviour).
+					if (cached) {
+						networkFetch.catch(() => {});
+						return cached;
+					}
+					return networkFetch;
+				}),
 			),
 		);
 	}
