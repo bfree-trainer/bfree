@@ -17,31 +17,32 @@ import 'leaflet/dist/leaflet.css';
 const COMPACT_HEIGHT = 'clamp(150px, 25vw, 200px)';
 const EXPANDED_HEIGHT = '400px';
 
-function FitBounds({ positions }: { positions: [number, number][] }) {
+/** Fits the map view to the route and re-fits after expand/collapse transitions. */
+function MapController({ positions, expanded }: { positions: [number, number][]; expanded: boolean }) {
 	const map = useMap();
 
-	useEffect(() => {
-		if (map && positions.length > 1) {
+	const fitView = useCallback(() => {
+		if (positions.length > 1) {
 			map.fitBounds(positions);
-		} else if (map && positions.length === 1) {
+		} else if (positions.length === 1) {
 			map.setView(positions[0], 13);
 		}
 	}, [map, positions]);
 
-	return null;
-}
-
-/** Invalidates map size after the parent container resizes. */
-function ResizeInvalidator({ expanded }: { expanded: boolean }) {
-	const map = useMap();
-
+	// Initial fit on mount.
 	useEffect(() => {
-		// Wait for the CSS transition to finish, then tell Leaflet to recalculate.
+		fitView();
+	}, [fitView]);
+
+	// After expand/collapse: wait for the CSS transition to finish, then
+	// recalculate the map size and re-fit so the route fills the new viewport.
+	useEffect(() => {
 		const timer = setTimeout(() => {
 			map.invalidateSize();
+			fitView();
 		}, 320);
 		return () => clearTimeout(timer);
-	}, [map, expanded]);
+	}, [map, expanded, fitView]);
 
 	return null;
 }
@@ -74,9 +75,8 @@ export default function RideMiniMap({ logger }: { logger: ReturnType<typeof crea
 					'@media (prefers-reduced-motion: reduce)': { transition: 'none' },
 				}}
 			>
-				<OpenStreetMap center={center} width="100%" height={EXPANDED_HEIGHT} setMap={null}>
-					<FitBounds positions={positions} />
-					<ResizeInvalidator expanded={expanded} />
+				<OpenStreetMap center={center} width="100%" height={expanded ? EXPANDED_HEIGHT : COMPACT_HEIGHT} setMap={null}>
+					<MapController positions={positions} expanded={expanded} />
 					<Polyline positions={positions} pathOptions={{ color: theme.palette.primary.main, weight: 3 }} />
 				</OpenStreetMap>
 			</Box>
