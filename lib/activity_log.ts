@@ -18,6 +18,7 @@ export type TrackPoint = {
 	cadence?: number;
 	power?: number;
 	hr?: number;
+	temp?: number; // Air temperature in °C
 };
 export type LapTriggerMethod = 'Manual' | 'Distance' | 'Location' | 'Time' | 'HeartRate';
 export type Intensity = 'Active' | 'Resting';
@@ -334,6 +335,9 @@ export function gpxToActivityLog(gpxData: CourseData, name?: string): ReturnType
 		if (typeof tp.power === 'number') {
 			trackPoint.power = tp.power;
 		}
+		if (typeof tp.temp === 'number') {
+			trackPoint.temp = tp.temp;
+		}
 
 		logger.addTrackPoint(trackPoint);
 		prevTp = tp;
@@ -410,6 +414,10 @@ export function fitToActivityLog(fitData: ParsedFit, name?: string): ReturnType<
 
 		if (typeof rec.power === 'number') {
 			trackPoint.power = rec.power;
+		}
+
+		if (typeof rec.temperature === 'number') {
+			trackPoint.temp = rec.temperature;
 		}
 
 		logger.addTrackPoint(trackPoint);

@@ -58,6 +58,10 @@ export type RideStats = {
 	totalAscent: number | null; // meters
 	totalDescent: number | null; // meters
 	maxElevation: number | null; // meters
+	// Temperature
+	avgTemp: number | null; // °C
+	minTemp: number | null; // °C
+	maxTemp: number | null; // °C
 	// Effort
 	relativeEffort: number | null;
 	// Zones
@@ -77,6 +81,9 @@ function hasSpeed(p: TrackPoint): p is TrackPoint & { speed: number } {
 }
 function hasAlt(p: TrackPoint): p is TrackPoint & { alt: number } {
 	return typeof p.alt === 'number' && !isNaN(p.alt);
+}
+function hasTemp(p: TrackPoint): p is TrackPoint & { temp: number } {
+	return typeof p.temp === 'number' && !isNaN(p.temp);
 }
 
 function getPowerZoneIndex(power: number, ftp: number): number {
@@ -203,6 +210,9 @@ export function computeRideStats(logger: ReturnType<typeof createActivityLog>, r
 		totalAscent: null,
 		totalDescent: null,
 		maxElevation: null,
+		avgTemp: null,
+		minTemp: null,
+		maxTemp: null,
 		relativeEffort: null,
 		powerZones: null,
 		hrZones: null,
@@ -268,6 +278,26 @@ export function computeRideStats(logger: ReturnType<typeof createActivityLog>, r
 				maxElevation = altPoints[i].alt;
 			}
 		}
+	}
+
+	// ── Temperature ───────────────────────────────────────────────────────────
+	const tempPoints = allPoints.filter(hasTemp);
+	let avgTemp: number | null = null;
+	let minTemp: number | null = null;
+	let maxTemp: number | null = null;
+
+	if (tempPoints.length > 0) {
+		let sum = 0;
+		let min = tempPoints[0].temp;
+		let max = tempPoints[0].temp;
+		for (const p of tempPoints) {
+			sum += p.temp;
+			if (p.temp < min) min = p.temp;
+			if (p.temp > max) max = p.temp;
+		}
+		avgTemp = Math.round(sum / tempPoints.length);
+		minTemp = Math.round(min);
+		maxTemp = Math.round(max);
 	}
 
 	// ── Estimated Power (only when no measured power is available) ────────────
@@ -356,6 +386,9 @@ export function computeRideStats(logger: ReturnType<typeof createActivityLog>, r
 		totalAscent,
 		totalDescent,
 		maxElevation,
+		avgTemp,
+		minTemp,
+		maxTemp,
 		relativeEffort,
 		powerZones,
 		hrZones,

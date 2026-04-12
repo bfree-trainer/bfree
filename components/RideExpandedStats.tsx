@@ -38,7 +38,7 @@ const SectionLabel = styled(Typography)(({ theme }) => ({
 
 function StatCell({ label, value }: { label: string; value: string }) {
 	return (
-		<Box sx={{ flex: '1 1 auto', minWidth: 72, p: 0.5 }}>
+		<Box sx={{ flex: '0 0 33.33%', minWidth: 72, p: 0.5 }}>
 			<Typography variant="caption" color="text.secondary" display="block">
 				{label}
 			</Typography>
@@ -138,11 +138,12 @@ export default function RideExpandedStats({ logger }: { logger: ReturnType<typeo
 	const hasHR = stats.avgHR !== null;
 	const hasSpeed = stats.avgSpeed !== null;
 	const hasElevation = stats.totalAscent !== null;
+	const hasTemp = stats.avgTemp !== null;
 	const hasRelativeEffort = stats.relativeEffort !== null && stats.relativeEffort > 0;
 	const hasPowerZones = stats.powerZones !== null;
 	const hasHRZones = stats.hrZones !== null;
 
-	const hasAnyStats = hasPower || hasEstimatedPower || hasHR || hasSpeed || hasElevation;
+	const hasAnyStats = hasPower || hasEstimatedPower || hasHR || hasSpeed || hasElevation || hasTemp;
 	if (!hasAnyStats && !hasRelativeEffort && !hasPowerZones && !hasHRZones) {
 		return null;
 	}
@@ -222,6 +223,17 @@ export default function RideExpandedStats({ logger }: { logger: ReturnType<typeo
 						<StatCell label="Ascent" value={`${stats.totalAscent!.toFixed(0)} m`} />
 						<StatCell label="Descent" value={`${stats.totalDescent!.toFixed(0)} m`} />
 						<StatCell label="Max" value={`${stats.maxElevation!.toFixed(0)} m`} />
+					</Box>
+				</>
+			)}
+
+			{hasTemp && (
+				<>
+					<SectionLabel>Temperature</SectionLabel>
+					<Box sx={{ display: 'flex', flexWrap: 'wrap', mx: -0.5 }}>
+						<StatCell label="Min" value={`${stats.minTemp} °C`} />
+						<StatCell label="Avg" value={`${stats.avgTemp} °C`} />
+						<StatCell label="Max" value={`${stats.maxTemp} °C`} />
 					</Box>
 				</>
 			)}
