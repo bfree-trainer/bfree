@@ -71,7 +71,7 @@ export default function RoadCourse() {
 	return (
 		<Container maxWidth="md">
 			<MyHead title="Course" />
-			<Box>
+			<Box sx={{ pb: 9 }}>
 				<Title href="/ride/road">Course</Title>
 				<Typography variant="body1" color="text.primary" sx={{ mt: 2, mb: 2 }}>
 					Plan a route or import a GPX file.
