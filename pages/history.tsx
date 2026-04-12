@@ -11,6 +11,7 @@ import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardHeader from '@mui/material/CardHeader';
+import Chip from '@mui/material/Chip';
 import Checkbox from '@mui/material/Checkbox';
 import Collapse from '@mui/material/Collapse';
 import Container from '@mui/material/Container';
@@ -36,6 +37,7 @@ import EditRideModal from 'components/EditRideModal';
 import RideStatsPanel from 'components/RideStatsPanel';
 import downloadBlob from 'lib/download_blob';
 import { gpxToActivityLog, fitToActivityLog } from 'lib/activity_log';
+import type { ActivityType } from 'lib/activity_log';
 import { rideRepository } from 'lib/orm';
 import { gpxDocument2obj, parseGpxFile2Document } from 'lib/gpx_parser';
 import { parseFitFile } from 'lib/fit_parser';
@@ -210,6 +212,27 @@ const ExpandMore = styled((props: ExpandMoreProps) => {
 	],
 }));
 
+function getActivityTypeLabel(type: ActivityType): string {
+	switch (type) {
+		case 'trainerFreeRide':
+			return 'Free Ride';
+		case 'trainerWorkout':
+			return 'Workout';
+		case 'trainerMap':
+			return 'Map Ride';
+		case 'trainerVirtual':
+			return 'Virtual Ride';
+		case 'road':
+			return 'Road Ride';
+		default:
+			return 'Ride';
+	}
+}
+
+function isTrainerActivity(type: ActivityType): boolean {
+	return type === 'trainerFreeRide' || type === 'trainerWorkout' || type === 'trainerMap' || type === 'trainerVirtual';
+}
+
 function RideCard({ log, onSelect }: { log: Log; onSelect: (v: boolean) => void }) {
 	const distanceUnit = useGlobalState('unitDistance')[0];
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -220,6 +243,7 @@ function RideCard({ log, onSelect }: { log: Log; onSelect: (v: boolean) => void 
 	const rideDistance = log.logger.getTotalDistance();
 	const calories = log.logger.getTotalCalories();
 	const notes = log.logger.getNotes();
+	const activityType = log.logger.getActivityType();
 
 	const handleMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
 		setAnchorEl(event.currentTarget);
@@ -272,7 +296,15 @@ function RideCard({ log, onSelect }: { log: Log; onSelect: (v: boolean) => void 
 						</div>
 					}
 					title={name}
-					subheader={log.date}
+					subheader={
+						<Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mt: 0.25 }}>
+							{log.date}
+							<Box sx={{ display: 'flex', gap: 0.5 }}>
+								{isTrainerActivity(activityType) && <Chip label="Trainer" size="small" variant="outlined" />}
+								<Chip label={getActivityTypeLabel(activityType)} size="small" variant="outlined" />
+							</Box>
+						</Box>
+					}
 					titleTypographyProps={{ noWrap: true }}
 				/>
 				{/* Minimap showing ride route if GPS location data is available */}
