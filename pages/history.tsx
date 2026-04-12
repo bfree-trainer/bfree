@@ -48,7 +48,7 @@ import { gpxDocument2obj, parseGpxFile2Document } from 'lib/gpx_parser';
 import { parseFitFile } from 'lib/fit_parser';
 import { getElapsedTimeStr } from 'lib/format';
 import { smartDistanceUnitFormat } from 'lib/units';
-import { useGlobalState } from 'lib/global';
+import { useGlobalState, addNotification } from 'lib/global';
 import type RideMiniMapType from 'components/map/RideMiniMap';
 
 type RideMiniMapArgs = Parameters<typeof RideMiniMapType>[0];
@@ -344,33 +344,36 @@ export default function History() {
 				.then((xmlDoc) => {
 					const gpxData = gpxDocument2obj(xmlDoc);
 					const logger = gpxToActivityLog(gpxData);
-					if (!logger) return 'failed' as const;
+					if (!logger) return { file, result: 'failed' as const };
 					rideRepository.saveNew(logger);
-					return 'ok' as const;
+					return { file, result: 'ok' as const };
 				})
 				.catch((err) => {
-					if (err instanceof RideAlreadyExistsError) return 'duplicate' as const;
-					return 'failed' as const;
+					if (err instanceof RideAlreadyExistsError) return { file, result: 'duplicate' as const };
+					return { file, result: 'failed' as const };
 				})
 		);
 
-		Promise.all(promises).then((results) => {
+		Promise.all(promises).then((entries) => {
 			setLogs(rideRepository.findAll());
-			const imported = results.filter((r) => r === 'ok').length;
-			const duplicates = results.filter((r) => r === 'duplicate').length;
-			const failed = results.filter((r) => r === 'failed').length;
+			const imported = entries.filter((e) => e.result === 'ok').length;
+			const duplicates = entries.filter((e) => e.result === 'duplicate').length;
+			const failed = entries.filter((e) => e.result === 'failed').length;
+
+			for (const { file: f, result } of entries) {
+				if (result === 'failed') {
+					addNotification({ severity: 'error', text: `Failed to import "${f.name}": no trackpoints found.` });
+				} else if (result === 'duplicate') {
+					addNotification({ severity: 'warning', text: `"${f.name}" has already been imported.` });
+				}
+			}
+
 			if (files.length === 1) {
 				if (imported === 1) {
 					setSnackSeverity('success');
 					setSnackMsg('GPX file imported successfully.');
-				} else if (duplicates === 1) {
-					setSnackSeverity('error');
-					setSnackMsg('This ride has already been imported.');
-				} else {
-					setSnackSeverity('error');
-					setSnackMsg('No trackpoints found in the GPX file.');
 				}
-			} else {
+			} else if (imported > 0 || duplicates > 0 || failed > 0) {
 				const parts: string[] = [];
 				if (imported > 0) parts.push(`${imported} file${imported !== 1 ? 's' : ''} imported`);
 				if (duplicates > 0) parts.push(`${duplicates} already exist`);
@@ -391,33 +394,36 @@ export default function History() {
 			parseFitFile(file)
 				.then((fitData) => {
 					const logger = fitToActivityLog(fitData, file.name.replace(/\.fit(\.gz)?$/i, ''));
-					if (!logger) return 'failed' as const;
+					if (!logger) return { file, result: 'failed' as const };
 					rideRepository.saveNew(logger);
-					return 'ok' as const;
+					return { file, result: 'ok' as const };
 				})
 				.catch((err) => {
-					if (err instanceof RideAlreadyExistsError) return 'duplicate' as const;
-					return 'failed' as const;
+					if (err instanceof RideAlreadyExistsError) return { file, result: 'duplicate' as const };
+					return { file, result: 'failed' as const };
 				})
 		);
 
-		Promise.all(promises).then((results) => {
+		Promise.all(promises).then((entries) => {
 			setLogs(rideRepository.findAll());
-			const imported = results.filter((r) => r === 'ok').length;
-			const duplicates = results.filter((r) => r === 'duplicate').length;
-			const failed = results.filter((r) => r === 'failed').length;
+			const imported = entries.filter((e) => e.result === 'ok').length;
+			const duplicates = entries.filter((e) => e.result === 'duplicate').length;
+			const failed = entries.filter((e) => e.result === 'failed').length;
+
+			for (const { file: f, result } of entries) {
+				if (result === 'failed') {
+					addNotification({ severity: 'error', text: `Failed to import "${f.name}": no data records found.` });
+				} else if (result === 'duplicate') {
+					addNotification({ severity: 'warning', text: `"${f.name}" has already been imported.` });
+				}
+			}
+
 			if (files.length === 1) {
 				if (imported === 1) {
 					setSnackSeverity('success');
 					setSnackMsg('FIT file imported successfully.');
-				} else if (duplicates === 1) {
-					setSnackSeverity('error');
-					setSnackMsg('This ride has already been imported.');
-				} else {
-					setSnackSeverity('error');
-					setSnackMsg('No data records found in the FIT file.');
 				}
-			} else {
+			} else if (imported > 0 || duplicates > 0 || failed > 0) {
 				const parts: string[] = [];
 				if (imported > 0) parts.push(`${imported} file${imported !== 1 ? 's' : ''} imported`);
 				if (duplicates > 0) parts.push(`${duplicates} already exist`);
