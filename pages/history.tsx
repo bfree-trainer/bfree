@@ -30,13 +30,14 @@ import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme, styled } from '@mui/material/styles';
 import Link from 'next/link';
-import { useState, useEffect, useRef, useCallback, useMemo, memo, ChangeEvent } from 'react';
+import { useState, useRef, useCallback, memo, ChangeEvent } from 'react';
 import BottomNavi from 'components/BottomNavi';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import MyHead from 'components/MyHead';
 import Title from 'components/Title';
 import EditRideModal from 'components/EditRideModal';
 import RideStatsPanel from 'components/RideStatsPanel';
+import WarningDialog from 'components/WarningDialog';
 import downloadBlob from 'lib/download_blob';
 import { gpxToActivityLog, fitToActivityLog } from 'lib/activity_log';
 import type { ActivityType } from 'lib/activity_log';
@@ -97,8 +98,8 @@ function RideStats({ stats }: { stats: [string, string][] }) {
 		<RideStatsUl>
 			{stats.map((stat, i) => (
 				<RideStatsLi key={i}>
-					<Typography variant="caption">{stat[0]}</Typography>
-					<Typography variant="body1">{stat[1]}</Typography>
+					<Typography variant="caption" color="text.secondary">{stat[0]}</Typography>
+					<Typography variant="body1" fontWeight={600}>{stat[1]}</Typography>
 				</RideStatsLi>
 			))}
 		</RideStatsUl>
@@ -110,6 +111,7 @@ interface ExpandMoreProps extends IconButtonProps {
 }
 
 const ExpandMore = styled((props: ExpandMoreProps) => {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const { expand, ...other } = props;
 	return <IconButton {...other} />;
 })(({ theme }) => ({
@@ -242,9 +244,11 @@ const RideCard = memo(function RideCard({ log, onSelect }: { log: Log; onSelect:
 							['Calories', `${calories}`],
 						]}
 					/>
-					<Typography variant="body2" color="text.secondary" component="p">
-						{notes}
-					</Typography>
+					{notes && (
+						<Typography variant="body2" color="text.secondary" component="p">
+							{notes}
+						</Typography>
+					)}
 				</CardContent>
 				<Collapse in={expanded} timeout="auto" unmountOnExit id={`ride-details-${log.id}`}>
 					<CardContent>
@@ -253,7 +257,7 @@ const RideCard = memo(function RideCard({ log, onSelect }: { log: Log; onSelect:
 					</CardContent>
 				</Collapse>
 				<CardActions disableSpacing>
-					<IconButton aria-label="download" onClick={handleDownload} size="large">
+					<IconButton aria-label="Download ride as TCX" onClick={handleDownload} size="large">
 						<IconDownload />
 					</IconButton>
 					<Checkbox
@@ -280,11 +284,12 @@ const RideCard = memo(function RideCard({ log, onSelect }: { log: Log; onSelect:
 export default function History() {
 	const theme = useTheme();
 	const isBreakpoint = useMediaQuery(theme.breakpoints.up('md'));
-	const [logs, setLogs] = useState<RideEntry[]>([]);
+	const [logs, setLogs] = useState<RideEntry[]>(() => rideRepository.findAll());
 	const selectionRef = useRef(new WeakMap<Log, boolean>());
 	const [selectionCount, setSelectionCount] = useState(0);
 	const [snackMsg, setSnackMsg] = useState<string | null>(null);
 	const [snackSeverity, setSnackSeverity] = useState<'success' | 'error' | 'info'>('info');
+	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
 	const handleSelect = useCallback((log: Log, selected: boolean) => {
 		if (selected) {
@@ -399,13 +404,6 @@ export default function History() {
 			}
 		});
 	};
-
-	useEffect(() => {
-		setLogs(rideRepository.findAll());
-	}, []);
-	useEffect(() => {
-		setSelectionCount(logs.reduce((acc, cur) => acc + +selectionRef.current.has(cur), 0));
-	}, [logs]);
 
 	return (
 		<Container maxWidth="lg" sx={{ pb: 9 }}>
@@ -528,7 +526,12 @@ export default function History() {
 					</Grid>
 				</Grid>
 			</Box>
-			<Snackbar open={!!snackMsg} autoHideDuration={4000} onClose={() => setSnackMsg(null)}>
+			<Snackbar
+				open={!!snackMsg}
+				autoHideDuration={4000}
+				onClose={() => setSnackMsg(null)}
+				sx={{ mb: 7 }}
+			>
 				<Alert
 					onClose={() => setSnackMsg(null)}
 					severity={snackSeverity}
@@ -538,6 +541,17 @@ export default function History() {
 					{snackMsg}
 				</Alert>
 			</Snackbar>
+			<WarningDialog
+				title="Delete rides"
+				show={showDeleteConfirm}
+				handleCancel={() => setShowDeleteConfirm(false)}
+				handleContinue={() => {
+					setShowDeleteConfirm(false);
+					massDeletion();
+				}}
+			>
+				{`Delete ${selectionCount} selected ride${selectionCount !== 1 ? 's' : ''}? This cannot be undone.`}
+			</WarningDialog>
 			<BottomNavi>
 				<BottomNavigationAction
 					disabled={selectionCount === 0}
@@ -558,7 +572,7 @@ export default function History() {
 					}
 					onClick={(e) => {
 						e.preventDefault();
-						massDeletion();
+						setShowDeleteConfirm(true);
 					}}
 				/>
 			</BottomNavi>

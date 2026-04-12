@@ -54,7 +54,7 @@ export default function EditModal({
 			open={open}
 			onClose={onClose}
 		>
-			{open ? (
+			{open && (
 				<Grid item>
 					<form onSubmit={(e) => { e.preventDefault(); onClickSave(); }}>
 						<TextField
@@ -85,8 +85,6 @@ export default function EditModal({
 						<EditActionButtons onClickSave={onClickSave} onClickDiscard={onClickDiscard} />
 					</form>
 				</Grid>
-			) : (
-				''
 			)}
 		</MyModal>
 	);
