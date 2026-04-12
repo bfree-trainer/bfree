@@ -14,6 +14,7 @@ export type Trackpoint = Coord & {
 	hr?: number;
 	cadence?: number;
 	power?: number;
+	temp?: number; // Air temperature in °C
 };
 export type Segment = {
 	trackpoints: Trackpoint[];
@@ -126,6 +127,10 @@ function parseTrackpoint(el: Element): Trackpoint {
 	const power = getExtensionNumericValue(el, 'PowerInWatts') ?? getExtensionNumericValue(el, 'watts') ?? getExtensionNumericValue(el, 'power');
 	if (power !== undefined) {
 		trackpoint.power = power;
+	}
+	const temp = getExtensionNumericValue(el, 'atemp') ?? getExtensionNumericValue(el, 'temp');
+	if (temp !== undefined) {
+		trackpoint.temp = temp;
 	}
 
 	return trackpoint;
