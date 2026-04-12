@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 'use client';
-import { useCallback, useEffect, useState } from 'react';
+import { RefObject, useCallback, useEffect, useRef, useState } from 'react';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
@@ -18,16 +18,32 @@ const COMPACT_HEIGHT = 'clamp(150px, 25vw, 200px)';
 const EXPANDED_HEIGHT = '400px';
 
 /** Fits the map view to the route and re-fits after expand/collapse transitions. */
-function MapController({ positions, expanded }: { positions: [number, number][]; expanded: boolean }) {
+function MapController({
+	positions,
+	expanded,
+	containerRef,
+}: {
+	positions: [number, number][];
+	expanded: boolean;
+	containerRef: RefObject<HTMLDivElement>;
+}) {
 	const map = useMap();
 
 	const fitView = useCallback(() => {
-		if (positions.length > 1) {
-			map.fitBounds(positions);
-		} else if (positions.length === 1) {
+		if (positions.length === 0) return;
+		if (positions.length === 1) {
 			map.setView(positions[0], 13);
+			return;
 		}
-	}, [map, positions]);
+		// The Leaflet map div is always EXPANDED_HEIGHT tall, but in compact mode
+		// only the top portion (COMPACT_HEIGHT) is visible due to overflow:hidden.
+		// Add bottom padding equal to the hidden area so fitBounds fits the route
+		// within the actually visible portion of the map.
+		const mapHeight = map.getContainer().clientHeight;
+		const visibleHeight = containerRef.current?.clientHeight ?? mapHeight;
+		const paddingBottom = Math.max(0, mapHeight - visibleHeight);
+		map.fitBounds(positions, paddingBottom > 0 ? { paddingBottomRight: [0, paddingBottom] } : undefined);
+	}, [map, positions, containerRef]);
 
 	// Initial fit on mount.
 	useEffect(() => {
@@ -50,6 +66,7 @@ function MapController({ positions, expanded }: { positions: [number, number][];
 export default function RideMiniMap({ logger }: { logger: ReturnType<typeof createActivityLog> }) {
 	const theme = useTheme();
 	const [expanded, setExpanded] = useState(false);
+	const containerRef = useRef<HTMLDivElement>(null);
 
 	const positions: [number, number][] = logger
 		.getLaps()
@@ -68,6 +85,7 @@ export default function RideMiniMap({ logger }: { logger: ReturnType<typeof crea
 	return (
 		<Box sx={{ position: 'relative' }}>
 			<Box
+				ref={containerRef}
 				sx={{
 					height: expanded ? EXPANDED_HEIGHT : COMPACT_HEIGHT,
 					overflow: 'hidden',
@@ -75,8 +93,8 @@ export default function RideMiniMap({ logger }: { logger: ReturnType<typeof crea
 					'@media (prefers-reduced-motion: reduce)': { transition: 'none' },
 				}}
 			>
-				<OpenStreetMap center={center} width="100%" height={expanded ? EXPANDED_HEIGHT : COMPACT_HEIGHT} setMap={null}>
-					<MapController positions={positions} expanded={expanded} />
+				<OpenStreetMap center={center} width="100%" height={EXPANDED_HEIGHT} setMap={null}>
+					<MapController positions={positions} expanded={expanded} containerRef={containerRef} />
 					<Polyline positions={positions} pathOptions={{ color: theme.palette.primary.main, weight: 3 }} />
 				</OpenStreetMap>
 			</Box>
