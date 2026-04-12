@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import { useMemo } from 'react';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import Paper from '@mui/material/Paper';
@@ -188,8 +189,10 @@ function WeekBar({ week, maxTimeMs }: { week: WeekStats; maxTimeMs: number }) {
 
 export default function RideStatsPanel({ logs }: { logs: Logs }) {
 	const distanceUnit = useGlobalState('unitDistance')[0];
+	const stats = useMemo(() => (logs.length > 0 ? computeActivityStats(logs) : null), [logs]);
+	const maxTimeMs = useMemo(() => (stats ? Math.max(...stats.weeks.map((w) => w.totalTimeMs), 1) : 1), [stats]);
 
-	if (logs.length === 0) {
+	if (!stats) {
 		return (
 			<Paper variant="outlined" sx={{ p: 3, textAlign: 'center' }}>
 				<Typography variant="subtitle2" color="text.secondary" gutterBottom>
@@ -201,9 +204,6 @@ export default function RideStatsPanel({ logs }: { logs: Logs }) {
 			</Paper>
 		);
 	}
-
-	const stats = computeActivityStats(logs);
-	const maxTimeMs = Math.max(...stats.weeks.map((w) => w.totalTimeMs), 1);
 
 	return (
 		<Paper variant="outlined" sx={{ p: 2 }}>
