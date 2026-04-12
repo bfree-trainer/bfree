@@ -435,7 +435,7 @@ export default function History() {
 		const promises = files.map((file) =>
 			parseTcxFile(file)
 				.then((xmlDoc) => {
-					const logger = tcxToActivityLog(xmlDoc, file.name.replace(/\.tcx$/i, ''));
+					const logger = tcxToActivityLog(xmlDoc, file.name.replace(/\.tcx(\.gz)?$/i, ''));
 					if (!logger) return 'failed' as const;
 					rideRepository.saveNew(logger);
 					return 'ok' as const;

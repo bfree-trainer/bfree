@@ -2,23 +2,26 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import { decompressGzip, isGzipFile } from './decompress';
+
 /**
  * Parse a TCX (Training Center XML) file and return the XML Document.
+ * Supports gzip-compressed files (`.tcx.gz`).
  */
 export async function parseTcxFile(file: File): Promise<Document> {
-	return new Promise((resolve, reject) => {
-		const reader = new FileReader();
-		reader.onload = (e) => {
-			const parser = new DOMParser();
-			const xmlDoc = parser.parseFromString(e.target.result as string, 'text/xml');
-			const errorNode = xmlDoc.querySelector('parsererror');
-			if (errorNode) {
-				reject(new Error('Failed to parse the TCX file'));
-			} else {
-				resolve(xmlDoc);
-			}
-		};
-		reader.onerror = () => reject(new Error('Failed to read the TCX file'));
-		reader.readAsText(file);
-	});
+	let text: string;
+	if (isGzipFile(file.name)) {
+		const compressed = await file.arrayBuffer();
+		const decompressed = await decompressGzip(compressed);
+		text = new TextDecoder().decode(decompressed);
+	} else {
+		text = await file.text();
+	}
+	const parser = new DOMParser();
+	const xmlDoc = parser.parseFromString(text, 'text/xml');
+	const errorNode = xmlDoc.querySelector('parsererror');
+	if (errorNode) {
+		throw new Error('Failed to parse the TCX file');
+	}
+	return xmlDoc;
 }
