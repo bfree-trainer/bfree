@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import haversine from './haversine';
+import { decompressGzip, isGzipFile } from './decompress';
 
 export type Coord = {
 	lat: number;
@@ -39,20 +40,21 @@ export type CourseData = {
 };
 
 export async function parseGpxFile2Document(file: File): Promise<Document> {
-	return new Promise((resolve, reject) => {
-		const reader = new FileReader();
-		reader.onload = (e) => {
-			const parser = new DOMParser();
-			const xmlDoc = parser.parseFromString(e.target.result as string, 'text/xml');
-			const errorNode = xmlDoc.querySelector('parsererror');
-			if (errorNode) {
-				reject(new Error('Failed to parse the GPX file'));
-			} else {
-				resolve(xmlDoc);
-			}
-		};
-		reader.readAsText(file);
-	});
+	let text: string;
+	if (isGzipFile(file.name)) {
+		const compressed = await file.arrayBuffer();
+		const decompressed = await decompressGzip(compressed);
+		text = new TextDecoder().decode(decompressed);
+	} else {
+		text = await file.text();
+	}
+	const parser = new DOMParser();
+	const xmlDoc = parser.parseFromString(text, 'text/xml');
+	const errorNode = xmlDoc.querySelector('parsererror');
+	if (errorNode) {
+		throw new Error('Failed to parse the GPX file');
+	}
+	return xmlDoc;
 }
 
 export function parseGpxText2Document(text: string): Document {

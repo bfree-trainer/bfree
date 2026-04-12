@@ -67,7 +67,7 @@ export default function ImportCourseDialog({ newCourse }: { newCourse: (name: st
 								id="import-file"
 								name="import-file"
 								type="file"
-								accept=".gpx,.GPX"
+								accept=".gpx,.GPX,.gpx.gz,.GPX.gz"
 								onChange={handleSelectFile}
 							/>
 							GPX
