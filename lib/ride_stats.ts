@@ -43,8 +43,13 @@ export type RideStats = {
 	avgPower: number | null;
 	maxPower: number | null;
 	normalizedPower: number | null;
+	// Estimated power (populated only when no measured power is available)
+	estimatedAvgPower: number | null;
+	estimatedMaxPower: number | null;
+	estimatedNormalizedPower: number | null;
 	// Heart Rate
 	avgHR: number | null;
+	minHR: number | null;
 	maxHR: number | null;
 	// Speed
 	avgSpeed: number | null; // m/s
@@ -93,11 +98,66 @@ function getHRZoneIndex(hr: number, maxHR: number): number {
 	return 4;
 }
 
+// ── Power estimation constants ────────────────────────────────────────────────
+/** Drag coefficient × frontal area (m²) — road bike, hoods position. */
+const CDA = 0.32;
+/** Air density at sea level, 15 °C (kg/m³). */
+const RHO = 1.225;
+/** Rolling resistance coefficient — road bike on asphalt. */
+const CRR = 0.005;
+/** Gravitational acceleration (m/s²). */
+const G = 9.81;
+/** Drivetrain efficiency (fraction). */
+const DRIVETRAIN_EFF = 0.976;
+
 /**
- * Compute Normalized Power using a 30-second rolling time window.
- * Returns null when there are fewer than 30 power samples.
- * Algorithm: rolling-average → raise to 4th power → mean → 4th root.
+ * Estimate instantaneous cycling power from speed, gradient, and total mass.
+ * Uses the standard aerodynamic + rolling + gravitational resistance model.
+ * @param speedMs - speed in m/s
+ * @param gradient - slope as rise/run (e.g. 0.05 for 5 % grade)
+ * @param totalMassKg - combined rider + bike mass in kg
  */
+function estimatePowerAtPoint(speedMs: number, gradient: number, totalMassKg: number): number {
+	const F_aero = 0.5 * CDA * RHO * speedMs * speedMs;
+	const F_roll = CRR * totalMassKg * G;
+	const F_grav = totalMassKg * G * gradient;
+	return Math.max(0, ((F_aero + F_roll + F_grav) * speedMs) / DRIVETRAIN_EFF);
+}
+
+/**
+ * Build an array of estimated power values for each speed track-point.
+ * Gradient is derived from consecutive altitude and distance values when available.
+ */
+function buildEstimatedPowerPoints(
+	speedPoints: Array<TrackPoint & { speed: number }>,
+	totalMassKg: number
+): Array<TrackPoint & { power: number }> {
+	return speedPoints.map((p, i) => {
+		let gradient = 0;
+
+		if (i > 0) {
+			const prev = speedPoints[i - 1];
+
+			// Prefer recorded cumulative distance; fall back to trapezoidal speed integration.
+			let dDist: number;
+			if (typeof p.dist === 'number' && typeof prev.dist === 'number' && p.dist > prev.dist) {
+				dDist = p.dist - prev.dist;
+			} else {
+				const dt = (p.time - prev.time) / 1000;
+				dDist = ((p.speed + prev.speed) / 2) * dt;
+			}
+
+			if (typeof p.alt === 'number' && typeof prev.alt === 'number' && dDist > 0) {
+				// Clamp to ±50 % grade to suppress GPS noise.
+				gradient = Math.max(-0.5, Math.min(0.5, (p.alt - prev.alt) / dDist));
+			}
+		}
+
+		return { ...p, power: estimatePowerAtPoint(p.speed, gradient, totalMassKg) };
+	});
+}
+
+
 function computeNormalizedPower(points: Array<TrackPoint & { power: number }>): number | null {
 	if (points.length < 30) return null;
 
@@ -123,15 +183,20 @@ function computeNormalizedPower(points: Array<TrackPoint & { power: number }>): 
 /**
  * Derive per-ride statistics from an activity log and the rider's profile.
  * All fields are null when the relevant data is absent from the log.
+ * @param bikeWeightKg - bike mass in kg (defaults to 10 kg when omitted)
  */
-export function computeRideStats(logger: ReturnType<typeof createActivityLog>, rider: Rider): RideStats {
+export function computeRideStats(logger: ReturnType<typeof createActivityLog>, rider: Rider, bikeWeightKg = 10): RideStats {
 	const allPoints = logger.getLaps().flatMap((lap) => lap.trackPoints);
 
 	const nullStats: RideStats = {
 		avgPower: null,
 		maxPower: null,
 		normalizedPower: null,
+		estimatedAvgPower: null,
+		estimatedMaxPower: null,
+		estimatedNormalizedPower: null,
 		avgHR: null,
+		minHR: null,
 		maxHR: null,
 		avgSpeed: null,
 		maxSpeed: null,
@@ -162,10 +227,12 @@ export function computeRideStats(logger: ReturnType<typeof createActivityLog>, r
 	// ── Heart Rate ────────────────────────────────────────────────────────────
 	const hrPoints = allPoints.filter(hasHR);
 	let avgHR: number | null = null;
+	let minHR: number | null = null;
 	let maxHR: number | null = null;
 
 	if (hrPoints.length > 0) {
 		avgHR = Math.round(hrPoints.reduce((s, p) => s + p.hr, 0) / hrPoints.length);
+		minHR = hrPoints.reduce((m, p) => (p.hr < m ? p.hr : m), hrPoints[0].hr);
 		maxHR = hrPoints.reduce((m, p) => (p.hr > m ? p.hr : m), hrPoints[0].hr);
 	}
 
@@ -201,6 +268,23 @@ export function computeRideStats(logger: ReturnType<typeof createActivityLog>, r
 				maxElevation = altPoints[i].alt;
 			}
 		}
+	}
+
+	// ── Estimated Power (only when no measured power is available) ────────────
+	let estimatedAvgPower: number | null = null;
+	let estimatedMaxPower: number | null = null;
+	let estimatedNormalizedPower: number | null = null;
+
+	if (powerPoints.length === 0 && speedPoints.length > 0) {
+		const totalMassKg = rider.weight + bikeWeightKg;
+		const estPoints = buildEstimatedPowerPoints(speedPoints, totalMassKg);
+
+		const sum = estPoints.reduce((s, p) => s + p.power, 0);
+		estimatedAvgPower = Math.round(sum / estPoints.length);
+		estimatedMaxPower = Math.round(estPoints.reduce((m, p) => (p.power > m ? p.power : m), estPoints[0].power));
+
+		const np = computeNormalizedPower(estPoints);
+		estimatedNormalizedPower = np !== null ? Math.round(np) : null;
 	}
 
 	// ── Power Zones ───────────────────────────────────────────────────────────
@@ -261,7 +345,11 @@ export function computeRideStats(logger: ReturnType<typeof createActivityLog>, r
 		avgPower,
 		maxPower,
 		normalizedPower,
+		estimatedAvgPower,
+		estimatedMaxPower,
+		estimatedNormalizedPower,
 		avgHR,
+		minHR,
 		maxHR,
 		avgSpeed,
 		maxSpeed,
