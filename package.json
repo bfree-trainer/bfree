@@ -32,8 +32,8 @@
     "react-leaflet": "4.2.1",
     "react-leaflet-draw": "0.20.4",
     "react-virtualized-auto-sizer": "1.0.20",
-    "react-window": "^1.8.9",
-    "recharts": "^2.15.0",
+    "react-window": "1.8.9",
+    "recharts": "2.15.0",
     "sharp": "0.33.5"
   },
   "devDependencies": {
