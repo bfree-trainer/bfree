@@ -165,6 +165,34 @@ export default function RideExpandedStats({ logger }: { logger: ReturnType<typeo
 			)}
 
 			{/* ── Key stats ────────────────────────────────────────────────── */}
+
+			{hasSpeed && (
+				<>
+					<SectionLabel>Speed</SectionLabel>
+					<Box sx={{ display: 'flex', flexWrap: 'wrap', mx: -0.5 }}>
+						<StatCell
+							label="Avg"
+							value={`${speedUnit.convTo(stats.avgSpeed!).toFixed(1)} ${speedUnit.name}`}
+						/>
+						<StatCell
+							label="Max"
+							value={`${speedUnit.convTo(stats.maxSpeed!).toFixed(1)} ${speedUnit.name}`}
+						/>
+					</Box>
+				</>
+			)}
+
+			{hasElevation && (
+				<>
+					<SectionLabel>Elevation</SectionLabel>
+					<Box sx={{ display: 'flex', flexWrap: 'wrap', mx: -0.5 }}>
+						<StatCell label="Ascent" value={`${stats.totalAscent!.toFixed(0)} m`} />
+						<StatCell label="Descent" value={`${stats.totalDescent!.toFixed(0)} m`} />
+						<StatCell label="Max" value={`${stats.maxElevation!.toFixed(0)} m`} />
+					</Box>
+				</>
+			)}
+
 			{hasPower && (
 				<>
 					<SectionLabel>Power</SectionLabel>
@@ -196,33 +224,6 @@ export default function RideExpandedStats({ logger }: { logger: ReturnType<typeo
 						<StatCell label="Min" value={`${stats.minHR} bpm`} />
 						<StatCell label="Avg" value={`${stats.avgHR} bpm`} />
 						<StatCell label="Max" value={`${stats.maxHR} bpm`} />
-					</Box>
-				</>
-			)}
-
-			{hasSpeed && (
-				<>
-					<SectionLabel>Speed</SectionLabel>
-					<Box sx={{ display: 'flex', flexWrap: 'wrap', mx: -0.5 }}>
-						<StatCell
-							label="Avg"
-							value={`${speedUnit.convTo(stats.avgSpeed!).toFixed(1)} ${speedUnit.name}`}
-						/>
-						<StatCell
-							label="Max"
-							value={`${speedUnit.convTo(stats.maxSpeed!).toFixed(1)} ${speedUnit.name}`}
-						/>
-					</Box>
-				</>
-			)}
-
-			{hasElevation && (
-				<>
-					<SectionLabel>Elevation</SectionLabel>
-					<Box sx={{ display: 'flex', flexWrap: 'wrap', mx: -0.5 }}>
-						<StatCell label="Ascent" value={`${stats.totalAscent!.toFixed(0)} m`} />
-						<StatCell label="Descent" value={`${stats.totalDescent!.toFixed(0)} m`} />
-						<StatCell label="Max" value={`${stats.maxElevation!.toFixed(0)} m`} />
 					</Box>
 				</>
 			)}
