@@ -163,10 +163,11 @@ export function createActivityLog(activityType: ActivityType) {
 			return laps[laps.length - 1];
 		},
 		/**
-		 * Total time in ms.
+		 * Total time in ms. Clamped to 0 to guard against negative totalTime
+		 * values that can arise from import files with mismatched timestamps.
 		 */
 		getTotalTime: (): number => {
-			return laps.reduce((t, lap) => t + lap.totalTime, 0);
+			return Math.max(0, laps.reduce((t, lap) => t + lap.totalTime, 0));
 		},
 		/**
 		 * Total distance in meters.
