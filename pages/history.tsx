@@ -419,7 +419,7 @@ export default function History() {
 							Import GPX
 							<VisuallyHiddenInput
 								type="file"
-								accept=".gpx,.GPX,.gpx.gz,.GPX.gz"
+								accept=".gpx,.GPX,.gpx.gz,.GPX.gz,application/gzip,application/x-gzip"
 								aria-label="Upload GPX file"
 								multiple
 								onChange={handleImportGpx}
@@ -429,7 +429,7 @@ export default function History() {
 							Import FIT
 							<VisuallyHiddenInput
 								type="file"
-								accept=".fit,.FIT,.fit.gz,.FIT.gz"
+								accept=".fit,.FIT,.fit.gz,.FIT.gz,application/gzip,application/x-gzip"
 								aria-label="Upload FIT file"
 								multiple
 								onChange={handleImportFit}
@@ -483,7 +483,7 @@ export default function History() {
 												Import GPX
 												<VisuallyHiddenInput
 													type="file"
-													accept=".gpx,.GPX,.gpx.gz,.GPX.gz"
+													accept=".gpx,.GPX,.gpx.gz,.GPX.gz,application/gzip,application/x-gzip"
 													aria-label="Upload GPX file"
 													multiple
 													onChange={handleImportGpx}
@@ -493,7 +493,7 @@ export default function History() {
 												Import FIT
 												<VisuallyHiddenInput
 													type="file"
-													accept=".fit,.FIT,.fit.gz,.FIT.gz"
+													accept=".fit,.FIT,.fit.gz,.FIT.gz,application/gzip,application/x-gzip"
 													aria-label="Upload FIT file"
 													multiple
 													onChange={handleImportFit}
