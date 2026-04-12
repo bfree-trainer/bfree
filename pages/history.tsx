@@ -16,6 +16,9 @@ import Chip from '@mui/material/Chip';
 import Checkbox from '@mui/material/Checkbox';
 import Collapse from '@mui/material/Collapse';
 import Container from '@mui/material/Container';
+import Dialog from '@mui/material/Dialog';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Grid from '@mui/material/Grid';
 import IconButton, { IconButtonProps } from '@mui/material/IconButton';
@@ -24,6 +27,7 @@ import IconDelete from '@mui/icons-material/Delete';
 import IconDownload from '@mui/icons-material/GetApp';
 import IconExpandMore from '@mui/icons-material/ExpandMore';
 import IconMoreVert from '@mui/icons-material/MoreVert';
+import LinearProgress from '@mui/material/LinearProgress';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Snackbar from '@mui/material/Snackbar';
@@ -31,7 +35,7 @@ import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme, styled } from '@mui/material/styles';
 import Link from 'next/link';
-import { useState, useEffect, useCallback, memo, ChangeEvent, ChangeEventHandler } from 'react';
+import { useState, useEffect, useCallback, useRef, memo, ChangeEvent, ChangeEventHandler } from 'react';
 import BottomNavi from 'components/BottomNavi';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import MyHead from 'components/MyHead';
@@ -307,6 +311,72 @@ const RideCard = memo(function RideCard({
 	);
 });
 
+const PAGE_SIZE = 20;
+/** How many px before the sentinel reaches the viewport to trigger a next page load. */
+const SCROLL_TRIGGER_MARGIN = '200px';
+/** Minimum dialog width in px so the progress bar has enough room to be readable. */
+const IMPORT_DIALOG_MIN_WIDTH = 320;
+
+type ImportProgress = { current: number; total: number };
+
+async function importOneFile(file: File): Promise<{ file: File; result: 'ok' | 'duplicate' | 'failed' }> {
+	if (/\.gpx(\.gz)?$/i.test(file.name)) {
+		return parseXmlFile(file)
+			.then((xmlDoc) => {
+				const gpxData = gpxDocument2obj(xmlDoc);
+				const logger = gpxToActivityLog(gpxData);
+				if (!logger) return { file, result: 'failed' as const };
+				rideRepository.saveNew(logger);
+				return { file, result: 'ok' as const };
+			})
+			.catch((err) => {
+				if (err instanceof RideAlreadyExistsError) return { file, result: 'duplicate' as const };
+				return { file, result: 'failed' as const };
+			});
+	} else if (/\.fit(\.gz)?$/i.test(file.name)) {
+		return parseFitFile(file)
+			.then((fitData) => {
+				const logger = fitToActivityLog(fitData, file.name.replace(/\.fit(\.gz)?$/i, ''));
+				if (!logger) return { file, result: 'failed' as const };
+				rideRepository.saveNew(logger);
+				return { file, result: 'ok' as const };
+			})
+			.catch((err) => {
+				if (err instanceof RideAlreadyExistsError) return { file, result: 'duplicate' as const };
+				return { file, result: 'failed' as const };
+			});
+	} else if (/\.tcx(\.gz)?$/i.test(file.name)) {
+		return parseXmlFile(file)
+			.then((xmlDoc) => {
+				const logger = tcxToActivityLog(xmlDoc, file.name.replace(/\.tcx(\.gz)?$/i, ''));
+				if (!logger) return { file, result: 'failed' as const };
+				rideRepository.saveNew(logger);
+				return { file, result: 'ok' as const };
+			})
+			.catch((err) => {
+				if (err instanceof RideAlreadyExistsError) return { file, result: 'duplicate' as const };
+				return { file, result: 'failed' as const };
+			});
+	}
+	return { file, result: 'failed' };
+}
+
+function ImportProgressDialog({ progress }: { progress: ImportProgress | null }) {
+	if (!progress) return null;
+	const pct = progress.total > 0 ? Math.round((progress.current / progress.total) * 100) : 0;
+	return (
+		<Dialog open disableEscapeKeyDown aria-labelledby="import-progress-title">
+			<DialogTitle id="import-progress-title">Importing rides…</DialogTitle>
+			<DialogContent sx={{ minWidth: IMPORT_DIALOG_MIN_WIDTH, pb: 3 }}>
+				<Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+					{progress.current} / {progress.total} files processed
+				</Typography>
+				<LinearProgress variant="determinate" value={pct} />
+			</DialogContent>
+		</Dialog>
+	);
+}
+
 export default function History() {
 	const theme = useTheme();
 	const isBreakpoint = useMediaQuery(theme.breakpoints.up('md'));
@@ -319,6 +389,36 @@ export default function History() {
 	const [snackMsg, setSnackMsg] = useState<string | null>(null);
 	const [snackSeverity, setSnackSeverity] = useState<'success' | 'error' | 'info'>('info');
 	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+	const [importProgress, setImportProgress] = useState<ImportProgress | null>(null);
+
+	// Infinite scroll: number of ride cards currently rendered
+	const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+	const [prevLogsLength, setPrevLogsLength] = useState(logs.length);
+	const sentinelRef = useRef<HTMLDivElement | null>(null);
+
+	// Reset visible count during render when the log list grows/shrinks (derived state pattern)
+	if (logs.length !== prevLogsLength) {
+		setPrevLogsLength(logs.length);
+		setVisibleCount(PAGE_SIZE);
+	}
+
+	// IntersectionObserver: load more cards when the sentinel div scrolls into view
+	useEffect(() => {
+		const el = sentinelRef.current;
+		if (!el) return;
+		const observer = new IntersectionObserver(
+			(entries) => {
+				if (entries.length > 0 && entries[0].isIntersecting) {
+					setVisibleCount((prev) => Math.min(prev + PAGE_SIZE, logs.length));
+				}
+			},
+			{ rootMargin: SCROLL_TRIGGER_MARGIN },
+		);
+		observer.observe(el);
+		return () => observer.disconnect();
+	}, [logs.length]);
+
+	const visibleLogs = logs.slice(0, visibleCount);
 
 	const handleSelect = useCallback((log: Log, selected: boolean) => {
 		setSelectedIds((prev) => {
@@ -355,57 +455,26 @@ export default function History() {
 		e.target.value = '';
 		if (files.length === 0) return;
 
-		const promises: Promise<{ file: File, result: 'ok' | 'duplicate' | 'failed' }>[] = [];
+		const total = files.length;
+		// Show progress dialog only when importing more than one file
+		if (total > 1) {
+			setImportProgress({ current: 0, total });
+		}
 
-		files.map((file) => {
-			if (/\.gpx(\.gz)?$/.test(file.name)) {
-			promises.push(parseXmlFile(file)
-				.then((xmlDoc) => {
-					const gpxData = gpxDocument2obj(xmlDoc);
-					const logger = gpxToActivityLog(gpxData);
-					if (!logger) return { file, result: 'failed' as const };
-					rideRepository.saveNew(logger);
-					return { file, result: 'ok' as const };
-				})
-				.catch((err) => {
-					if (err instanceof RideAlreadyExistsError) return { file, result: 'duplicate' as const };
-					return { file, result: 'failed' as const };
-				})
-			);
-
-			} else if (/\.fit(\.gz)?$/.test(file.name)) {
-				promises.push(parseFitFile(file)
-					.then((fitData) => {
-						const logger = fitToActivityLog(fitData, file.name.replace(/\.fit(\.gz)?$/i, ''));
-						if (!logger) return { file, result: 'failed' as const };
-						rideRepository.saveNew(logger);
-						return { file, result: 'ok' as const };
-					})
-					.catch((err) => {
-						if (err instanceof RideAlreadyExistsError) return { file, result: 'duplicate' as const };
-						return { file, result: 'failed' as const };
-					})
-				);
-			} else if (/\.tcx(\.gz)?$/.test(file.name)) {
-				promises.push(parseXmlFile(file)
-					.then((xmlDoc) => {
-						const logger = tcxToActivityLog(xmlDoc, file.name.replace(/\.tcx(\.gz)?$/i, ''));
-						if (!logger) return { file, result: 'failed' as const };
-						rideRepository.saveNew(logger);
-						return { file, result: 'ok' as const };
-					})
-					.catch((err) => {
-						if (err instanceof RideAlreadyExistsError) return { file, result: 'duplicate' as const };
-						return { file, result: 'failed' as const };
-					})
-				);
-			} else {
-				promises.push(new Promise(() => ({ file, result: 'failed' })));
+		// Process files sequentially so we can track progress accurately
+		(async () => {
+			const results: { file: File; result: 'ok' | 'duplicate' | 'failed' }[] = [];
+			for (let i = 0; i < files.length; i++) {
+				const res = await importOneFile(files[i]);
+				results.push(res);
+				if (total > 1) {
+					setImportProgress({ current: i + 1, total });
+				}
 			}
-		});
 
-		Promise.all(promises).then((results) => {
+			setImportProgress(null);
 			setLogs(rideRepository.findAll());
+
 			const imported = results.filter((r) => r.result === 'ok').length;
 			const duplicates = results.filter((r) => r.result === 'duplicate').length;
 			const failed = results.filter((r) => r.result === 'failed').length;
@@ -437,8 +506,8 @@ export default function History() {
 				setSnackSeverity(duplicates > 0 || failed > 0 ? 'error' : 'success');
 				setSnackMsg(parts.join(', ') + '.');
 			}
-		});
-	}
+		})();
+	};
 
 	return (
 		<Container maxWidth="lg" sx={{ pb: 9 }}>
@@ -500,7 +569,7 @@ export default function History() {
 									</Box>
 								</Grid>
 							)}
-							{logs.map((log) => (
+							{visibleLogs.map((log) => (
 								<RideCard
 									log={log}
 									onSelect={handleSelect}
@@ -508,6 +577,8 @@ export default function History() {
 									key={log.id}
 								/>
 							))}
+							{/* Sentinel element that triggers loading the next page */}
+							<div ref={sentinelRef} style={{ width: '100%', height: 1 }} aria-hidden="true" />
 						</Grid>
 					</Grid>
 					<Grid
@@ -524,6 +595,7 @@ export default function History() {
 					</Grid>
 				</Grid>
 			</Box>
+			<ImportProgressDialog progress={importProgress} />
 			<Snackbar
 				open={!!snackMsg}
 				autoHideDuration={4000}
