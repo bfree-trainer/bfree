@@ -39,34 +39,6 @@ export type CourseData = {
 	waypoints: Waypoint[];
 };
 
-export async function parseGpxFile2Document(file: File): Promise<Document> {
-	let text: string;
-	if (isGzipFile(file.name)) {
-		const compressed = await file.arrayBuffer();
-		const decompressed = await decompressGzip(compressed);
-		text = new TextDecoder().decode(decompressed);
-	} else {
-		text = await file.text();
-	}
-	const parser = new DOMParser();
-	const xmlDoc = parser.parseFromString(text, 'text/xml');
-	const errorNode = xmlDoc.querySelector('parsererror');
-	if (errorNode) {
-		throw new Error('Failed to parse the GPX file');
-	}
-	return xmlDoc;
-}
-
-export function parseGpxText2Document(text: string): Document {
-	const parser = new DOMParser();
-	const xmlDoc = parser.parseFromString(text, 'text/xml');
-	const errorNode = xmlDoc.querySelector('parsererror');
-	if (errorNode) {
-		throw new Error('Failed to parse the GPX data');
-	}
-	return xmlDoc;
-}
-
 function* elIter<T>(el: HTMLCollectionOf<Element>, callback: (el: Element) => T) {
 	for (let i = 0; i < el.length; i++) {
 		yield callback(el[i]);
