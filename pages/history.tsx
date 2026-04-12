@@ -39,12 +39,13 @@ import EditRideModal from 'components/EditRideModal';
 import RideStatsPanel from 'components/RideStatsPanel';
 import WarningDialog from 'components/WarningDialog';
 import downloadBlob from 'lib/download_blob';
-import { gpxToActivityLog, fitToActivityLog } from 'lib/activity_log';
+import { gpxToActivityLog, fitToActivityLog, tcxToActivityLog } from 'lib/activity_log';
 import type { ActivityType } from 'lib/activity_log';
 import type { RideEntry } from 'lib/orm';
 import { rideRepository, RideAlreadyExistsError } from 'lib/orm';
 import { gpxDocument2obj, parseGpxFile2Document } from 'lib/gpx_parser';
 import { parseFitFile } from 'lib/fit_parser';
+import { parseTcxFile } from 'lib/tcx_parser';
 import { getElapsedTimeStr } from 'lib/format';
 import { smartDistanceUnitFormat } from 'lib/units';
 import { useGlobalState } from 'lib/global';
@@ -405,6 +406,53 @@ export default function History() {
 		});
 	};
 
+	const handleImportTcx = (e: ChangeEvent<HTMLInputElement>) => {
+		const files = Array.from(e.target.files ?? []);
+		// Reset so selecting the same file(s) again still triggers onChange
+		e.target.value = '';
+		if (files.length === 0) return;
+
+		const promises = files.map((file) =>
+			parseTcxFile(file)
+				.then((xmlDoc) => {
+					const logger = tcxToActivityLog(xmlDoc, file.name.replace(/\.tcx$/i, ''));
+					if (!logger) return 'failed' as const;
+					rideRepository.saveNew(logger);
+					return 'ok' as const;
+				})
+				.catch((err) => {
+					if (err instanceof RideAlreadyExistsError) return 'duplicate' as const;
+					return 'failed' as const;
+				})
+		);
+
+		Promise.all(promises).then((results) => {
+			setLogs(rideRepository.findAll());
+			const imported = results.filter((r) => r === 'ok').length;
+			const duplicates = results.filter((r) => r === 'duplicate').length;
+			const failed = results.filter((r) => r === 'failed').length;
+			if (files.length === 1) {
+				if (imported === 1) {
+					setSnackSeverity('success');
+					setSnackMsg('TCX file imported successfully.');
+				} else if (duplicates === 1) {
+					setSnackSeverity('error');
+					setSnackMsg('This ride has already been imported.');
+				} else {
+					setSnackSeverity('error');
+					setSnackMsg('No trackpoints found in the TCX file.');
+				}
+			} else {
+				const parts: string[] = [];
+				if (imported > 0) parts.push(`${imported} file${imported !== 1 ? 's' : ''} imported`);
+				if (duplicates > 0) parts.push(`${duplicates} already exist`);
+				if (failed > 0) parts.push(`${failed} failed`);
+				setSnackSeverity(duplicates > 0 || failed > 0 ? 'error' : 'success');
+				setSnackMsg(parts.join(', ') + '.');
+			}
+		});
+	};
+
 	return (
 		<Container maxWidth="lg" sx={{ pb: 9 }}>
 			<MyHead title="Previous Rides" />
@@ -433,6 +481,16 @@ export default function History() {
 								aria-label="Upload FIT file"
 								multiple
 								onChange={handleImportFit}
+							/>
+						</Button>
+						<Button component="label" variant="outlined" size="small">
+							Import TCX
+							<VisuallyHiddenInput
+								type="file"
+								accept=".tcx,.TCX"
+								aria-label="Upload TCX file"
+								multiple
+								onChange={handleImportTcx}
 							/>
 						</Button>
 					</Box>
@@ -497,6 +555,16 @@ export default function History() {
 													aria-label="Upload FIT file"
 													multiple
 													onChange={handleImportFit}
+												/>
+											</Button>
+											<Button component="label" variant="outlined" size="medium">
+												Import TCX
+												<VisuallyHiddenInput
+													type="file"
+													accept=".tcx,.TCX"
+													aria-label="Upload TCX file"
+													multiple
+													onChange={handleImportTcx}
 												/>
 											</Button>
 										</Box>
