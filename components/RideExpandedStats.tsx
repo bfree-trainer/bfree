@@ -199,7 +199,9 @@ export default function RideExpandedStats({ logger }: { logger: ReturnType<typeo
 					<Box sx={{ display: 'flex', flexWrap: 'wrap', mx: -0.5 }}>
 						<StatCell label="Avg" value={`${stats.avgPower} W`} />
 						<StatCell label="Max" value={`${stats.maxPower} W`} />
-						{stats.normalizedPower !== null && <StatCell label="Norm" value={`${stats.normalizedPower} W`} />}
+						{stats.normalizedPower !== null && (
+							<StatCell label="Norm" value={`${stats.normalizedPower} W`} />
+						)}
 					</Box>
 				</>
 			)}

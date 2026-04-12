@@ -231,7 +231,9 @@ function getActivityTypeLabel(type: ActivityType): string {
 }
 
 function isTrainerActivity(type: ActivityType): boolean {
-	return type === 'trainerFreeRide' || type === 'trainerWorkout' || type === 'trainerMap' || type === 'trainerVirtual';
+	return (
+		type === 'trainerFreeRide' || type === 'trainerWorkout' || type === 'trainerMap' || type === 'trainerVirtual'
+	);
 }
 
 function RideCard({ log, onSelect }: { log: Log; onSelect: (v: boolean) => void }) {
@@ -301,7 +303,9 @@ function RideCard({ log, onSelect }: { log: Log; onSelect: (v: boolean) => void 
 						<Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mt: 0.25 }}>
 							{log.date}
 							<Box sx={{ display: 'flex', gap: 0.5 }}>
-								{isTrainerActivity(activityType) && <Chip label="Trainer" size="small" variant="outlined" />}
+								{isTrainerActivity(activityType) && (
+									<Chip label="Trainer" size="small" variant="outlined" />
+								)}
 								<Chip label={getActivityTypeLabel(activityType)} size="small" variant="outlined" />
 							</Box>
 						</Box>
@@ -536,7 +540,12 @@ export default function History() {
 				</Grid>
 			</Box>
 			<Snackbar open={!!snackMsg} autoHideDuration={4000} onClose={() => setSnackMsg(null)}>
-				<Alert onClose={() => setSnackMsg(null)} severity={snackSeverity} variant="filled" sx={{ width: '100%' }}>
+				<Alert
+					onClose={() => setSnackMsg(null)}
+					severity={snackSeverity}
+					variant="filled"
+					sx={{ width: '100%' }}
+				>
 					{snackMsg}
 				</Alert>
 			</Snackbar>

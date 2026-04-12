@@ -27,9 +27,7 @@ import { formatDuration } from 'lib/format';
 function computeAvgRoadSpeedMps(): number | null {
 	const now = new Date();
 	const fourWeeksAgo = new Date(now.getTime() - 28 * 24 * 60 * 60 * 1000);
-	const logs = rideRepository
-		.findBetween(fourWeeksAgo, now)
-		.filter((e) => e.logger.getActivityType() === 'road');
+	const logs = rideRepository.findBetween(fourWeeksAgo, now).filter((e) => e.logger.getActivityType() === 'road');
 
 	const totalDistanceM = logs.reduce((s, e) => s + e.logger.getTotalDistance(), 0);
 	const totalTimeMs = logs.reduce((s, e) => s + e.logger.getTotalTime(), 0);
@@ -61,11 +59,8 @@ export default function RoadCourse() {
 
 	const courseDistM = course ? courseDistanceM(course) : null;
 	const estimatedTimeMs =
-		courseDistM !== null && avgSpeedMps !== null && avgSpeedMps > 0
-			? (courseDistM / avgSpeedMps) * 1000
-			: null;
-	const displaySpeed =
-		avgSpeedMps !== null ? speedUnitConv[unitSpeed].convTo(avgSpeedMps).toFixed(1) : null;
+		courseDistM !== null && avgSpeedMps !== null && avgSpeedMps > 0 ? (courseDistM / avgSpeedMps) * 1000 : null;
+	const displaySpeed = avgSpeedMps !== null ? speedUnitConv[unitSpeed].convTo(avgSpeedMps).toFixed(1) : null;
 	const speedUnitName = speedUnitConv[unitSpeed].name;
 
 	return (

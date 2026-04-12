@@ -52,13 +52,16 @@ function App({ Component, pageProps }) {
 			} else {
 				// In development, unregister any lingering service workers to prevent
 				// stale cached responses from interfering with hot module reloading.
-				navigator.serviceWorker.getRegistrations().then((registrations) => {
-					for (const registration of registrations) {
-						registration.unregister();
-					}
-				}).catch((err) => {
-					console.error('Failed to unregister service workers:', err);
-				});
+				navigator.serviceWorker
+					.getRegistrations()
+					.then((registrations) => {
+						for (const registration of registrations) {
+							registration.unregister();
+						}
+					})
+					.catch((err) => {
+						console.error('Failed to unregister service workers:', err);
+					});
 			}
 		}
 	}, []);

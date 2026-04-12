@@ -90,18 +90,18 @@ function getPowerZoneIndex(power: number, ftp: number): number {
 	const pct = power / ftp;
 	if (pct < 0.55) return 0;
 	if (pct < 0.75) return 1;
-	if (pct < 0.90) return 2;
+	if (pct < 0.9) return 2;
 	if (pct < 1.05) return 3;
-	if (pct < 1.20) return 4;
+	if (pct < 1.2) return 4;
 	return 5;
 }
 
 function getHRZoneIndex(hr: number, maxHR: number): number {
 	const pct = hr / maxHR;
-	if (pct < 0.60) return 0;
-	if (pct < 0.70) return 1;
-	if (pct < 0.80) return 2;
-	if (pct < 0.90) return 3;
+	if (pct < 0.6) return 0;
+	if (pct < 0.7) return 1;
+	if (pct < 0.8) return 2;
+	if (pct < 0.9) return 3;
 	return 4;
 }
 
@@ -164,7 +164,6 @@ function buildEstimatedPowerPoints(
 	});
 }
 
-
 function computeNormalizedPower(points: Array<TrackPoint & { power: number }>): number | null {
 	if (points.length < 30) return null;
 
@@ -192,7 +191,11 @@ function computeNormalizedPower(points: Array<TrackPoint & { power: number }>): 
  * All fields are null when the relevant data is absent from the log.
  * @param bikeWeightKg - bike mass in kg (defaults to 10 kg when omitted)
  */
-export function computeRideStats(logger: ReturnType<typeof createActivityLog>, rider: Rider, bikeWeightKg = 10): RideStats {
+export function computeRideStats(
+	logger: ReturnType<typeof createActivityLog>,
+	rider: Rider,
+	bikeWeightKg = 10
+): RideStats {
 	const allPoints = logger.getLaps().flatMap((lap) => lap.trackPoints);
 
 	const nullStats: RideStats = {
