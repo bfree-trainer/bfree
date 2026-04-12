@@ -194,7 +194,7 @@ function RideCard({ log, onSelect }: { log: Log; onSelect: (v: boolean) => void 
 	};
 
 	return (
-		<Grid item sx={{ width: '100%', maxWidth: 400 }}>
+		<Grid item sx={{ width: '100%', maxWidth: { xs: '100%', sm: 400 } }}>
 			<Card variant="outlined" sx={{ width: '100%' }}>
 				<CardHeader
 					avatar={
@@ -402,30 +402,32 @@ export default function History() {
 			<MyHead title="Previous Rides" />
 			<Box>
 				<Title href="/">{isBreakpoint ? 'Previous Rides' : 'Rides'}</Title>
-				<Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 2, mb: 2 }}>
-					<Typography variant="body1" color="text.primary" sx={{ flex: 1 }}>
+				<Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 2, mb: 2, flexWrap: 'wrap' }}>
+					<Typography variant="body1" color="text.primary" sx={{ flex: '1 1 100%', minWidth: 0 }}>
 						Manage and export previous rides.
 					</Typography>
-					<Button component="label" variant="outlined" size="small">
-						Import GPX
-						<VisuallyHiddenInput
-							type="file"
-							accept=".gpx,.GPX"
-							aria-label="Upload GPX file"
-							multiple
-							onChange={handleImportGpx}
-						/>
-					</Button>
-					<Button component="label" variant="outlined" size="small">
-						Import FIT
-						<VisuallyHiddenInput
-							type="file"
-							accept=".fit,.FIT"
-							aria-label="Upload FIT file"
-							multiple
-							onChange={handleImportFit}
-						/>
-					</Button>
+					<Box sx={{ display: 'flex', gap: 1 }}>
+						<Button component="label" variant="outlined" size="small">
+							Import GPX
+							<VisuallyHiddenInput
+								type="file"
+								accept=".gpx,.GPX"
+								aria-label="Upload GPX file"
+								multiple
+								onChange={handleImportGpx}
+							/>
+						</Button>
+						<Button component="label" variant="outlined" size="small">
+							Import FIT
+							<VisuallyHiddenInput
+								type="file"
+								accept=".fit,.FIT"
+								aria-label="Upload FIT file"
+								multiple
+								onChange={handleImportFit}
+							/>
+						</Button>
+					</Box>
 				</Box>
 
 				<Grid container spacing={3} alignItems="flex-start">
@@ -517,6 +519,7 @@ export default function History() {
 						sx={{
 							position: { md: 'sticky' },
 							top: { md: 16 },
+							order: { xs: -1, md: 0 },
 						}}
 					>
 						<RideStatsPanel logs={logs} />

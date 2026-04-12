@@ -19,7 +19,7 @@ const classes = {
 const StyledCard = styled(Card)(({ theme }) => ({
 	[`& .${classes.graphContainer}`]: {
 		display: 'flex',
-		height: '25vh',
+		height: 'clamp(140px, 25vh, 300px)',
 		width: '100%',
 		background: theme.palette.background.paper,
 		transition: '0.3s',
