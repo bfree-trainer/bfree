@@ -16,6 +16,7 @@ import Chip from '@mui/material/Chip';
 import Checkbox from '@mui/material/Checkbox';
 import Collapse from '@mui/material/Collapse';
 import Container from '@mui/material/Container';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import Grid from '@mui/material/Grid';
 import IconButton, { IconButtonProps } from '@mui/material/IconButton';
 import IconBike from '@mui/icons-material/DirectionsBike';
@@ -30,7 +31,7 @@ import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme, styled } from '@mui/material/styles';
 import Link from 'next/link';
-import { useState, useRef, useCallback, memo, ChangeEvent } from 'react';
+import { useState, useCallback, memo, ChangeEvent } from 'react';
 import BottomNavi from 'components/BottomNavi';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import MyHead from 'components/MyHead';
@@ -159,7 +160,15 @@ function isTrainerActivity(type: ActivityType): boolean {
 	);
 }
 
-const RideCard = memo(function RideCard({ log, onSelect }: { log: Log; onSelect: (log: Log, v: boolean) => void }) {
+const RideCard = memo(function RideCard({
+	log,
+	onSelect,
+	checked,
+}: {
+	log: Log;
+	onSelect: (log: Log, v: boolean) => void;
+	checked: boolean;
+}) {
 	const distanceUnit = useGlobalState('unitDistance')[0];
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const [showEditModal, setShowEditModal] = useState(false);
@@ -264,6 +273,7 @@ const RideCard = memo(function RideCard({ log, onSelect }: { log: Log; onSelect:
 					<Checkbox
 						color="default"
 						aria-label={`Select ${name}`}
+						checked={checked}
 						onChange={(e: React.ChangeEvent<HTMLInputElement>) => onSelect(log, e.target.checked)}
 					/>
 					<ExpandMore
@@ -286,30 +296,40 @@ export default function History() {
 	const theme = useTheme();
 	const isBreakpoint = useMediaQuery(theme.breakpoints.up('md'));
 	const [logs, setLogs] = useState<RideEntry[]>(() => rideRepository.findAll());
-	const selectionRef = useRef(new WeakMap<Log, boolean>());
-	const [selectionCount, setSelectionCount] = useState(0);
+	const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+	const selectionCount = selectedIds.size;
 	const [snackMsg, setSnackMsg] = useState<string | null>(null);
 	const [snackSeverity, setSnackSeverity] = useState<'success' | 'error' | 'info'>('info');
 	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
 	const handleSelect = useCallback((log: Log, selected: boolean) => {
-		if (selected) {
-			selectionRef.current.set(log, true);
-			setSelectionCount((c) => c + 1);
-		} else {
-			selectionRef.current.delete(log);
-			setSelectionCount((c) => c - 1);
-		}
+		setSelectedIds((prev) => {
+			const next = new Set(prev);
+			if (selected) {
+				next.add(log.id);
+			} else {
+				next.delete(log.id);
+			}
+			return next;
+		});
 	}, []);
 
+	const handleSelectAll = useCallback(() => {
+		setSelectedIds((prev) => {
+			if (prev.size === logs.length) {
+				return new Set();
+			}
+			return new Set(logs.map((l) => l.id));
+		});
+	}, [logs]);
+
 	const massDeletion = useCallback(() => {
-		const q = logs.filter((log) => selectionRef.current.has(log));
-		setSelectionCount((c) => c - q.length);
-		q.forEach(({ id }) => {
+		selectedIds.forEach((id) => {
 			rideRepository.delete(id);
 		});
+		setSelectedIds(new Set());
 		setLogs(rideRepository.findAll());
-	}, [logs]);
+	}, [selectedIds]);
 
 	const handleImportGpx = (e: ChangeEvent<HTMLInputElement>) => {
 		const files = Array.from(e.target.files ?? []);
@@ -575,6 +595,7 @@ export default function History() {
 								<RideCard
 									log={log}
 									onSelect={handleSelect}
+									checked={selectedIds.has(log.id)}
 									key={log.id}
 								/>
 							))}
@@ -621,6 +642,26 @@ export default function History() {
 				{`Delete ${selectionCount} selected ride${selectionCount !== 1 ? 's' : ''}? This cannot be undone.`}
 			</WarningDialog>
 			<BottomNavi>
+				<FormControlLabel
+					control={
+						<Checkbox
+							checked={logs.length > 0 && selectedIds.size === logs.length}
+							indeterminate={selectedIds.size > 0 && selectedIds.size < logs.length}
+							onChange={handleSelectAll}
+							disabled={logs.length === 0}
+							inputProps={{
+								'aria-label':
+									logs.length > 0 && selectedIds.size === logs.length
+										? 'Deselect all rides'
+										: 'Select all rides',
+							}}
+						/>
+					}
+					label={
+						logs.length > 0 && selectedIds.size === logs.length ? 'Deselect all' : 'Select all'
+					}
+					sx={{ mx: 1 }}
+				/>
 				<BottomNavigationAction
 					disabled={selectionCount === 0}
 					sx={
