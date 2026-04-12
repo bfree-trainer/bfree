@@ -30,7 +30,7 @@ import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme, styled } from '@mui/material/styles';
 import Link from 'next/link';
-import { useState, useEffect, useRef, ChangeEvent } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo, memo, ChangeEvent } from 'react';
 import BottomNavi from 'components/BottomNavi';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import MyHead from 'components/MyHead';
@@ -156,7 +156,7 @@ function isTrainerActivity(type: ActivityType): boolean {
 	);
 }
 
-function RideCard({ log, onSelect }: { log: Log; onSelect: (v: boolean) => void }) {
+const RideCard = memo(function RideCard({ log, onSelect }: { log: Log; onSelect: (log: Log, v: boolean) => void }) {
 	const distanceUnit = useGlobalState('unitDistance')[0];
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const [showEditModal, setShowEditModal] = useState(false);
@@ -259,7 +259,7 @@ function RideCard({ log, onSelect }: { log: Log; onSelect: (v: boolean) => void 
 					<Checkbox
 						color="default"
 						aria-label={`Select ${name}`}
-						onChange={(e: React.ChangeEvent<HTMLInputElement>) => onSelect(e.target.checked)}
+						onChange={(e: React.ChangeEvent<HTMLInputElement>) => onSelect(log, e.target.checked)}
 					/>
 					<ExpandMore
 						expand={expanded}
@@ -275,7 +275,7 @@ function RideCard({ log, onSelect }: { log: Log; onSelect: (v: boolean) => void 
 			<EditRideModal open={showEditModal} onClose={() => setShowEditModal(false)} logger={log.logger} />
 		</Grid>
 	);
-}
+});
 
 export default function History() {
 	const theme = useTheme();
@@ -286,14 +286,24 @@ export default function History() {
 	const [snackMsg, setSnackMsg] = useState<string | null>(null);
 	const [snackSeverity, setSnackSeverity] = useState<'success' | 'error' | 'info'>('info');
 
-	const massDeletion = () => {
+	const handleSelect = useCallback((log: Log, selected: boolean) => {
+		if (selected) {
+			selectionRef.current.set(log, true);
+			setSelectionCount((c) => c + 1);
+		} else {
+			selectionRef.current.delete(log);
+			setSelectionCount((c) => c - 1);
+		}
+	}, []);
+
+	const massDeletion = useCallback(() => {
 		const q = logs.filter((log) => selectionRef.current.has(log));
-		setSelectionCount(selectionCount - q.length); // RFE Will this go out of sync if deletion fails?
+		setSelectionCount((c) => c - q.length);
 		q.forEach(({ id }) => {
 			rideRepository.delete(id);
 		});
 		setLogs(rideRepository.findAll());
-	};
+	}, [logs]);
 
 	const handleImportGpx = (e: ChangeEvent<HTMLInputElement>) => {
 		const files = Array.from(e.target.files ?? []);
@@ -498,15 +508,7 @@ export default function History() {
 							{logs.map((log) => (
 								<RideCard
 									log={log}
-									onSelect={(v: boolean) => {
-										if (v) {
-											selectionRef.current.set(log, true);
-											setSelectionCount(selectionCount + 1);
-										} else {
-											selectionRef.current.delete(log);
-											setSelectionCount(selectionCount - 1);
-										}
-									}}
+									onSelect={handleSelect}
 									key={log.id}
 								/>
 							))}
