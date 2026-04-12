@@ -25,7 +25,6 @@ function getISOWeekStart(date: Date): Date {
 	return d;
 }
 
-
 interface WeekStats {
 	label: string;
 	activities: number;

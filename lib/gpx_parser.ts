@@ -124,7 +124,10 @@ function parseTrackpoint(el: Element): Trackpoint {
 	if (cadence !== undefined) {
 		trackpoint.cadence = cadence;
 	}
-	const power = getExtensionNumericValue(el, 'PowerInWatts') ?? getExtensionNumericValue(el, 'watts') ?? getExtensionNumericValue(el, 'power');
+	const power =
+		getExtensionNumericValue(el, 'PowerInWatts') ??
+		getExtensionNumericValue(el, 'watts') ??
+		getExtensionNumericValue(el, 'power');
 	if (power !== undefined) {
 		trackpoint.power = power;
 	}

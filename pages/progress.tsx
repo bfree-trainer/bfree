@@ -17,16 +17,7 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { useState, useEffect } from 'react';
-import {
-	BarChart,
-	Bar,
-	XAxis,
-	YAxis,
-	CartesianGrid,
-	Tooltip,
-	ResponsiveContainer,
-	Cell,
-} from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import MyHead from 'components/MyHead';
 import Title from 'components/Title';
 import { rideRepository } from 'lib/orm';
@@ -65,21 +56,14 @@ function ymdKey(d: Date): string {
 /** Compute training load for a single activity.
  *  Prefers power-based TSS when FTP is set, falls back to HR-based TRIMP,
  *  then to a plain duration proxy. */
-function activityLoad(
-	entry: RideEntry,
-	ftp: number,
-	restHR: number,
-	maxHR: number
-): number {
+function activityLoad(entry: RideEntry, ftp: number, restHR: number, maxHR: number): number {
 	const laps = entry.logger.getLaps();
 
 	// Collect all track-points
 	const allPts = laps.flatMap((l) => l.trackPoints);
 
 	// Try power-based TSS first
-	const powerPts = allPts.filter(
-		(p) => typeof p.power === 'number' && !isNaN(p.power) && p.power > 0
-	);
+	const powerPts = allPts.filter((p) => typeof p.power === 'number' && !isNaN(p.power) && p.power > 0);
 	if (powerPts.length > 0 && ftp > 0) {
 		const avgPower = powerPts.reduce((s, p) => s + p.power, 0) / powerPts.length;
 		const durationHrs = entry.logger.getTotalTime() / 3600000;
@@ -101,21 +85,15 @@ function activityLoad(
 }
 
 interface MonthBucket {
-	month: string;  // "Jan '25"
-	key: string;    // "2025-01"
+	month: string; // "Jan '25"
+	key: string; // "2025-01"
 	distanceM: number;
 	durationMs: number;
 	activities: number;
 	load: number;
 }
 
-function buildMonthBuckets(
-	logs: RideEntry[],
-	n: number,
-	ftp: number,
-	restHR: number,
-	maxHR: number
-): MonthBucket[] {
+function buildMonthBuckets(logs: RideEntry[], n: number, ftp: number, restHR: number, maxHR: number): MonthBucket[] {
 	const now = new Date();
 	const buckets: MonthBucket[] = [];
 
@@ -253,15 +231,7 @@ function SectionCard({ title, children }: { title: string; children: React.React
 	);
 }
 
-function StatBox({
-	label,
-	value,
-	sub,
-}: {
-	label: string;
-	value: string;
-	sub?: string;
-}) {
+function StatBox({ label, value, sub }: { label: string; value: string; sub?: string }) {
 	return (
 		<Box sx={{ textAlign: 'center', px: 1 }}>
 			<Typography variant="h5" fontWeight={700} color="primary.main">
@@ -281,15 +251,7 @@ function StatBox({
 
 function DeltaChip({ current, previous }: { current: number; previous: number }) {
 	if (previous === 0 && current === 0)
-		return (
-			<Chip
-				size="small"
-				icon={<RemoveIcon fontSize="small" />}
-				label="—"
-				variant="outlined"
-				sx={{ ml: 1 }}
-			/>
-		);
+		return <Chip size="small" icon={<RemoveIcon fontSize="small" />} label="—" variant="outlined" sx={{ ml: 1 }} />;
 	if (previous === 0)
 		return (
 			<Chip
@@ -304,15 +266,7 @@ function DeltaChip({ current, previous }: { current: number; previous: number })
 	const pct = ((current - previous) / previous) * 100;
 	const abs = Math.abs(Math.round(pct));
 	if (abs < 1)
-		return (
-			<Chip
-				size="small"
-				icon={<RemoveIcon fontSize="small" />}
-				label="—"
-				variant="outlined"
-				sx={{ ml: 1 }}
-			/>
-		);
+		return <Chip size="small" icon={<RemoveIcon fontSize="small" />} label="—" variant="outlined" sx={{ ml: 1 }} />;
 	const up = current >= previous;
 	return (
 		<Chip
@@ -358,7 +312,12 @@ export default function Progress() {
 		setLoaded(true);
 	}, []);
 	const [unitDistance] = useGlobalState('unitDistance');
-	const [{ ftp, heartRate: { rest: restHR, max: maxHR } }] = useGlobalState('rider');
+	const [
+		{
+			ftp,
+			heartRate: { rest: restHR, max: maxHR },
+		},
+	] = useGlobalState('rider');
 
 	const isKm = unitDistance === 'km';
 	const isMi = unitDistance === 'mi';
@@ -370,18 +329,15 @@ export default function Progress() {
 	const fmt = (m: number, dp = 1) => (m * distConvFactor).toFixed(dp);
 
 	// Build 12-month buckets for bar chart
-	const monthBuckets = logs.length > 0
-		? buildMonthBuckets(logs, 12, ftp, restHR, maxHR)
-		: [];
+	const monthBuckets = logs.length > 0 ? buildMonthBuckets(logs, 12, ftp, restHR, maxHR) : [];
 
 	// Current and previous month
 	const currentMonth = monthBuckets[monthBuckets.length - 1];
 	const previousMonth = monthBuckets[monthBuckets.length - 2];
 
 	// Fitness / form
-	const { ctl, atl, tsb } = logs.length > 0
-		? computeFitnessForm(logs, ftp, restHR, maxHR)
-		: { ctl: 0, atl: 0, tsb: 0 };
+	const { ctl, atl, tsb } =
+		logs.length > 0 ? computeFitnessForm(logs, ftp, restHR, maxHR) : { ctl: 0, atl: 0, tsb: 0 };
 
 	// Best efforts
 	const power5min = bestAveragePower(logs, 5 * 60 * 1000);
@@ -489,7 +445,11 @@ export default function Progress() {
 										{chartData.map((entry, idx) => (
 											<Cell
 												key={`km-${idx}`}
-												fill={entry.month === currentMonth?.month ? BAR_COLOR_ACTIVE : BAR_COLOR_PAST}
+												fill={
+													entry.month === currentMonth?.month
+														? BAR_COLOR_ACTIVE
+														: BAR_COLOR_PAST
+												}
 											/>
 										))}
 									</Bar>
@@ -595,7 +555,11 @@ export default function Progress() {
 										{chartData.map((entry, idx) => (
 											<Cell
 												key={`effort-${idx}`}
-												fill={entry.month === currentMonth?.month ? EFFORT_COLOR_ACTIVE : EFFORT_COLOR_PAST}
+												fill={
+													entry.month === currentMonth?.month
+														? EFFORT_COLOR_ACTIVE
+														: EFFORT_COLOR_PAST
+												}
 											/>
 										))}
 									</Bar>
@@ -638,7 +602,13 @@ export default function Progress() {
 						<Typography
 							variant="h3"
 							fontWeight={700}
-							color={tsb > TSB_FRESH_THRESHOLD ? 'success.main' : tsb < TSB_FATIGUED_THRESHOLD ? 'error.main' : 'text.primary'}
+							color={
+								tsb > TSB_FRESH_THRESHOLD
+									? 'success.main'
+									: tsb < TSB_FATIGUED_THRESHOLD
+										? 'error.main'
+										: 'text.primary'
+							}
 						>
 							{tsb > 0 ? `+${tsb}` : `${tsb}`}
 						</Typography>
@@ -655,9 +625,7 @@ export default function Progress() {
 				{/* Best Efforts */}
 				<Grid item xs={12}>
 					<SectionCard title="Best Efforts">
-						{power5min > 0 && (
-							<BestEffortRow label="5-min Power" value={`${power5min} W`} />
-						)}
+						{power5min > 0 && <BestEffortRow label="5-min Power" value={`${power5min} W`} />}
 						{power20min > 0 && (
 							<>
 								<Divider />
@@ -679,10 +647,7 @@ export default function Progress() {
 						{longest && longest.distanceM > 0 && (
 							<>
 								<Divider />
-								<BestEffortRow
-									label="Longest Ride"
-									value={`${fmt(longest.distanceM)} ${distLabel}`}
-								/>
+								<BestEffortRow label="Longest Ride" value={`${fmt(longest.distanceM)} ${distLabel}`} />
 							</>
 						)}
 						{bestSpeedMs > 0 && (
