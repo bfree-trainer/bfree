@@ -448,7 +448,7 @@ export default function History() {
 	}, [logs]);
 
 	return (
-		<StyledContainer maxWidth="lg">
+		<StyledContainer maxWidth="lg" sx={{ pb: '72px' }}>
 			<MyHead title="Previous Rides" />
 			<Box>
 				<Title href="/">{isBreakpoint ? 'Previous Rides' : 'Rides'}</Title>

@@ -38,7 +38,7 @@ const SectionLabel = styled(Typography)(({ theme }) => ({
 
 function StatCell({ label, value }: { label: string; value: string }) {
 	return (
-		<Box sx={{ flex: '1 1 auto', minWidth: 72, p: 0.5 }}>
+		<Box sx={{ flex: '0 0 33.33%', minWidth: 72, p: 0.5 }}>
 			<Typography variant="caption" color="text.secondary" display="block">
 				{label}
 			</Typography>
