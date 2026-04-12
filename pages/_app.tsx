@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import Head from 'next/head';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import 'styles/globals.css';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -52,6 +53,13 @@ function App({ Component, pageProps }) {
 
 	return (
 		<CacheProvider value={cache}>
+			<Head>
+				<link rel="manifest" href="/manifest.json" />
+				<meta
+					name="viewport"
+					content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+				/>
+			</Head>
 			<ThemeProvider theme={theme}>
 				{/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
 				<CssBaseline />
