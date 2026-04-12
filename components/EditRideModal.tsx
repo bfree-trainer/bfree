@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import { createActivityLog } from 'lib/activity_log';
@@ -30,10 +30,10 @@ export default function EditModal({
 	const [newName, setNewName] = useState(() => logger.getName());
 	const [newNotes, setNewNotes] = useState(() => logger.getNotes());
 
-	const handleNameChange = (e) => {
+	const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setNewName(e.target.value);
 	};
-	const handleNotesChange = (e) => {
+	const handleNotesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
 		setNewNotes(e.target.value);
 	};
 	const onClickSave = () => {
@@ -56,7 +56,7 @@ export default function EditModal({
 		>
 			{open ? (
 				<Grid item>
-					<form onSubmit={onClickSave}>
+					<form onSubmit={(e) => { e.preventDefault(); onClickSave(); }}>
 						<TextField
 							id="act-name"
 							label="Ride Name"

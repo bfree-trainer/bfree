@@ -4,7 +4,7 @@
 
 import Head from 'next/head';
 
-export default function MyHead({ title }) {
+export default function MyHead({ title }: { title: string }) {
 	return (
 		<Head>
 			<title>{`Bfree ${title}`}</title>

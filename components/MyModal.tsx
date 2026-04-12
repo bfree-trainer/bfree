@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import { useId } from 'react';
 import { styled } from '@mui/material/styles';
 import Modal, { ModalProps } from '@mui/material/Modal';
 import { modalBorder } from 'lib/tokens';
@@ -35,18 +36,21 @@ export default function MyModal(
 	props: { title: string; description: string; modalStyle?: any; children: any } & Omit<ModalProps, 'children'>
 ) {
 	const { title, description, open, onClose, modalStyle, children, ...rest } = props;
+	const id = useId();
+	const titleId = `${id}-modal-title`;
+	const descId = `${id}-modal-description`;
 
 	return (
 		<Modal
 			open={open}
 			onClose={onClose}
 			{...rest}
-			aria-labelledby="modal-title"
-			aria-describedby="modal-description"
+			aria-labelledby={titleId}
+			aria-describedby={descId}
 		>
 			<StyledDiv style={modalStyle || defaultModalStyle} className={classes.paper}>
-				<h2 id="modal-title">{title}</h2>
-				<p id="modal-description">{description}</p>
+				<h2 id={titleId}>{title}</h2>
+				<p id={descId}>{description}</p>
 				{children}
 			</StyledDiv>
 		</Modal>
