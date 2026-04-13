@@ -10,17 +10,20 @@ import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
+import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormGroup from '@mui/material/FormGroup';
 import Grid from '@mui/material/Grid';
 import IconHome from '@mui/icons-material/Home';
 import IconBike from '@mui/icons-material/DirectionsBike';
 import IconRoute from '@mui/icons-material/Route';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
 import Paper from '@mui/material/Paper';
+import Select from '@mui/material/Select';
 import Snackbar from '@mui/material/Snackbar';
 import Switch, { SwitchProps } from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
-import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { OpenStreetMapArg } from './map/OpenStreetMap';
@@ -189,7 +192,7 @@ export default function RoutePlannerPanel({ onCourseChange, onEditModeChange }: 
 	const [editMode, setEditMode] = useState(false);
 	/** Increment to force-remount the RoutePlanner (e.g. on "Clear Map"). */
 	const [routePlannerKey, setRoutePlannerKey] = useState(0);
-	const [popularityRouting, setPopularityRouting] = useState(false);
+	const [routingMode, setRoutingMode] = useState<'roads' | 'popular'>('roads');
 	const [showMarker, setShowMarker] = useState<boolean>(false);
 	const [markerCoord, setMarkerCoord] = useState<[number, number]>([51.505, -0.09]);
 	const [homeCoord, setHomeCoord] = useState<[number, number]>([51.505, -0.09]);
@@ -435,26 +438,18 @@ export default function RoutePlannerPanel({ onCourseChange, onEditModeChange }: 
 								sx={{ ml: 0.5, textTransform: 'uppercase' }}
 							/>
 						</FormGroup>
-						<Tooltip
-							title="Route via roads you ride most often (requires ride history with GPS data)"
-							placement="top"
-							enterDelay={400}
-						>
-							<FormGroup>
-								<FormControlLabel
-									control={
-										<Switch
-											size="small"
-											checked={popularityRouting}
-											onChange={(e) => setPopularityRouting(e.target.checked)}
-											disabled={!editMode}
-										/>
-									}
-									label="Popularity"
-									sx={{ ml: 0.5, textTransform: 'uppercase' }}
-								/>
-							</FormGroup>
-						</Tooltip>
+						<FormControl size="small" disabled={!editMode} sx={{ minWidth: 180 }}>
+							<InputLabel id="routing-mode-label">Routing</InputLabel>
+							<Select
+								labelId="routing-mode-label"
+								value={routingMode}
+								label="Routing"
+								onChange={(e) => setRoutingMode(e.target.value as 'roads' | 'popular')}
+							>
+								<MenuItem value="roads">Follow Roads</MenuItem>
+								<MenuItem value="popular">Follow Popular Routes</MenuItem>
+							</Select>
+						</FormControl>
 						<Button
 							variant="contained"
 							color="success"
@@ -497,7 +492,7 @@ export default function RoutePlannerPanel({ onCourseChange, onEditModeChange }: 
 									key={routePlannerKey}
 									setCourse={setCourse}
 									initialCourse={course}
-									popularityRouting={popularityRouting}
+									popularityRouting={routingMode === 'popular'}
 								/>
 							) : null}
 							{course && !editMode ? <DynamicCourse course={course} /> : null}
