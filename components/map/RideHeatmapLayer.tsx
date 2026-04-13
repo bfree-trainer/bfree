@@ -20,11 +20,19 @@ export default function RideHeatmapLayer({ tracks }: { tracks: [number, number][
 		const allPositions: [number, number][] = tracks.flat();
 		if (allPositions.length === 0) return;
 
-		const lats = allPositions.map((p) => p[0]);
-		const lons = allPositions.map((p) => p[1]);
+		let minLat = allPositions[0][0];
+		let maxLat = allPositions[0][0];
+		let minLon = allPositions[0][1];
+		let maxLon = allPositions[0][1];
+		for (const [lat, lon] of allPositions) {
+			if (lat < minLat) minLat = lat;
+			if (lat > maxLat) maxLat = lat;
+			if (lon < minLon) minLon = lon;
+			if (lon > maxLon) maxLon = lon;
+		}
 		const bounds: LatLngBoundsExpression = [
-			[Math.min(...lats), Math.min(...lons)],
-			[Math.max(...lats), Math.max(...lons)],
+			[minLat, minLon],
+			[maxLat, maxLon],
 		];
 		map.fitBounds(bounds, { padding: [24, 24] });
 	}, [map, tracks]);
