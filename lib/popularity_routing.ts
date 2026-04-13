@@ -69,14 +69,20 @@ export function getPopularityWaypoints(
 	const latSpan = Math.abs(to.lat - from.lat);
 	const lonSpan = Math.abs(to.lon - from.lon);
 
-	// Expand bounding box by 50 % of the span on each side (minimum 0.01 °≈1 km).
-	const latPad = Math.max(0.01, latSpan * 0.5);
-	const lonPad = Math.max(0.01, lonSpan * 0.5);
+	// Corridor half-width: 15 % of the straight-line segment length, clamped to
+	// a minimum of 0.003 ° (≈ 330 m).  Keeping this tight prevents OSRM from
+	// making large detours to reach popular cells that are far off the direct
+	// path — the main cause of loop artefacts in the generated routes.
+	const segLen = Math.sqrt(latSpan * latSpan + lonSpan * lonSpan);
+	const corridorWidth = Math.max(0.003, segLen * 0.15);
 
-	const bbMinLat = Math.min(from.lat, to.lat) - latPad;
-	const bbMaxLat = Math.max(from.lat, to.lat) + latPad;
-	const bbMinLon = Math.min(from.lon, to.lon) - lonPad;
-	const bbMaxLon = Math.max(from.lon, to.lon) + lonPad;
+	// Expand bounding box by exactly the corridor width on each side.
+	// This pre-filter is cheap and intentionally aligned with the corridor so
+	// no valid cells are missed and no grossly out-of-range cells are loaded.
+	const bbMinLat = Math.min(from.lat, to.lat) - corridorWidth;
+	const bbMaxLat = Math.max(from.lat, to.lat) + corridorWidth;
+	const bbMinLon = Math.min(from.lon, to.lon) - corridorWidth;
+	const bbMaxLon = Math.max(from.lon, to.lon) + corridorWidth;
 
 	// Filter to the expanded bounding box first (cheap check before the full grid pass).
 	const inBox = historicalPoints.filter(
@@ -108,12 +114,6 @@ export function getPopularityWaypoints(
 	const dy = to.lat - from.lat;
 	const length2 = dx * dx + dy * dy;
 	if (length2 === 0) return [];
-
-	// Corridor half-width: half the diagonal of the `from`-`to` bounding box,
-	// clamped to a minimum of 0.01 ° (≈ 1 km) so short segments still capture
-	// nearby popular roads.
-	const diagHalf = Math.sqrt(latSpan * latSpan + lonSpan * lonSpan) * 0.5;
-	const corridorWidth = Math.max(0.01, diagHalf);
 
 	type Candidate = Cell & { t: number };
 	const candidates: Candidate[] = [];
