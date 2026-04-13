@@ -8,6 +8,8 @@ import L from 'leaflet';
 import { CourseData, Coord } from 'lib/gpx_parser';
 import { getElevations } from 'lib/elevation';
 import { getOsrmRoute } from 'lib/routing';
+import { rideRepository } from 'lib/orm';
+import { extractAllGpsPoints, getPopularityWaypoints } from 'lib/popularity_routing';
 import { routeColors } from 'lib/tokens';
 import 'leaflet/dist/leaflet.css';
 
@@ -293,9 +295,13 @@ function MapCursorCrosshair() {
 export default function RoutePlanner({
 	setCourse,
 	initialCourse,
+	popularityRouting = false,
 }: {
 	setCourse: (c: CourseData) => void;
 	initialCourse?: CourseData | null;
+	/** When true, routing calls inject popular intermediate waypoints derived
+	 *  from the user's historical ride data. */
+	popularityRouting?: boolean;
 }) {
 	const [state, dispatch] = useReducer(routePlannerReducer, initialCourse, courseToInitialState);
 
@@ -310,6 +316,52 @@ export default function RoutePlanner({
 	useEffect(() => {
 		stateRef.current = state;
 	});
+
+	// ---------------------------------------------------------------------------
+	// Popularity routing: historical GPS points loaded from the ride repository.
+	// ---------------------------------------------------------------------------
+	const historicalPointsRef = useRef<Coord[]>([]);
+	const popularityRoutingRef = useRef(popularityRouting);
+	useEffect(() => {
+		popularityRoutingRef.current = popularityRouting;
+	});
+
+	useEffect(() => {
+		if (!popularityRouting) {
+			historicalPointsRef.current = [];
+			return;
+		}
+
+		let cancelled = false;
+		rideRepository.ready
+			.then(() => {
+				if (cancelled) return;
+				const rides = rideRepository.findAll();
+				historicalPointsRef.current = extractAllGpsPoints(rides.map((e) => e.logger));
+			})
+			.catch((err) => {
+				console.warn('Failed to load historical rides for popularity routing:', err);
+			});
+
+		return () => {
+			cancelled = true;
+		};
+	}, [popularityRouting]);
+
+	/**
+	 * Route between two waypoints, optionally injecting popular intermediate
+	 * waypoints when popularity routing is enabled.
+	 */
+	const routeSegment = async (from: Coord, to: Coord): Promise<Coord[]> => {
+		let waypoints: Coord[] = [from, to];
+		if (popularityRoutingRef.current && historicalPointsRef.current.length > 0) {
+			const popularWps = getPopularityWaypoints(from, to, historicalPointsRef.current);
+			if (popularWps.length > 0) {
+				waypoints = [from, ...popularWps, to];
+			}
+		}
+		return getOsrmRoute(waypoints);
+	};
 
 	// Track whether this is the initial mount — skip the first sync so that
 	// loading an existing course doesn't mark it as unsaved immediately.
@@ -482,7 +534,7 @@ export default function RoutePlanner({
 		dispatch({ type: 'SET_ROUTING', value: true });
 		let newSegment: EleCoord[];
 		try {
-			const routeCoords = await getOsrmRoute([waypoints[index - 1], waypoints[index + 1]]);
+			const routeCoords = await routeSegment(waypoints[index - 1], waypoints[index + 1]);
 			newSegment = routeCoords.slice(1);
 		} catch (err) {
 			console.error('OSRM routing failed during waypoint deletion, falling back to straight line:', err);
@@ -503,11 +555,11 @@ export default function RoutePlanner({
 
 		try {
 			if (index > 0) {
-				const routeCoords = await getOsrmRoute([waypoints[index - 1], newWp]);
+				const routeCoords = await routeSegment(waypoints[index - 1], newWp);
 				prevSegment = routeCoords.slice(1);
 			}
 			if (index < waypoints.length - 1) {
-				const routeCoords = await getOsrmRoute([newWp, waypoints[index + 1]]);
+				const routeCoords = await routeSegment(newWp, waypoints[index + 1]);
 				nextSegment = routeCoords.slice(1);
 			}
 		} catch (err) {
@@ -549,7 +601,7 @@ export default function RoutePlanner({
 			const prevWp = waypoints[waypoints.length - 1];
 
 			try {
-				const routeCoords = await getOsrmRoute([prevWp, newWp]);
+				const routeCoords = await routeSegment(prevWp, newWp);
 				// Drop the first coordinate (it equals prevWp) to avoid duplication.
 				dispatch({ type: 'ADD_POINT', waypoint: newWp, segment: routeCoords.slice(1) });
 			} catch (err) {

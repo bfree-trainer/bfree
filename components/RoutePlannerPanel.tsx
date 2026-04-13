@@ -20,6 +20,7 @@ import Paper from '@mui/material/Paper';
 import Snackbar from '@mui/material/Snackbar';
 import Switch, { SwitchProps } from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { OpenStreetMapArg } from './map/OpenStreetMap';
@@ -188,6 +189,7 @@ export default function RoutePlannerPanel({ onCourseChange, onEditModeChange }: 
 	const [editMode, setEditMode] = useState(false);
 	/** Increment to force-remount the RoutePlanner (e.g. on "Clear Map"). */
 	const [routePlannerKey, setRoutePlannerKey] = useState(0);
+	const [popularityRouting, setPopularityRouting] = useState(false);
 	const [showMarker, setShowMarker] = useState<boolean>(false);
 	const [markerCoord, setMarkerCoord] = useState<[number, number]>([51.505, -0.09]);
 	const [homeCoord, setHomeCoord] = useState<[number, number]>([51.505, -0.09]);
@@ -433,6 +435,26 @@ export default function RoutePlannerPanel({ onCourseChange, onEditModeChange }: 
 								sx={{ ml: 0.5, textTransform: 'uppercase' }}
 							/>
 						</FormGroup>
+						<Tooltip
+							title="Route via roads you ride most often (requires ride history with GPS data)"
+							placement="top"
+							enterDelay={400}
+						>
+							<FormGroup>
+								<FormControlLabel
+									control={
+										<Switch
+											size="small"
+											checked={popularityRouting}
+											onChange={(e) => setPopularityRouting(e.target.checked)}
+											disabled={!editMode}
+										/>
+									}
+									label="Popularity"
+									sx={{ ml: 0.5, textTransform: 'uppercase' }}
+								/>
+							</FormGroup>
+						</Tooltip>
 						<Button
 							variant="contained"
 							color="success"
@@ -475,6 +497,7 @@ export default function RoutePlannerPanel({ onCourseChange, onEditModeChange }: 
 									key={routePlannerKey}
 									setCourse={setCourse}
 									initialCourse={course}
+									popularityRouting={popularityRouting}
 								/>
 							) : null}
 							{course && !editMode ? <DynamicCourse course={course} /> : null}
