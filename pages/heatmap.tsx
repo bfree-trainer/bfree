@@ -83,7 +83,7 @@ export default function Heatmap() {
 			logs = logs.filter((log) => log.ts >= startOfYear && log.ts <= endOfYear);
 		} else if (dateFilterType === 'custom' && customStart) {
 			const start = new Date(customStart).getTime();
-			const end = customEnd ? new Date(customEnd + 'T23:59:59').getTime() : now.getTime();
+			const end = customEnd ? new Date(customEnd + 'T23:59:59').getTime() : Infinity;
 			logs = logs.filter((log) => log.ts >= start && log.ts <= end);
 		}
 
