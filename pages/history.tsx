@@ -22,11 +22,17 @@ import DialogTitle from '@mui/material/DialogTitle';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Grid from '@mui/material/Grid';
 import IconButton, { IconButtonProps } from '@mui/material/IconButton';
+import InputAdornment from '@mui/material/InputAdornment';
+import TextField from '@mui/material/TextField';
+import Tooltip from '@mui/material/Tooltip';
 import IconBike from '@mui/icons-material/DirectionsBike';
+import IconClear from '@mui/icons-material/Clear';
 import IconDelete from '@mui/icons-material/Delete';
 import IconDownload from '@mui/icons-material/GetApp';
 import IconExpandMore from '@mui/icons-material/ExpandMore';
 import IconMoreVert from '@mui/icons-material/MoreVert';
+import IconSearch from '@mui/icons-material/Search';
+import IconTune from '@mui/icons-material/Tune';
 import LinearProgress from '@mui/material/LinearProgress';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
@@ -35,7 +41,7 @@ import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme, styled } from '@mui/material/styles';
 import Link from 'next/link';
-import { useState, useEffect, useCallback, useRef, memo, ChangeEvent, ChangeEventHandler, ReactNode } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo, memo, ChangeEvent, ChangeEventHandler, ReactNode } from 'react';
 import BottomNavi from 'components/BottomNavi';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import MyHead from 'components/MyHead';
@@ -52,7 +58,7 @@ import { parseXmlFile } from 'lib/xml_parser';
 import { gpxDocument2obj } from 'lib/gpx_parser';
 import { parseFitFile } from 'lib/fit_parser';
 import { getElapsedTimeStr } from 'lib/format';
-import { smartDistanceUnitFormat } from 'lib/units';
+import { smartDistanceUnitFormat, distanceUnitConv } from 'lib/units';
 import { useGlobalState, addNotification } from 'lib/global';
 import type RideMiniMapType from 'components/map/RideMiniMap';
 
@@ -169,6 +175,286 @@ function getActivityTypeLabel(type: ActivityType): string {
 		default:
 			return 'Ride';
 	}
+}
+
+const ALL_ACTIVITY_TYPES: ActivityType[] = [
+	'trainerFreeRide',
+	'trainerWorkout',
+	'trainerMap',
+	'trainerVirtual',
+	'road',
+];
+
+const MS_PER_DAY = 86400000;
+
+type SearchFilters = {
+	text: string;
+	dateFrom: string;
+	dateTo: string;
+	activityTypes: Set<ActivityType>;
+	minDurationMins: string;
+	minDistance: string;
+};
+
+const EMPTY_FILTERS: SearchFilters = {
+	text: '',
+	dateFrom: '',
+	dateTo: '',
+	activityTypes: new Set(),
+	minDurationMins: '',
+	minDistance: '',
+};
+
+function countActiveFilters(f: SearchFilters): number {
+	let count = 0;
+	if (f.text) count++;
+	if (f.dateFrom) count++;
+	if (f.dateTo) count++;
+	if (f.activityTypes.size > 0) count++;
+	if (f.minDurationMins) count++;
+	if (f.minDistance) count++;
+	return count;
+}
+
+function applyFilters(logs: RideEntry[], f: SearchFilters, distanceUnit: string): RideEntry[] {
+	return logs.filter((log) => {
+		if (f.text) {
+			const q = f.text.toLowerCase();
+			if (
+				!log.logger.getName().toLowerCase().includes(q) &&
+				!log.logger.getNotes().toLowerCase().includes(q)
+			) {
+				return false;
+			}
+		}
+		if (f.dateFrom) {
+			const from = new Date(f.dateFrom).getTime();
+			if (isNaN(from) || log.ts < from) return false;
+		}
+		if (f.dateTo) {
+			// Include the full end day
+			const to = new Date(f.dateTo).getTime() + MS_PER_DAY - 1;
+			if (isNaN(to) || log.ts > to) return false;
+		}
+		if (f.activityTypes.size > 0) {
+			if (!f.activityTypes.has(log.logger.getActivityType())) return false;
+		}
+		if (f.minDurationMins) {
+			const minMs = parseFloat(f.minDurationMins) * 60000;
+			if (!isNaN(minMs) && log.logger.getTotalTime() < minMs) return false;
+		}
+		if (f.minDistance) {
+			const val = parseFloat(f.minDistance);
+			if (!isNaN(val)) {
+				const conv = distanceUnit === 'mi' ? distanceUnitConv.mi : distanceUnitConv.km;
+				const minM = conv.convToBase(val);
+				if (log.logger.getTotalDistance() < minM) return false;
+			}
+		}
+		return true;
+	});
+}
+
+interface SearchFilterPanelProps {
+	filters: SearchFilters;
+	onChange: (f: SearchFilters) => void;
+	distanceUnit: string;
+	totalCount: number;
+	filteredCount: number;
+}
+
+function SearchFilterPanel({ filters, onChange, distanceUnit, totalCount, filteredCount }: SearchFilterPanelProps) {
+	const [advancedOpen, setAdvancedOpen] = useState(false);
+	const activeCount = countActiveFilters(filters);
+	const distLabel = distanceUnit === 'mi' ? 'mi' : 'km';
+
+	const setField = <K extends keyof SearchFilters>(key: K, value: SearchFilters[K]) =>
+		onChange({ ...filters, [key]: value });
+
+	const toggleActivityType = (type: ActivityType) => {
+		const next = new Set(filters.activityTypes);
+		if (next.has(type)) {
+			next.delete(type);
+		} else {
+			next.add(type);
+		}
+		onChange({ ...filters, activityTypes: next });
+	};
+
+	const hasAdvancedFilters =
+		!!filters.dateFrom ||
+		!!filters.dateTo ||
+		filters.activityTypes.size > 0 ||
+		!!filters.minDurationMins ||
+		!!filters.minDistance;
+
+	const isFiltered = activeCount > 0;
+
+	return (
+		<Box sx={{ mb: 2 }}>
+			<Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+				<TextField
+					size="small"
+					placeholder="Search by name or notes…"
+					value={filters.text}
+					onChange={(e) => setField('text', e.target.value)}
+					inputProps={{ 'aria-label': 'Search rides by name or notes' }}
+					InputProps={{
+						startAdornment: (
+							<InputAdornment position="start">
+								<IconSearch fontSize="small" />
+							</InputAdornment>
+						),
+						endAdornment: filters.text ? (
+							<InputAdornment position="end">
+								<IconButton
+									size="small"
+									aria-label="Clear search text"
+									onClick={() => setField('text', '')}
+									edge="end"
+								>
+									<IconClear fontSize="small" />
+								</IconButton>
+							</InputAdornment>
+						) : null,
+					}}
+					sx={{ flex: '1 1 auto', minWidth: 0 }}
+				/>
+				<Tooltip title={advancedOpen ? 'Hide filters' : 'Show filters'}>
+					<Button
+						variant={hasAdvancedFilters ? 'contained' : 'outlined'}
+						size="small"
+						startIcon={<IconTune />}
+						onClick={() => setAdvancedOpen((v) => !v)}
+						aria-expanded={advancedOpen}
+						aria-label={advancedOpen ? 'Hide advanced filters' : 'Show advanced filters'}
+						sx={{ whiteSpace: 'nowrap', flexShrink: 0 }}
+					>
+						Filters
+						{activeCount > 0 && (
+							<Badge
+								badgeContent={activeCount}
+								color="primary"
+								sx={{ ml: 1.5, '& .MuiBadge-badge': { position: 'relative', transform: 'none' } }}
+							/>
+						)}
+					</Button>
+				</Tooltip>
+				{isFiltered && (
+					<Tooltip title="Clear all filters">
+						<IconButton
+							size="small"
+							aria-label="Clear all filters"
+							onClick={() => onChange(EMPTY_FILTERS)}
+						>
+							<IconClear fontSize="small" />
+						</IconButton>
+					</Tooltip>
+				)}
+			</Box>
+
+			<Collapse in={advancedOpen} timeout="auto">
+				<Box
+					sx={{
+						mt: 1.5,
+						p: 2,
+						border: '1px solid',
+						borderColor: 'divider',
+						borderRadius: 1,
+						display: 'flex',
+						flexDirection: 'column',
+						gap: 2,
+					}}
+				>
+					{/* Date range */}
+					<Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', alignItems: 'center' }}>
+						<Typography variant="caption" color="text.secondary" sx={{ width: '100%', mb: -1 }}>
+							Date range
+						</Typography>
+						<TextField
+							label="From"
+							type="date"
+							size="small"
+							value={filters.dateFrom}
+							onChange={(e) => setField('dateFrom', e.target.value)}
+							InputLabelProps={{ shrink: true }}
+							inputProps={{ 'aria-label': 'Filter rides from date', max: filters.dateTo || undefined }}
+							sx={{ width: 160 }}
+						/>
+						<TextField
+							label="To"
+							type="date"
+							size="small"
+							value={filters.dateTo}
+							onChange={(e) => setField('dateTo', e.target.value)}
+							InputLabelProps={{ shrink: true }}
+							inputProps={{ 'aria-label': 'Filter rides to date', min: filters.dateFrom || undefined }}
+							sx={{ width: 160 }}
+						/>
+					</Box>
+
+					{/* Activity type */}
+					<Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap', alignItems: 'center' }}>
+						<Typography variant="caption" color="text.secondary" sx={{ width: '100%', mb: -0.5 }}>
+							Activity type
+						</Typography>
+						{ALL_ACTIVITY_TYPES.map((type) => (
+							<Chip
+								key={type}
+								label={getActivityTypeLabel(type)}
+								size="small"
+								clickable
+								onClick={() => toggleActivityType(type)}
+								color={filters.activityTypes.has(type) ? 'primary' : 'default'}
+								variant={filters.activityTypes.has(type) ? 'filled' : 'outlined'}
+								aria-pressed={filters.activityTypes.has(type)}
+							/>
+						))}
+					</Box>
+
+					{/* Min duration & min distance */}
+					<Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', alignItems: 'center' }}>
+						<Typography variant="caption" color="text.secondary" sx={{ width: '100%', mb: -1 }}>
+							Minimums
+						</Typography>
+						<TextField
+							label="Min duration"
+							type="number"
+							size="small"
+							value={filters.minDurationMins}
+							onChange={(e) => setField('minDurationMins', e.target.value)}
+							inputProps={{ min: 0, step: 5, 'aria-label': 'Minimum ride duration in minutes' }}
+							InputProps={{
+								endAdornment: <InputAdornment position="end">min</InputAdornment>,
+							}}
+							sx={{ width: 160 }}
+						/>
+						<TextField
+							label="Min distance"
+							type="number"
+							size="small"
+							value={filters.minDistance}
+							onChange={(e) => setField('minDistance', e.target.value)}
+							inputProps={{ min: 0, step: 1, 'aria-label': `Minimum ride distance in ${distLabel}` }}
+							InputProps={{
+								endAdornment: <InputAdornment position="end">{distLabel}</InputAdornment>,
+							}}
+							sx={{ width: 160 }}
+						/>
+					</Box>
+				</Box>
+			</Collapse>
+
+			{/* Result count summary (only show when filters are active) */}
+			{isFiltered && (
+				<Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+					{filteredCount === totalCount
+						? `${totalCount} ride${totalCount !== 1 ? 's' : ''}`
+						: `${filteredCount} of ${totalCount} ride${totalCount !== 1 ? 's' : ''} match`}
+				</Typography>
+			)}
+		</Box>
+	);
 }
 
 function isTrainerActivity(type: ActivityType): boolean {
@@ -393,6 +679,7 @@ function ImportProgressDialog({ progress }: { progress: ImportProgress | null })
 export default function History() {
 	const theme = useTheme();
 	const isBreakpoint = useMediaQuery(theme.breakpoints.up('md'));
+	const distanceUnit = useGlobalState('unitDistance')[0];
 	const [logs, setLogs] = useState<RideEntry[]>([]);
 	useEffect(() => {
 		rideRepository.ready.then(() => setLogs(rideRepository.findAll()));
@@ -404,14 +691,21 @@ export default function History() {
 	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 	const [importProgress, setImportProgress] = useState<ImportProgress | null>(null);
 
+	// Search / filter state
+	const [filters, setFilters] = useState<SearchFilters>(EMPTY_FILTERS);
+	const filteredLogs = useMemo(
+		() => applyFilters(logs, filters, distanceUnit),
+		[logs, filters, distanceUnit],
+	);
+
 	// Infinite scroll: number of ride cards currently rendered
 	const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
-	const [prevLogsLength, setPrevLogsLength] = useState(logs.length);
+	const [prevFilteredLength, setPrevFilteredLength] = useState(filteredLogs.length);
 	const sentinelRef = useRef<HTMLDivElement | null>(null);
 
-	// Reset visible count during render when the log list grows/shrinks (derived state pattern)
-	if (logs.length !== prevLogsLength) {
-		setPrevLogsLength(logs.length);
+	// Reset visible count during render when the filtered list grows/shrinks (derived state pattern)
+	if (filteredLogs.length !== prevFilteredLength) {
+		setPrevFilteredLength(filteredLogs.length);
 		setVisibleCount(PAGE_SIZE);
 	}
 
@@ -422,16 +716,16 @@ export default function History() {
 		const observer = new IntersectionObserver(
 			(entries) => {
 				if (entries.length > 0 && entries[0].isIntersecting) {
-					setVisibleCount((prev) => Math.min(prev + PAGE_SIZE, logs.length));
+					setVisibleCount((prev) => Math.min(prev + PAGE_SIZE, filteredLogs.length));
 				}
 			},
 			{ rootMargin: SCROLL_TRIGGER_MARGIN },
 		);
 		observer.observe(el);
 		return () => observer.disconnect();
-	}, [logs.length]);
+	}, [filteredLogs.length]);
 
-	const visibleLogs = logs.slice(0, visibleCount);
+	const visibleLogs = filteredLogs.slice(0, visibleCount);
 
 	const handleSelect = useCallback((log: Log, selected: boolean) => {
 		setSelectedIds((prev) => {
@@ -447,12 +741,12 @@ export default function History() {
 
 	const handleSelectAll = useCallback(() => {
 		setSelectedIds((prev) => {
-			if (prev.size === logs.length) {
+			if (prev.size === filteredLogs.length) {
 				return new Set();
 			}
-			return new Set(logs.map((l) => l.id));
+			return new Set(filteredLogs.map((l) => l.id));
 		});
-	}, [logs]);
+	}, [filteredLogs]);
 
 	const massDeletion = useCallback(() => {
 		selectedIds.forEach((id) => {
@@ -522,6 +816,8 @@ export default function History() {
 		})();
 	};
 
+	const isFiltering = countActiveFilters(filters) > 0;
+
 	return (
 		<Container maxWidth="lg" sx={{ pb: 9 }}>
 			<MyHead title="Previous Rides" />
@@ -535,6 +831,16 @@ export default function History() {
 						<ImportButton onChange={handleImport} />
 					</Box>
 				</Box>
+
+				{logs.length > 0 && (
+					<SearchFilterPanel
+						filters={filters}
+						onChange={setFilters}
+						distanceUnit={distanceUnit}
+						totalCount={logs.length}
+						filteredCount={filteredLogs.length}
+					/>
+				)}
 
 				<Grid container spacing={3} alignItems="flex-start">
 					<Grid item xs={12} md={8}>
@@ -579,6 +885,40 @@ export default function History() {
 											</Button>
 											<ImportButton onChange={handleImport} />
 										</Box>
+									</Box>
+								</Grid>
+							)}
+							{logs.length > 0 && filteredLogs.length === 0 && (
+								<Grid item sx={{ width: '100%' }}>
+									<Box
+										sx={{
+											display: 'flex',
+											flexDirection: 'column',
+											alignItems: 'center',
+											py: 6,
+											px: 2,
+										}}
+									>
+										<IconSearch
+											sx={{
+												fontSize: 48,
+												color: 'action.disabled',
+												mb: 2,
+											}}
+										/>
+										<Typography variant="h6" color="text.secondary" gutterBottom>
+											No matching rides
+										</Typography>
+										<Typography
+											variant="body2"
+											color="text.secondary"
+											sx={{ maxWidth: 320, textAlign: 'center', mb: 3 }}
+										>
+											Try adjusting your search or filters to find what you&apos;re looking for.
+										</Typography>
+										<Button variant="outlined" size="small" onClick={() => setFilters(EMPTY_FILTERS)}>
+											Clear filters
+										</Button>
 									</Box>
 								</Grid>
 							)}
@@ -640,20 +980,26 @@ export default function History() {
 					<FormControlLabel
 						control={
 							<Checkbox
-								checked={logs.length > 0 && selectedIds.size === logs.length}
-								indeterminate={selectedIds.size > 0 && selectedIds.size < logs.length}
+								checked={filteredLogs.length > 0 && selectedIds.size === filteredLogs.length}
+								indeterminate={selectedIds.size > 0 && selectedIds.size < filteredLogs.length}
 								onChange={handleSelectAll}
-								disabled={logs.length === 0}
+								disabled={filteredLogs.length === 0}
 								inputProps={{
 									'aria-label':
-										logs.length > 0 && selectedIds.size === logs.length
+										filteredLogs.length > 0 && selectedIds.size === filteredLogs.length
 											? 'Deselect all rides'
-											: 'Select all rides',
+											: isFiltering
+												? 'Select all matching rides'
+												: 'Select all rides',
 								}}
 							/>
 						}
 						label={
-							logs.length > 0 && selectedIds.size === logs.length ? 'Deselect all' : 'Select all'
+							filteredLogs.length > 0 && selectedIds.size === filteredLogs.length
+								? 'Deselect all'
+								: isFiltering
+									? 'Select matches'
+									: 'Select all'
 						}
 						sx={{ mx: 1 }}
 					/>
