@@ -131,7 +131,7 @@ export default function RideExpandedStats({ logger }: { logger: ReturnType<typeo
 	const [unitSpeed] = useGlobalState('unitSpeed');
 	const speedUnit = speedUnitConv[unitSpeed];
 
-	const stats = computeRideStats(logger, rider, bike.weight);
+	const stats = computeRideStats(logger, rider, bike.weight, logger.getActivityType());
 
 	const hasPower = stats.avgPower !== null;
 	const hasEstimatedPower = !hasPower && stats.estimatedAvgPower !== null;

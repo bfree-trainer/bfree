@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import type { createActivityLog, TrackPoint } from './activity_log';
+import type { ActivityType, createActivityLog, TrackPoint } from './activity_log';
 import type { Rider } from './global';
 
 export type ZoneDef = {
@@ -123,9 +123,10 @@ const DRIVETRAIN_EFF = 0.976;
  * @param speedMs - speed in m/s
  * @param gradient - slope as rise/run (e.g. 0.05 for 5 % grade)
  * @param totalMassKg - combined rider + bike mass in kg
+ * @param includeAero - whether to include aerodynamic (wind) resistance (default true; set false for indoor rides)
  */
-function estimatePowerAtPoint(speedMs: number, gradient: number, totalMassKg: number): number {
-	const F_aero = 0.5 * CDA * RHO * speedMs * speedMs;
+function estimatePowerAtPoint(speedMs: number, gradient: number, totalMassKg: number, includeAero = true): number {
+	const F_aero = includeAero ? 0.5 * CDA * RHO * speedMs * speedMs : 0;
 	const F_roll = CRR * totalMassKg * G;
 	const F_grav = totalMassKg * G * gradient;
 	return Math.max(0, ((F_aero + F_roll + F_grav) * speedMs) / DRIVETRAIN_EFF);
@@ -134,10 +135,12 @@ function estimatePowerAtPoint(speedMs: number, gradient: number, totalMassKg: nu
 /**
  * Build an array of estimated power values for each speed track-point.
  * Gradient is derived from consecutive altitude and distance values when available.
+ * @param includeAero - whether to include aerodynamic (wind) resistance
  */
 function buildEstimatedPowerPoints(
 	speedPoints: Array<TrackPoint & { speed: number }>,
-	totalMassKg: number
+	totalMassKg: number,
+	includeAero = true
 ): Array<TrackPoint & { power: number }> {
 	return speedPoints.map((p, i) => {
 		let gradient = 0;
@@ -160,7 +163,7 @@ function buildEstimatedPowerPoints(
 			}
 		}
 
-		return { ...p, power: estimatePowerAtPoint(p.speed, gradient, totalMassKg) };
+		return { ...p, power: estimatePowerAtPoint(p.speed, gradient, totalMassKg, includeAero) };
 	});
 }
 
@@ -190,12 +193,18 @@ function computeNormalizedPower(points: Array<TrackPoint & { power: number }>): 
  * Derive per-ride statistics from an activity log and the rider's profile.
  * All fields are null when the relevant data is absent from the log.
  * @param bikeWeightKg - bike mass in kg (defaults to 10 kg when omitted)
+ * @param activityType - activity type used to determine whether wind resistance is included
+ *                       in estimated power. Wind resistance is only applied for `'road'`
+ *                       activities. When omitted, wind resistance is excluded (safe default).
  */
 export function computeRideStats(
 	logger: ReturnType<typeof createActivityLog>,
 	rider: Rider,
-	bikeWeightKg = 10
+	bikeWeightKg = 10,
+	activityType?: ActivityType
 ): RideStats {
+	// Wind (aerodynamic) resistance only applies to outdoor road rides.
+	const includeAero = activityType === 'road';
 	const allPoints = logger.getLaps().flatMap((lap) => lap.trackPoints);
 
 	const nullStats: RideStats = {
@@ -310,7 +319,7 @@ export function computeRideStats(
 
 	if (powerPoints.length === 0 && speedPoints.length > 0) {
 		const totalMassKg = rider.weight + bikeWeightKg;
-		const estPoints = buildEstimatedPowerPoints(speedPoints, totalMassKg);
+		const estPoints = buildEstimatedPowerPoints(speedPoints, totalMassKg, includeAero);
 
 		const sum = estPoints.reduce((s, p) => s + p.power, 0);
 		estimatedAvgPower = Math.round(sum / estPoints.length);
