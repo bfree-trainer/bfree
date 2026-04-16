@@ -32,6 +32,7 @@ type RoutePlannerState = {
 	 */
 	segments: EleCoord[][];
 	isRouting: boolean;
+	undoStack: { waypoints: Coord[]; segments: EleCoord[][] }[];
 };
 
 type RoutePlannerAction =
@@ -50,6 +51,7 @@ function routePlannerReducer(state: RoutePlannerState, action: RoutePlannerActio
 				waypoints: [...state.waypoints, action.waypoint],
 				segments: [...state.segments, action.segment],
 				isRouting: false,
+				undoStack: [...state.undoStack, { waypoints: state.waypoints, segments: state.segments }],
 			};
 		case 'MOVE_WAYPOINT': {
 			const newWaypoints = [...state.waypoints];
@@ -67,13 +69,24 @@ function routePlannerReducer(state: RoutePlannerState, action: RoutePlannerActio
 			if (action.nextSegment !== undefined && action.index + 1 < state.segments.length) {
 				newSegments[action.index + 1] = action.nextSegment;
 			}
-			return { ...state, waypoints: newWaypoints, segments: newSegments, isRouting: false };
+			return {
+				...state,
+				waypoints: newWaypoints,
+				segments: newSegments,
+				isRouting: false,
+				undoStack: [...state.undoStack, { waypoints: state.waypoints, segments: state.segments }],
+			};
 		}
 		case 'DELETE_WAYPOINT': {
 			const { index } = action;
 			const newWaypoints = [...state.waypoints.slice(0, index), ...state.waypoints.slice(index + 1)];
 			if (newWaypoints.length === 0) {
-				return { waypoints: [], segments: [], isRouting: false };
+				return {
+					waypoints: [],
+					segments: [],
+					isRouting: false,
+					undoStack: [...state.undoStack, { waypoints: state.waypoints, segments: state.segments }],
+				};
 			}
 			let newSegments: EleCoord[][];
 			if (index === 0) {
@@ -91,17 +104,27 @@ function routePlannerReducer(state: RoutePlannerState, action: RoutePlannerActio
 					...state.segments.slice(index + 2),
 				];
 			}
-			return { ...state, waypoints: newWaypoints, segments: newSegments, isRouting: false };
-		}
-		case 'UNDO':
-			if (state.waypoints.length === 0) return state;
 			return {
 				...state,
-				waypoints: state.waypoints.slice(0, -1),
-				segments: state.segments.slice(0, -1),
+				waypoints: newWaypoints,
+				segments: newSegments,
+				isRouting: false,
+				undoStack: [...state.undoStack, { waypoints: state.waypoints, segments: state.segments }],
 			};
+		}
+		case 'UNDO': {
+			const previousState = state.undoStack[state.undoStack.length - 1];
+			if (!previousState) return state;
+			return {
+				...state,
+				waypoints: previousState.waypoints,
+				segments: previousState.segments,
+				isRouting: false,
+				undoStack: state.undoStack.slice(0, -1),
+			};
+		}
 		case 'CLEAR':
-			return { waypoints: [], segments: [], isRouting: false };
+			return { waypoints: [], segments: [], isRouting: false, undoStack: [] };
 		case 'SET_ROUTING':
 			return { ...state, isRouting: action.value };
 		default:
@@ -125,11 +148,11 @@ function courseToInitialState(course: CourseData | null | undefined): RoutePlann
 	// Collect all trackpoints across every segment of the first track so that
 	// multi-segment activities (GPS paused/resumed) are fully represented.
 	const trackpoints = course?.tracks[0]?.segments.flatMap((s) => s.trackpoints) ?? [];
-	if (trackpoints.length === 0) return { waypoints: [], segments: [], isRouting: false };
+	if (trackpoints.length === 0) return { waypoints: [], segments: [], isRouting: false, undoStack: [] };
 
 	if (trackpoints.length === 1) {
 		const wp: Coord = { lat: trackpoints[0].lat, lon: trackpoints[0].lon };
-		return { waypoints: [wp], segments: [[wp]], isRouting: false };
+		return { waypoints: [wp], segments: [[wp]], isRouting: false, undoStack: [] };
 	}
 
 	// Sample evenly-spaced indices, always including the last trackpoint.
@@ -158,7 +181,7 @@ function courseToInitialState(course: CourseData | null | undefined): RoutePlann
 		}),
 	];
 
-	return { waypoints, segments, isRouting: false };
+	return { waypoints, segments, isRouting: false, undoStack: [] };
 }
 
 function createWaypointIcon(type: 'start' | 'end' | 'via') {
