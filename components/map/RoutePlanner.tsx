@@ -32,7 +32,20 @@ type RoutePlannerState = {
 	 */
 	segments: EleCoord[][];
 	isRouting: boolean;
+	undoStack: { waypoints: Coord[]; segments: EleCoord[][] }[];
 };
+
+const MAX_UNDO_STEPS = 50;
+
+function pushUndoSnapshot(state: RoutePlannerState) {
+	return [
+		...state.undoStack.slice(-(MAX_UNDO_STEPS - 1)),
+		{
+			waypoints: [...state.waypoints],
+			segments: state.segments.map((segment) => [...segment]),
+		},
+	];
+}
 
 type RoutePlannerAction =
 	| { type: 'ADD_POINT'; waypoint: Coord; segment: EleCoord[] }
@@ -50,6 +63,7 @@ function routePlannerReducer(state: RoutePlannerState, action: RoutePlannerActio
 				waypoints: [...state.waypoints, action.waypoint],
 				segments: [...state.segments, action.segment],
 				isRouting: false,
+				undoStack: pushUndoSnapshot(state),
 			};
 		case 'MOVE_WAYPOINT': {
 			const newWaypoints = [...state.waypoints];
@@ -67,13 +81,24 @@ function routePlannerReducer(state: RoutePlannerState, action: RoutePlannerActio
 			if (action.nextSegment !== undefined && action.index + 1 < state.segments.length) {
 				newSegments[action.index + 1] = action.nextSegment;
 			}
-			return { ...state, waypoints: newWaypoints, segments: newSegments, isRouting: false };
+			return {
+				...state,
+				waypoints: newWaypoints,
+				segments: newSegments,
+				isRouting: false,
+				undoStack: pushUndoSnapshot(state),
+			};
 		}
 		case 'DELETE_WAYPOINT': {
 			const { index } = action;
 			const newWaypoints = [...state.waypoints.slice(0, index), ...state.waypoints.slice(index + 1)];
 			if (newWaypoints.length === 0) {
-				return { waypoints: [], segments: [], isRouting: false };
+				return {
+					waypoints: [],
+					segments: [],
+					isRouting: false,
+					undoStack: pushUndoSnapshot(state),
+				};
 			}
 			let newSegments: EleCoord[][];
 			if (index === 0) {
@@ -91,17 +116,27 @@ function routePlannerReducer(state: RoutePlannerState, action: RoutePlannerActio
 					...state.segments.slice(index + 2),
 				];
 			}
-			return { ...state, waypoints: newWaypoints, segments: newSegments, isRouting: false };
-		}
-		case 'UNDO':
-			if (state.waypoints.length === 0) return state;
 			return {
 				...state,
-				waypoints: state.waypoints.slice(0, -1),
-				segments: state.segments.slice(0, -1),
+				waypoints: newWaypoints,
+				segments: newSegments,
+				isRouting: false,
+				undoStack: pushUndoSnapshot(state),
 			};
+		}
+		case 'UNDO': {
+			const previousState = state.undoStack[state.undoStack.length - 1];
+			if (!previousState) return state;
+			return {
+				...state,
+				waypoints: previousState.waypoints,
+				segments: previousState.segments,
+				isRouting: false,
+				undoStack: state.undoStack.slice(0, -1),
+			};
+		}
 		case 'CLEAR':
-			return { waypoints: [], segments: [], isRouting: false };
+			return { waypoints: [], segments: [], isRouting: false, undoStack: [] };
 		case 'SET_ROUTING':
 			return { ...state, isRouting: action.value };
 		default:
@@ -125,11 +160,11 @@ function courseToInitialState(course: CourseData | null | undefined): RoutePlann
 	// Collect all trackpoints across every segment of the first track so that
 	// multi-segment activities (GPS paused/resumed) are fully represented.
 	const trackpoints = course?.tracks[0]?.segments.flatMap((s) => s.trackpoints) ?? [];
-	if (trackpoints.length === 0) return { waypoints: [], segments: [], isRouting: false };
+	if (trackpoints.length === 0) return { waypoints: [], segments: [], isRouting: false, undoStack: [] };
 
 	if (trackpoints.length === 1) {
 		const wp: Coord = { lat: trackpoints[0].lat, lon: trackpoints[0].lon };
-		return { waypoints: [wp], segments: [[wp]], isRouting: false };
+		return { waypoints: [wp], segments: [[wp]], isRouting: false, undoStack: [] };
 	}
 
 	// Sample evenly-spaced indices, always including the last trackpoint.
@@ -158,7 +193,7 @@ function courseToInitialState(course: CourseData | null | undefined): RoutePlann
 		}),
 	];
 
-	return { waypoints, segments, isRouting: false };
+	return { waypoints, segments, isRouting: false, undoStack: [] };
 }
 
 function createWaypointIcon(type: 'start' | 'end' | 'via') {
@@ -192,14 +227,25 @@ function createWaypointIcon(type: 'start' | 'end' | 'via') {
  * Adds a custom Leaflet toolbar with Undo / Clear buttons to the map.
  * Uses stable refs for callbacks so the control is only created once.
  */
-function RoutePlannerControls({ onUndo, onClear }: { onUndo: () => void; onClear: () => void }) {
+function RoutePlannerControls({
+	onUndo,
+	onClear,
+	canUndo,
+}: {
+	onUndo: () => void;
+	onClear: () => void;
+	canUndo: boolean;
+}) {
 	const map = useMap();
 	const onUndoRef = useRef(onUndo);
 	const onClearRef = useRef(onClear);
+	const canUndoRef = useRef(canUndo);
+	const undoButtonRef = useRef<HTMLAnchorElement | null>(null);
 	// Keep refs fresh after every render so the Leaflet control never holds stale callbacks.
 	useEffect(() => {
 		onUndoRef.current = onUndo;
 		onClearRef.current = onClear;
+		canUndoRef.current = canUndo;
 	});
 
 	useEffect(() => {
@@ -208,14 +254,16 @@ function RoutePlannerControls({ onUndo, onClear }: { onUndo: () => void; onClear
 				const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
 
 				const undoBtn = L.DomUtil.create('a', '', container);
-				undoBtn.title = 'Undo last waypoint';
+				undoBtn.title = 'Undo last action';
 				undoBtn.href = '#';
 				undoBtn.setAttribute('role', 'button');
-				undoBtn.setAttribute('aria-label', 'Undo last waypoint');
+				undoBtn.setAttribute('aria-label', 'Undo last action');
 				undoBtn.innerHTML = '&#8617;'; // ↩
+				undoButtonRef.current = undoBtn;
 				L.DomEvent.on(undoBtn, 'click', (e) => {
 					L.DomEvent.stopPropagation(e);
 					L.DomEvent.preventDefault(e);
+					if (!canUndoRef.current) return;
 					onUndoRef.current();
 				});
 
@@ -239,8 +287,18 @@ function RoutePlannerControls({ onUndo, onClear }: { onUndo: () => void; onClear
 		ctrl.addTo(map);
 		return () => {
 			ctrl.remove();
+			undoButtonRef.current = null;
 		};
 	}, [map]);
+
+	useEffect(() => {
+		const undoBtn = undoButtonRef.current;
+		if (!undoBtn) return;
+		undoBtn.style.opacity = canUndo ? '1' : '0.5';
+		undoBtn.style.pointerEvents = canUndo ? 'auto' : 'none';
+		undoBtn.style.cursor = canUndo ? 'pointer' : 'default';
+		undoBtn.setAttribute('aria-disabled', String(!canUndo));
+	}, [canUndo]);
 
 	return null;
 }
@@ -619,7 +677,7 @@ export default function RoutePlanner({
 	return (
 		<>
 			<MapCursorCrosshair />
-			<RoutePlannerControls onUndo={handleUndo} onClear={handleClear} />
+			<RoutePlannerControls onUndo={handleUndo} onClear={handleClear} canUndo={state.undoStack.length > 0} />
 			<RoutingStatusControl isRouting={state.isRouting} />
 
 			{routedPath.length > 1 && (
