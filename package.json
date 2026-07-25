@@ -34,7 +34,7 @@
     "react-virtualized-auto-sizer": "1.0.20",
     "react-window": "1.8.9",
     "recharts": "2.15.0",
-    "sharp": "0.33.5"
+    "sharp": "0.35.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "3.3.3",
